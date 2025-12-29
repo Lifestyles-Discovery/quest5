@@ -22,7 +22,7 @@ export default defineConfig({
       "@components": fileURLToPath(new URL("./src/components", import.meta.url)),
       "@pages": fileURLToPath(new URL("./src/pages", import.meta.url)),
       "@services": fileURLToPath(new URL("./src/services", import.meta.url)),
-      "@types": fileURLToPath(new URL("./src/types", import.meta.url)),
+      "@app-types": fileURLToPath(new URL("./src/types", import.meta.url)),
       "@context": fileURLToPath(new URL("./src/context", import.meta.url)),
       "@hooks": fileURLToPath(new URL("./src/hooks", import.meta.url)),
       "@icons": fileURLToPath(new URL("./src/icons", import.meta.url)),
