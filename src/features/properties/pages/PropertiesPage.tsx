@@ -11,12 +11,27 @@ import {
 } from '@app-types/property.types';
 import Button from '@components/ui/button/Button';
 
+const PROPERTIES_PER_PAGE = 6;
+
 export default function PropertiesPage() {
   const [filter, setFilter] = useState<PropertiesFilter>(DEFAULT_PROPERTIES_FILTER);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isNewPropertyOpen, setIsNewPropertyOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const { data: properties, isLoading, error } = useProperties(filter);
+
+  // Pagination calculations
+  const totalProperties = properties?.length ?? 0;
+  const totalPages = Math.ceil(totalProperties / PROPERTIES_PER_PAGE);
+  const startIndex = (currentPage - 1) * PROPERTIES_PER_PAGE;
+  const paginatedProperties = properties?.slice(startIndex, startIndex + PROPERTIES_PER_PAGE);
+
+  // Reset to page 1 when filter changes
+  const handleFilterChange = (newFilter: PropertiesFilter) => {
+    setFilter(newFilter);
+    setCurrentPage(1);
+  };
 
   return (
     <>
@@ -68,7 +83,7 @@ export default function PropertiesPage() {
         {/* Filter */}
         <PropertyFilter
           filter={filter}
-          onFilterChange={setFilter}
+          onFilterChange={handleFilterChange}
           isOpen={isFilterOpen}
           onToggle={() => setIsFilterOpen(!isFilterOpen)}
         />
@@ -118,11 +133,38 @@ export default function PropertiesPage() {
         )}
 
         {/* Properties Grid */}
-        {!isLoading && !error && properties && properties.length > 0 && (
+        {!isLoading && !error && paginatedProperties && paginatedProperties.length > 0 && (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {properties.map((property) => (
+            {paginatedProperties.map((property) => (
               <PropertyCard key={property.id} property={property} />
             ))}
+          </div>
+        )}
+
+        {/* Pagination Controls */}
+        {!isLoading && !error && totalPages > 1 && (
+          <div className="flex items-center justify-between border-t border-gray-200 pt-4 dark:border-gray-700">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Showing {startIndex + 1}-{Math.min(startIndex + PROPERTIES_PER_PAGE, totalProperties)} of {totalProperties} properties
+            </p>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </div>
           </div>
         )}
       </div>

@@ -48,6 +48,8 @@ export const ENDPOINTS = {
       `properties/${propertyId}/evaluations/${evaluationId}/rentcomps/${rentCompId}/include`,
     getSearchTypes: (propertyId: string, evaluationId: string) =>
       `properties/${propertyId}/evaluations/${evaluationId}/searchTypes`,
+    updateAttributes: (propertyId: string, evaluationId: string) =>
+      `properties/${propertyId}/evaluations/${evaluationId}/attributes`,
     // PDF endpoints
     createPdf: (propertyId: string, evaluationId: string) =>
       `properties/${propertyId}/evaluations/${evaluationId}/pdf`,

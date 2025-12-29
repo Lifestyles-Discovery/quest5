@@ -4,6 +4,7 @@ import PageMeta from '@components/common/PageMeta';
 import Button from '@components/ui/button/Button';
 import Alert from '@components/ui/alert/Alert';
 import { useProperty, useUpdatePropertyStage } from '@hooks/api/useProperties';
+import { useCreateEvaluation } from '@hooks/api/useEvaluations';
 import { PROPERTY_STAGES, type PropertyStage } from '@app-types/property.types';
 
 type TabId = 'overview' | 'evaluations' | 'connections' | 'notes' | 'documents';
@@ -288,44 +289,99 @@ function OverviewTab({ property }: { property: PropertyType }) {
 }
 
 function EvaluationsTab({ property }: { property: PropertyType }) {
-  if (!property.evaluations?.length) {
-    return (
-      <PlaceholderTab
-        title="No Evaluations"
-        description="Create an evaluation to analyze sale comps, rent comps, and investment returns."
-      />
-    );
-  }
+  const navigate = useNavigate();
+  const createEvaluation = useCreateEvaluation();
+
+  const handleCreateEvaluation = () => {
+    createEvaluation.mutate(property.id, {
+      onSuccess: (newEval) => {
+        navigate(`/properties/${property.id}/evaluations/${newEval.id}`);
+      },
+    });
+  };
 
   return (
     <div className="space-y-4">
-      {property.evaluations.map((evaluation) => (
-        <div
-          key={evaluation.id}
-          className="rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+      {/* Create Button */}
+      <div className="flex justify-end">
+        <button
+          onClick={handleCreateEvaluation}
+          disabled={createEvaluation.isPending}
+          className="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
         >
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-800 dark:text-white">
-                {evaluation.beds} bed / {evaluation.baths} bath / {evaluation.sqft?.toLocaleString()} sqft
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Created {new Date(evaluation.createdUtc).toLocaleDateString()}
-              </p>
-            </div>
-            {evaluation.listPrice && (
-              <p className="font-semibold text-gray-800 dark:text-white">
-                ${evaluation.listPrice.toLocaleString()}
-              </p>
-            )}
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          {createEvaluation.isPending ? 'Creating...' : 'New Evaluation'}
+        </button>
+      </div>
+
+      {!property.evaluations?.length ? (
+        <div className="flex flex-col items-center justify-center py-8 text-center">
+          <div className="mb-4 rounded-full bg-gray-100 p-4 dark:bg-gray-800">
+            <svg
+              className="h-8 w-8 text-gray-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+              />
+            </svg>
           </div>
-          {evaluation.notes && (
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              {evaluation.notes}
-            </p>
-          )}
+          <h3 className="mb-1 text-lg font-medium text-gray-800 dark:text-white/90">
+            No Evaluations Yet
+          </h3>
+          <p className="max-w-sm text-sm text-gray-500 dark:text-gray-400">
+            Create an evaluation to analyze sale comps, rent comps, and investment returns.
+          </p>
         </div>
-      ))}
+      ) : (
+        <div className="space-y-3">
+          {property.evaluations.map((evaluation) => (
+            <Link
+              key={evaluation.id}
+              to={`/properties/${property.id}/evaluations/${evaluation.id}`}
+              className="block rounded-lg border border-gray-200 p-4 transition-colors hover:border-brand-300 hover:bg-gray-50 dark:border-gray-700 dark:hover:border-brand-600 dark:hover:bg-gray-800"
+            >
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-800 dark:text-white">
+                    {evaluation.beds} bed / {evaluation.baths} bath / {evaluation.sqft?.toLocaleString()} sqft
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Created {new Date(evaluation.createdUtc).toLocaleDateString()}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  {evaluation.listPrice && (
+                    <p className="font-semibold text-gray-800 dark:text-white">
+                      ${evaluation.listPrice.toLocaleString()}
+                    </p>
+                  )}
+                  <svg
+                    className="h-5 w-5 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+              {evaluation.notes && (
+                <p className="mt-2 line-clamp-2 text-sm text-gray-600 dark:text-gray-400">
+                  {evaluation.notes}
+                </p>
+              )}
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
