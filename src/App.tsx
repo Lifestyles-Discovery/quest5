@@ -19,6 +19,8 @@ import Maintenance from "./pages/OtherPage/Maintenance";
 import { PropertiesPage, PropertyDetailPage } from "./features/properties";
 import { EvaluationDetailPage } from "./features/evaluations";
 import { SearchPage } from "./features/search";
+import { ConnectionsPage } from "./features/connections";
+import { NotesPage } from "./features/notes";
 
 // Demo pages kept for reference during development
 import FormElements from "./pages/Forms/FormElements";
@@ -50,9 +52,13 @@ export default function App() {
             {/* Search */}
             <Route path="/search" element={<SearchPage />} />
 
+            {/* Connections */}
+            <Route path="/connections" element={<ConnectionsPage />} />
+
+            {/* Notes */}
+            <Route path="/notes" element={<NotesPage />} />
+
             {/* Quest Routes (to be implemented) */}
-            {/* <Route path="/connections" element={<Connections />} /> */}
-            {/* <Route path="/notes" element={<Notes />} /> */}
             {/* <Route path="/settings" element={<Settings />} /> */}
             {/* <Route path="/admin" element={<Admin />} /> */}
 

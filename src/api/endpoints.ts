@@ -63,12 +63,12 @@ export const ENDPOINTS = {
 
   // Notes
   notes: {
+    listAll: 'properties/notes',
     create: (propertyId: string) => `properties/${propertyId}/notes`,
     update: (propertyId: string, noteId: string) =>
       `properties/${propertyId}/notes/${noteId}`,
     delete: (propertyId: string, noteId: string) =>
       `properties/${propertyId}/notes/${noteId}`,
-    listByUser: (userId: string) => `users/${userId}/notes`,
   },
 
   // Connections
@@ -85,7 +85,10 @@ export const ENDPOINTS = {
 
   // Documents
   documents: {
-    upload: (propertyId: string) => `properties/${propertyId}/documents`,
+    presignedUrl: (propertyId: string) => `properties/${propertyId}/presignedurl`,
+    register: (propertyId: string) => `properties/${propertyId}/document`,
+    getUrl: (propertyId: string, documentId: string) =>
+      `properties/${propertyId}/documents/${documentId}/url`,
     delete: (propertyId: string, documentId: string) =>
       `properties/${propertyId}/documents/${documentId}`,
     updateName: (propertyId: string, documentId: string) =>
