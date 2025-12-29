@@ -128,10 +128,18 @@ export const ENDPOINTS = {
 
   // Search
   search: {
+    fprAnalysis: 'search/fpr-analysis',
     forSales: 'forsales',
+    forSalesHistory: (maxCount: number) => `forsales/history/${maxCount}`,
     investmentAssessment: 'search/investment-assessment',
     aiAnalysis: 'search/ai-investment-analysis',
-    history: 'search/history',
+    createPropertyWithEvaluation: 'search/create-property-with-evaluation',
+  },
+
+  // Helpers
+  helpers: {
+    mlsMarkets: 'helpers/mlsMarkets',
+    states: 'helpers/states',
   },
 
   // Utilities

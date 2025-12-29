@@ -18,6 +18,7 @@ import Maintenance from "./pages/OtherPage/Maintenance";
 // Quest Features
 import { PropertiesPage, PropertyDetailPage } from "./features/properties";
 import { EvaluationDetailPage } from "./features/evaluations";
+import { SearchPage } from "./features/search";
 
 // Demo pages kept for reference during development
 import FormElements from "./pages/Forms/FormElements";
@@ -46,8 +47,10 @@ export default function App() {
               element={<EvaluationDetailPage />}
             />
 
+            {/* Search */}
+            <Route path="/search" element={<SearchPage />} />
+
             {/* Quest Routes (to be implemented) */}
-            {/* <Route path="/search" element={<Search />} /> */}
             {/* <Route path="/connections" element={<Connections />} /> */}
             {/* <Route path="/notes" element={<Notes />} /> */}
             {/* <Route path="/settings" element={<Settings />} /> */}
