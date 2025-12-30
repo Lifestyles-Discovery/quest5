@@ -1,10 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { authService } from '@services/auth.service';
+import { subscriptionService } from '@services/subscription.service';
 import { storeSession, clearSession, getStoredSession } from '@/api/client';
 import type {
   Session,
   SignInCredentials,
   CreateSubscriptionRequest,
+  ReactivateRequest,
 } from '@app-types/auth.types';
 
 /**
@@ -12,6 +14,7 @@ import type {
  */
 export const authKeys = {
   session: ['session'] as const,
+  subscriptionStatus: (email: string) => ['subscriptionStatus', email] as const,
 };
 
 /**
@@ -61,14 +64,35 @@ export function useSession() {
 }
 
 /**
+ * Hook to check if an email is already a member
+ */
+export function useIsMember() {
+  return useMutation({
+    mutationFn: (email: string) => subscriptionService.isMember(email),
+  });
+}
+
+/**
+ * Hook to get subscription status for an email
+ */
+export function useSubscriptionStatus(email: string) {
+  return useQuery({
+    queryKey: authKeys.subscriptionStatus(email),
+    queryFn: () => subscriptionService.getProductStatus(email),
+    enabled: !!email,
+  });
+}
+
+/**
  * Hook to create a new subscription (sign up)
+ * Uses Authenticator API
  */
 export function useCreateSubscription() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (request: CreateSubscriptionRequest) =>
-      authService.createSubscription(request),
+      subscriptionService.createSubscription(request),
     onSuccess: (session: Session) => {
       storeSession(session);
       queryClient.setQueryData(authKeys.session, session);
@@ -77,46 +101,33 @@ export function useCreateSubscription() {
 }
 
 /**
- * Hook to reactivate an expired subscription
+ * Hook to reactivate a cancelled subscription
+ * User re-enters credentials to confirm identity
  */
 export function useReactivateSubscription() {
-  const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: ({
-      userId,
-      cardNumber,
-      cardExpMonth,
-      cardExpYear,
-      cardCvv,
-    }: {
-      userId: string;
-      cardNumber: string;
-      cardExpMonth: string;
-      cardExpYear: string;
-      cardCvv: string;
-    }) =>
-      authService.reactivateSubscription(
-        userId,
-        cardNumber,
-        cardExpMonth,
-        cardExpYear,
-        cardCvv
-      ),
-    onSuccess: (session: Session) => {
-      storeSession(session);
-      queryClient.setQueryData(authKeys.session, session);
-    },
+    mutationFn: (request: ReactivateRequest) =>
+      subscriptionService.reactivateProduct(request),
   });
 }
 
 /**
- * Hook to request password reset
+ * Hook to resume a subscription that's on hold
+ */
+export function useResumeSubscription() {
+  return useMutation({
+    mutationFn: (request: ReactivateRequest) =>
+      subscriptionService.resumeProduct(request),
+  });
+}
+
+/**
+ * Hook to request password reset email
+ * Sends password to the user's email address
  */
 export function useForgotPassword() {
   return useMutation({
-    mutationFn: ({ userId, email }: { userId: string; email: string }) =>
-      authService.forgotPassword(userId, email),
+    mutationFn: (email: string) => subscriptionService.forgotPassword(email),
   });
 }
 

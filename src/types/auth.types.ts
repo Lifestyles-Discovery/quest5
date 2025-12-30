@@ -85,13 +85,16 @@ export interface SignInCredentials {
 }
 
 /**
- * Subscription creation request
+ * Subscription creation request (sent to Authenticator API)
  */
 export interface CreateSubscriptionRequest {
   firstName: string;
   lastName: string;
   email: string;
   password: string;
+  // Billing info
+  firstNameOnCard: string;
+  lastNameOnCard: string;
   cardNumber: string;
   cardExpMonth: string;
   cardExpYear: string;
@@ -99,11 +102,16 @@ export interface CreateSubscriptionRequest {
 }
 
 /**
- * Password reset request
+ * Subscription status response
  */
-export interface ForgotPasswordRequest {
-  userId: string;
+export type SubscriptionStatus = 'active' | 'cancelled' | 'on_hold' | 'none';
+
+/**
+ * Reactivation request
+ */
+export interface ReactivateRequest {
   email: string;
+  password: string;
 }
 
 /**

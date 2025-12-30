@@ -1,13 +1,10 @@
 import { apiClient } from '@/api/client';
 import { ENDPOINTS } from '@/api/endpoints';
-import type {
-  Session,
-  SignInCredentials,
-  CreateSubscriptionRequest,
-} from '@app-types/auth.types';
+import type { Session, SignInCredentials } from '@app-types/auth.types';
 
 /**
  * Authentication service for Liberator API
+ * Note: Subscription management is in subscription.service.ts (uses Authenticator API)
  */
 export const authService = {
   /**
@@ -15,12 +12,16 @@ export const authService = {
    * Returns session with user info and rights
    */
   async signIn(credentials: SignInCredentials): Promise<Session> {
-    const response = await apiClient.post<Session>(ENDPOINTS.auth.signIn, {}, {
-      headers: {
-        email: credentials.email,
-        password: credentials.password,
-      },
-    });
+    const response = await apiClient.post<Session>(
+      ENDPOINTS.auth.signIn,
+      {},
+      {
+        headers: {
+          email: credentials.email,
+          password: credentials.password,
+        },
+      }
+    );
     return response.data;
   },
 
@@ -42,68 +43,5 @@ export const authService = {
       ENDPOINTS.auth.createSharedSession(guid, editKey)
     );
     return response.data;
-  },
-
-  /**
-   * Create a new subscription (sign up)
-   */
-  async createSubscription(
-    request: CreateSubscriptionRequest
-  ): Promise<Session> {
-    const response = await apiClient.post<Session>(
-      ENDPOINTS.auth.createSubscription,
-      {},
-      {
-        headers: {
-          firstName: request.firstName,
-          lastName: request.lastName,
-          email: request.email,
-          password: request.password,
-          cardNumber: request.cardNumber,
-          cardExpMonth: request.cardExpMonth,
-          cardExpYear: request.cardExpYear,
-          cardCvv: request.cardCvv,
-        },
-      }
-    );
-    return response.data;
-  },
-
-  /**
-   * Reactivate an expired subscription
-   */
-  async reactivateSubscription(
-    userId: string,
-    cardNumber: string,
-    cardExpMonth: string,
-    cardExpYear: string,
-    cardCvv: string
-  ): Promise<Session> {
-    const response = await apiClient.post<Session>(
-      ENDPOINTS.auth.reactivateSubscription(userId),
-      {},
-      {
-        headers: {
-          cardNumber,
-          cardExpMonth,
-          cardExpYear,
-          cardCvv,
-        },
-      }
-    );
-    return response.data;
-  },
-
-  /**
-   * Request password reset email
-   */
-  async forgotPassword(userId: string, email: string): Promise<void> {
-    await apiClient.post(
-      ENDPOINTS.users.forgotPassword(userId),
-      {},
-      {
-        headers: { email },
-      }
-    );
   },
 };

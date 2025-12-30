@@ -9,6 +9,7 @@ import { ProtectedRoute } from "./components/common/ProtectedRoute";
 import SignIn from "./pages/AuthPages/SignIn";
 import SignUp from "./pages/AuthPages/SignUp";
 import ResetPassword from "./pages/AuthPages/ResetPassword";
+import Reactivate from "./pages/AuthPages/Reactivate";
 
 // Error Pages
 import NotFound from "./pages/OtherPage/NotFound";
@@ -78,6 +79,7 @@ export default function App() {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/reactivate" element={<Reactivate />} />
 
         {/* Error Pages */}
         <Route path="/maintenance" element={<Maintenance />} />
