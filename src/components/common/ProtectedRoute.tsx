@@ -44,7 +44,7 @@ export function AdminRoute() {
   }
 
   if (!rights?.admin) {
-    return <Navigate to="/properties" replace />;
+    return <Navigate to="/deals" replace />;
   }
 
   return <Outlet />;

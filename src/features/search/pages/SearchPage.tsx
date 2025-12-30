@@ -69,7 +69,7 @@ export default function SearchPage() {
 
   const handleEvaluate = (property: RankedProperty) => {
     if (!property.mlsMarket || !property.mlsNumber) {
-      navigate('/properties');
+      navigate('/deals');
       return;
     }
 
@@ -80,7 +80,7 @@ export default function SearchPage() {
       {
         onSuccess: (result) => {
           setEvaluatingPropertyId(null);
-          navigate(`/properties/${result.propertyId}/evaluations/${result.id}`);
+          navigate(`/deals/${result.propertyId}/scenario/${result.id}`);
         },
         onError: () => {
           setEvaluatingPropertyId(null);

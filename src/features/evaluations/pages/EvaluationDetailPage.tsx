@@ -71,10 +71,10 @@ export default function EvaluationDetailPage() {
           {error instanceof Error ? error.message : 'Failed to load evaluation'}
         </p>
         <button
-          onClick={() => navigate(`/properties/${propertyId}`)}
+          onClick={() => navigate(`/deals/${propertyId}`)}
           className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700"
         >
-          Back to Property
+          Back to Deal
         </button>
       </div>
     );
@@ -87,15 +87,15 @@ export default function EvaluationDetailPage() {
     <div className="space-y-6">
       {/* Breadcrumb */}
       <nav className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
-        <Link to="/properties" className="hover:text-primary">
-          Properties
+        <Link to="/deals" className="hover:text-primary">
+          Deals
         </Link>
         <span>/</span>
-        <Link to={`/properties/${propertyId}`} className="hover:text-primary">
-          {property?.address || 'Property'}
+        <Link to={`/deals/${propertyId}`} className="hover:text-primary">
+          {property?.address || 'Deal'}
         </Link>
         <span>/</span>
-        <span className="text-gray-900 dark:text-white">Evaluation</span>
+        <span className="text-gray-900 dark:text-white">Scenario</span>
       </nav>
 
       {/* Header with actions */}

@@ -75,7 +75,7 @@ export default function PropertyDetailPage() {
     ) {
       createEvaluation.mutate(property.id, {
         onSuccess: (newEval) => {
-          navigate(`/properties/${property.id}/scenario/${newEval.id}`, { replace: true });
+          navigate(`/deals/${property.id}/scenario/${newEval.id}`, { replace: true });
         },
       });
     }
@@ -85,7 +85,7 @@ export default function PropertyDetailPage() {
   // Update URL to include scenarioId if not present but evaluation exists
   useEffect(() => {
     if (property && currentEvaluationId && !scenarioId) {
-      navigate(`/properties/${id}/scenario/${currentEvaluationId}`, { replace: true });
+      navigate(`/deals/${id}/scenario/${currentEvaluationId}`, { replace: true });
     }
   }, [property, currentEvaluationId, scenarioId, id, navigate]);
 
@@ -96,7 +96,7 @@ export default function PropertyDetailPage() {
   };
 
   const handleScenarioSelect = (evaluationId: string) => {
-    navigate(`/properties/${id}/scenario/${evaluationId}`);
+    navigate(`/deals/${id}/scenario/${evaluationId}`);
   };
 
   const handleExportPdf = () => {
@@ -141,9 +141,9 @@ export default function PropertyDetailPage() {
           // Navigate to first remaining evaluation
           const remaining = property.evaluations?.find((e) => e.id !== currentEvaluationId);
           if (remaining) {
-            navigate(`/properties/${id}/scenario/${remaining.id}`, { replace: true });
+            navigate(`/deals/${id}/scenario/${remaining.id}`, { replace: true });
           } else {
-            navigate(`/properties/${id}`, { replace: true });
+            navigate(`/deals/${id}`, { replace: true });
           }
         },
       }
@@ -165,12 +165,12 @@ export default function PropertyDetailPage() {
       <div className="py-12">
         <Alert
           variant="error"
-          title="Error loading property"
-          message="Could not load property details. Please try again."
+          title="Error loading deal"
+          message="Could not load deal details. Please try again."
         />
         <div className="mt-4">
-          <Button variant="outline" size="sm" onClick={() => navigate('/properties')}>
-            Back to Properties
+          <Button variant="outline" size="sm" onClick={() => navigate('/deals')}>
+            Back to Deals
           </Button>
         </div>
       </div>
@@ -206,9 +206,9 @@ export default function PropertyDetailPage() {
             <li>
               <Link
                 className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400"
-                to="/properties"
+                to="/deals"
               >
-                Properties
+                Deals
                 <svg
                   className="stroke-current"
                   width="17"

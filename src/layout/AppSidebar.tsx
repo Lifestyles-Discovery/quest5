@@ -34,8 +34,8 @@ const navItems: NavItem[] = [
   },
   {
     icon: <BoxCubeIcon />,
-    name: "Properties",
-    path: "/properties",
+    name: "Deals",
+    path: "/deals",
   },
 ];
 

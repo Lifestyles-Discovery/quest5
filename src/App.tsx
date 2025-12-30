@@ -1,15 +1,24 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from "react-router";
 
 /**
- * Redirect legacy evaluation URLs to new scenario URLs
- * /properties/:propertyId/evaluations/:evaluationId -> /properties/:propertyId/scenario/:evaluationId
+ * Redirect legacy /properties URLs to new /deals URLs
  */
+function LegacyPropertyRedirect() {
+  const { id } = useParams<{ id: string }>();
+  return <Navigate to={`/deals/${id}`} replace />;
+}
+
+function LegacyPropertyScenarioRedirect() {
+  const { id, scenarioId } = useParams<{ id: string; scenarioId: string }>();
+  return <Navigate to={`/deals/${id}/scenario/${scenarioId}`} replace />;
+}
+
 function LegacyEvaluationRedirect() {
   const { propertyId, evaluationId } = useParams<{
     propertyId: string;
     evaluationId: string;
   }>();
-  return <Navigate to={`/properties/${propertyId}/scenario/${evaluationId}`} replace />;
+  return <Navigate to={`/deals/${propertyId}/scenario/${evaluationId}`} replace />;
 }
 
 // Layout
@@ -48,19 +57,19 @@ export default function App() {
         {/* Protected Routes - require authentication */}
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
-            {/* Redirect root to properties */}
-            <Route index element={<Navigate to="/properties" replace />} />
+            {/* Redirect root to deals */}
+            <Route index element={<Navigate to="/deals" replace />} />
 
-            {/* Properties */}
-            <Route path="/properties" element={<PropertiesPage />} />
-            <Route path="/properties/:id" element={<PropertyDetailPage />} />
-            <Route path="/properties/:id/scenario/:scenarioId" element={<PropertyDetailPage />} />
+            {/* Deals (renamed from Properties - 37signals philosophy) */}
+            <Route path="/deals" element={<PropertiesPage />} />
+            <Route path="/deals/:id" element={<PropertyDetailPage />} />
+            <Route path="/deals/:id/scenario/:scenarioId" element={<PropertyDetailPage />} />
 
-            {/* Legacy evaluation route - redirect to new scenario URL */}
-            <Route
-              path="/properties/:propertyId/evaluations/:evaluationId"
-              element={<LegacyEvaluationRedirect />}
-            />
+            {/* Legacy /properties routes - redirect to /deals */}
+            <Route path="/properties" element={<Navigate to="/deals" replace />} />
+            <Route path="/properties/:id" element={<LegacyPropertyRedirect />} />
+            <Route path="/properties/:id/scenario/:scenarioId" element={<LegacyPropertyScenarioRedirect />} />
+            <Route path="/properties/:propertyId/evaluations/:evaluationId" element={<LegacyEvaluationRedirect />} />
 
             {/* Search */}
             <Route path="/search" element={<SearchPage />} />

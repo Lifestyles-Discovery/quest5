@@ -79,12 +79,12 @@ export function NewPropertyModal({ isOpen, onClose }: NewPropertyModalProps) {
           createEvaluation.mutate(property.id, {
             onSuccess: (evaluation) => {
               handleClose();
-              navigate(`/properties/${property.id}/scenario/${evaluation.id}`);
+              navigate(`/deals/${property.id}/scenario/${evaluation.id}`);
             },
             onError: () => {
               // Property created but evaluation failed - still navigate
               handleClose();
-              navigate(`/properties/${property.id}`);
+              navigate(`/deals/${property.id}`);
             },
           });
         },
@@ -109,7 +109,7 @@ export function NewPropertyModal({ isOpen, onClose }: NewPropertyModalProps) {
       {
         onSuccess: (result) => {
           handleClose();
-          navigate(`/properties/${result.propertyId}/scenario/${result.id}`);
+          navigate(`/deals/${result.propertyId}/scenario/${result.id}`);
         },
         onError: () => {
           setError(`Could not find property with MLS# ${mlsNumber} in ${mlsMarket}`);
@@ -122,10 +122,10 @@ export function NewPropertyModal({ isOpen, onClose }: NewPropertyModalProps) {
     <Modal isOpen={isOpen} onClose={handleClose} className="max-w-2xl p-6 sm:p-8">
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
-          New Property
+          New Deal
         </h2>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          Add a property by address or MLS number
+          Add a deal by address or MLS number
         </p>
       </div>
 
@@ -219,7 +219,7 @@ export function NewPropertyModal({ isOpen, onClose }: NewPropertyModalProps) {
               Cancel
             </Button>
             <Button size="sm" onClick={handleCreateByAddress} disabled={isPending}>
-              {isPending ? 'Creating...' : 'Create Property'}
+              {isPending ? 'Creating...' : 'Create Deal'}
             </Button>
           </div>
         </div>
@@ -261,7 +261,7 @@ export function NewPropertyModal({ isOpen, onClose }: NewPropertyModalProps) {
               Cancel
             </Button>
             <Button size="sm" onClick={handleCreateByMls} disabled={isPending}>
-              {isPending ? 'Creating...' : 'Create Property'}
+              {isPending ? 'Creating...' : 'Create Deal'}
             </Button>
           </div>
         </div>

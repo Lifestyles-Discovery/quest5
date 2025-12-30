@@ -20,8 +20,8 @@ export default function SignInForm() {
   const [isChecked, setIsChecked] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Get the redirect destination from location state, or default to /properties
-  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || "/properties";
+  // Get the redirect destination from location state, or default to /deals
+  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || "/deals";
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

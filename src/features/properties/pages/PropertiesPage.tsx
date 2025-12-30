@@ -56,21 +56,21 @@ export default function PropertiesPage() {
   return (
     <>
       <PageMeta
-        title="Properties | Quest"
-        description="Manage your real estate investment properties"
+        title="Deals | Quest"
+        description="Manage your real estate investment deals"
       />
 
-      <PageBreadcrumb pageTitle="Properties" />
+      <PageBreadcrumb pageTitle="Deals" />
 
       <div className="space-y-6">
-        {/* Header with New Property Button */}
+        {/* Header with New Deal Button */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-gray-800 dark:text-white/90">
-              Properties
+              Deals
             </h1>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              {properties?.length ?? 0} properties found
+              {properties?.length ?? 0} deal{properties?.length !== 1 ? 's' : ''} found
             </p>
           </div>
           <Button
@@ -90,7 +90,7 @@ export default function PropertiesPage() {
                 d="M12 4v16m8-8H4"
               />
             </svg>
-            New Property
+            New Deal
           </Button>
         </div>
 
@@ -146,13 +146,13 @@ export default function PropertiesPage() {
               />
             </svg>
             <h3 className="mb-1 text-lg font-medium text-gray-800 dark:text-white/90">
-              No properties found
+              No deals yet
             </h3>
             <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
-              Click "New Property" to add your first property, or adjust your filter settings.
+              Add your first deal to start evaluating.
             </p>
             <Button size="sm" onClick={() => setIsNewPropertyOpen(true)}>
-              Add Property
+              Add Deal
             </Button>
           </div>
         )}
@@ -170,7 +170,7 @@ export default function PropertiesPage() {
         {!isLoading && !error && totalPages > 1 && (
           <div className="flex items-center justify-between border-t border-gray-200 pt-4 dark:border-gray-700">
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Showing {startIndex + 1}-{Math.min(startIndex + PROPERTIES_PER_PAGE, totalProperties)} of {totalProperties} properties
+              Showing {startIndex + 1}-{Math.min(startIndex + PROPERTIES_PER_PAGE, totalProperties)} of {totalProperties} deals
             </p>
             <div className="flex gap-2">
               <Button

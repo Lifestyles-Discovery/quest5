@@ -59,7 +59,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
   if (property.sqft !== undefined) specs.push(`${property.sqft.toLocaleString()} sf`);
 
   return (
-    <Link to={`/properties/${property.id}`}>
+    <Link to={`/deals/${property.id}`}>
       <Card>
         <div className="group cursor-pointer">
           {/* Property Image */}

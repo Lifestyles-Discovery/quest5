@@ -37,7 +37,7 @@ export default function EvaluationHeader({
       { propertyId, evaluationId },
       {
         onSuccess: (newEval) => {
-          navigate(`/properties/${propertyId}/evaluations/${newEval.id}`);
+          navigate(`/deals/${propertyId}/scenario/${newEval.id}`);
         },
       }
     );
@@ -48,7 +48,7 @@ export default function EvaluationHeader({
       { propertyId, evaluationId },
       {
         onSuccess: () => {
-          navigate(`/properties/${propertyId}`);
+          navigate(`/deals/${propertyId}`);
         },
       }
     );
