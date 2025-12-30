@@ -6,6 +6,12 @@ import { useProperty, useUpdatePropertyStage } from '@hooks/api/useProperties';
 import { useCreateEvaluation } from '@hooks/api/useEvaluations';
 import { PROPERTY_STAGES, type PropertyStage } from '@app-types/property.types';
 
+function formatDate(dateString: string | null | undefined): string {
+  if (!dateString) return '—';
+  const date = new Date(dateString);
+  return isNaN(date.getTime()) ? '—' : date.toLocaleDateString();
+}
+
 export default function PropertyDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -242,7 +248,7 @@ export default function PropertyDetailPage() {
                           {evaluation.beds} bed / {evaluation.baths} bath / {evaluation.sqft?.toLocaleString()} sqft
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Created {new Date(evaluation.createdUtc).toLocaleDateString()}
+                          Created {formatDate(evaluation.createdUtc)}
                         </p>
                       </div>
                       <div className="flex items-center gap-3">
@@ -308,7 +314,7 @@ export default function PropertyDetailPage() {
                       >
                         <div className="mb-2 flex items-center justify-between">
                           <span className="text-xs text-gray-500 dark:text-gray-400">
-                            {new Date(note.createdUtc).toLocaleDateString()}
+                            {formatDate(note.createdUtc)}
                           </span>
                           <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400">
                             {note.stage}
@@ -347,7 +353,7 @@ export default function PropertyDetailPage() {
                           </div>
                         </div>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {new Date(doc.uploadedUtc).toLocaleDateString()}
+                          {formatDate(doc.uploadedUtc)}
                         </p>
                       </div>
                     ))}
