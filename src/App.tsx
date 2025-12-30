@@ -20,8 +20,6 @@ import Maintenance from "./pages/OtherPage/Maintenance";
 import { PropertiesPage, PropertyDetailPage } from "./features/properties";
 import { EvaluationDetailPage } from "./features/evaluations";
 import { SearchPage } from "./features/search";
-import { ConnectionsPage } from "./features/connections";
-import { NotesPage } from "./features/notes";
 import { SettingsPage } from "./features/settings";
 import { AdminPage } from "./features/admin";
 
@@ -54,12 +52,6 @@ export default function App() {
 
             {/* Search */}
             <Route path="/search" element={<SearchPage />} />
-
-            {/* Connections */}
-            <Route path="/connections" element={<ConnectionsPage />} />
-
-            {/* Notes */}
-            <Route path="/notes" element={<NotesPage />} />
 
             {/* Settings */}
             <Route path="/settings" element={<SettingsPage />} />

@@ -1,7 +1,7 @@
 import { Link } from 'react-router';
 import { Card } from '@components/ui/card';
 import type { PropertySummary, PropertyStage } from '@app-types/property.types';
-import { formatDistanceToNow, format } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
 
 interface PropertyCardProps {
   property: PropertySummary;
@@ -46,43 +46,21 @@ export function PropertyCard({ property }: PropertyCardProps) {
             </p>
           </div>
 
-          {/* Stats Row */}
-          <div className="mt-4 grid grid-cols-4 gap-2 text-center">
-            <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Evals</p>
-              <p className="font-medium text-gray-800 dark:text-white/90">
-                {property.evaluationCount}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Contacts</p>
-              <p className="font-medium text-gray-800 dark:text-white/90">
-                {property.connectionCount}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Notes</p>
-              <p className="font-medium text-gray-800 dark:text-white/90">
-                {property.noteCount}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Docs</p>
-              <p className="font-medium text-gray-800 dark:text-white/90">
-                {property.documentCount}
-              </p>
-            </div>
-          </div>
-
-          {/* Stage and Date Row */}
+          {/* Stage, Evaluations, and Date Row */}
           <div className="mt-4 flex items-center justify-between">
-            <span
-              className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${stageStyle.bg} ${stageStyle.text}`}
-            >
-              {property.stage}
-            </span>
+            <div className="flex items-center gap-2">
+              <span
+                className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${stageStyle.bg} ${stageStyle.text}`}
+              >
+                {property.stage}
+              </span>
+              {property.evaluationCount > 0 && (
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {property.evaluationCount} eval{property.evaluationCount !== 1 ? 's' : ''}
+                </span>
+              )}
+            </div>
             <div className="text-right text-xs text-gray-500 dark:text-gray-400">
-              <p>{format(lastUpdateDate, 'MMM d, yyyy')}</p>
               <p>{formatDistanceToNow(lastUpdateDate, { addSuffix: true })}</p>
             </div>
           </div>

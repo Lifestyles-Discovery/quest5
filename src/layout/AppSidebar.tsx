@@ -5,13 +5,11 @@ import { Link, useLocation } from "react-router";
 import {
   BoxCubeIcon,
   ChevronDownIcon,
-  DocsIcon,
   GridIcon,
   HorizontaLDots,
   ListIcon,
   PageIcon,
   PlugInIcon,
-  UserCircleIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import { useSession } from "@/hooks/api/useAuth";
@@ -27,7 +25,7 @@ type NavItem = {
   subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
 };
 
-// Quest5 Navigation Items
+// Quest5 Navigation Items (simplified - 37signals philosophy)
 const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
@@ -38,16 +36,6 @@ const navItems: NavItem[] = [
     icon: <BoxCubeIcon />,
     name: "Properties",
     path: "/properties",
-  },
-  {
-    icon: <UserCircleIcon />,
-    name: "Connections",
-    path: "/connections",
-  },
-  {
-    icon: <DocsIcon />,
-    name: "Notes",
-    path: "/notes",
   },
 ];
 

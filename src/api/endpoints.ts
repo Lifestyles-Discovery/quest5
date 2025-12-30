@@ -95,19 +95,6 @@ export const ENDPOINTS = {
       `properties/${propertyId}/documents/${documentId}`,
   },
 
-  // Listings
-  listings: {
-    create: (propertyId: string) => `properties/${propertyId}/listings`,
-    get: (propertyId: string, listingId: string) =>
-      `properties/${propertyId}/listings/${listingId}`,
-    update: (propertyId: string, listingId: string) =>
-      `properties/${propertyId}/listings/${listingId}`,
-    addPictures: (propertyId: string, listingId: string) =>
-      `properties/${propertyId}/listings/${listingId}/pictures`,
-    deletePicture: (propertyId: string, listingId: string) =>
-      `properties/${propertyId}/listings/${listingId}/pictures`,
-  },
-
   // Users
   users: {
     update: (userId: string) => `users/${userId}`,
