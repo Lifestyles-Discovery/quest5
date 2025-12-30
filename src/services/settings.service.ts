@@ -1,0 +1,56 @@
+import { apiClient } from '@/api/client';
+import { ENDPOINTS } from '@/api/endpoints';
+import type { User, UserPreferences } from '@app-types/auth.types';
+import type { AccountFormData } from '@app-types/settings.types';
+
+/**
+ * Settings service for user account and preferences
+ */
+export const settingsService = {
+  /**
+   * Update user account information
+   */
+  async updateAccount(userId: string, data: AccountFormData): Promise<User> {
+    const response = await apiClient.put<User>(ENDPOINTS.users.update(userId), {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      ...(data.password ? { password: data.password } : {}),
+    });
+    return response.data;
+  },
+
+  /**
+   * Update user preferences
+   */
+  async updatePreferences(
+    userId: string,
+    preferences: Partial<UserPreferences>
+  ): Promise<UserPreferences> {
+    const response = await apiClient.put<UserPreferences>(
+      ENDPOINTS.users.updatePreferences(userId),
+      preferences
+    );
+    return response.data;
+  },
+
+  /**
+   * Reset preferences to defaults
+   */
+  async resetPreferences(userId: string): Promise<UserPreferences> {
+    const response = await apiClient.put<UserPreferences>(
+      ENDPOINTS.users.resetPreferences(userId)
+    );
+    return response.data;
+  },
+
+  /**
+   * Get Chargify billing portal URL
+   */
+  async getChargifyUrl(userId: string): Promise<string> {
+    const response = await apiClient.get<{ url: string }>(
+      `users/${userId}/chargifyUrl`
+    );
+    return response.data.url;
+  },
+};

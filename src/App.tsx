@@ -21,6 +21,8 @@ import { EvaluationDetailPage } from "./features/evaluations";
 import { SearchPage } from "./features/search";
 import { ConnectionsPage } from "./features/connections";
 import { NotesPage } from "./features/notes";
+import { SettingsPage } from "./features/settings";
+import { AdminPage } from "./features/admin";
 
 // Demo pages kept for reference during development
 import FormElements from "./pages/Forms/FormElements";
@@ -58,9 +60,11 @@ export default function App() {
             {/* Notes */}
             <Route path="/notes" element={<NotesPage />} />
 
-            {/* Quest Routes (to be implemented) */}
-            {/* <Route path="/settings" element={<Settings />} /> */}
-            {/* <Route path="/admin" element={<Admin />} /> */}
+            {/* Settings */}
+            <Route path="/settings" element={<SettingsPage />} />
+
+            {/* Admin */}
+            <Route path="/admin" element={<AdminPage />} />
 
             {/* Reference Pages (for development) */}
             <Route path="/ref/form-elements" element={<FormElements />} />
