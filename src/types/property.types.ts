@@ -10,10 +10,11 @@ export type PropertyStage =
   | 'Closing'
   | 'Rehabbing'
   | 'Leasing'
-  | 'Selling';
+  | 'Selling'
+  | 'Inactive';
 
 /**
- * All available property stages
+ * All available property stages (excluding archived)
  */
 export const PROPERTY_STAGES: PropertyStage[] = [
   'None',
@@ -40,6 +41,7 @@ export const STAGE_COLORS: Record<PropertyStage, string> = {
   Rehabbing: 'pink',
   Leasing: 'teal',
   Selling: 'green',
+  Inactive: 'gray',
 };
 
 /**
@@ -58,6 +60,10 @@ export const STAGE_TAB_GROUPS = {
   managing: {
     label: 'Managing',
     stages: ['Leasing', 'Selling'] as PropertyStage[],
+  },
+  archived: {
+    label: 'Archived',
+    stages: ['Inactive'] as PropertyStage[],
   },
 } as const;
 

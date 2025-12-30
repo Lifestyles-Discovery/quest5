@@ -10,7 +10,7 @@ interface StageTabsFilterProps {
  * StageTabsFilter - Visual tabs for filtering properties by stage groups.
  *
  * Replaces the multi-select checkbox filter with a simpler tab interface.
- * Shows 4 tabs: All, Active, In Progress, Managing
+ * Shows tabs: All, Active, In Progress, Managing, Archived
  */
 export function StageTabsFilter({ activeTab, onTabChange, counts }: StageTabsFilterProps) {
   const tabs = Object.entries(STAGE_TAB_GROUPS) as [StageTabKey, (typeof STAGE_TAB_GROUPS)[StageTabKey]][];

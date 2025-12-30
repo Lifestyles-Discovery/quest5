@@ -26,6 +26,7 @@ const STAGE_STYLES: Record<PropertyStage, { bg: string; text: string }> = {
   Rehabbing: { bg: 'bg-pink-100 dark:bg-pink-900/30', text: 'text-pink-600 dark:text-pink-400' },
   Leasing: { bg: 'bg-teal-100 dark:bg-teal-900/30', text: 'text-teal-600 dark:text-teal-400' },
   Selling: { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-600 dark:text-green-400' },
+  Inactive: { bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-500 dark:text-gray-500' },
 };
 
 function formatCurrency(value: number | undefined, compact = false): string {
@@ -119,7 +120,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
             <span
               className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${stageStyle.bg} ${stageStyle.text}`}
             >
-              {property.stage}
+              {property.stage === 'Inactive' ? 'Archived' : property.stage}
             </span>
             <span className="text-xs text-gray-500 dark:text-gray-400">
               {formatDistanceToNow(lastUpdateDate, { addSuffix: true })}

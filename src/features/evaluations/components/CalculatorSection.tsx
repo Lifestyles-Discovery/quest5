@@ -1,5 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useUpdateCalculator } from '@/hooks/api/useEvaluations';
+import { EditableField } from '@/components/form/EditableField';
+import { formatCurrency, formatPercent } from '@/utils/formatters';
 import type {
   Evaluation,
   DealTermInputs,
@@ -57,19 +59,6 @@ export default function CalculatorSection({
 
   const handleHardMoneyChange = (field: keyof HardMoneyInputs, value: number | boolean) => {
     debouncedUpdate(undefined, undefined, { [field]: value });
-  };
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
-
-  const formatPercent = (value: number) => {
-    return `${value.toFixed(1)}%`;
   };
 
   if (!calculator) {
@@ -130,29 +119,33 @@ export default function CalculatorSection({
                 Property Values
               </h3>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-                <InputField
+                <EditableField
                   label="Est. Market Value"
                   value={dealTermInputs.estimatedMarketValue}
-                  onChange={(v) => handleDealTermChange('estimatedMarketValue', v)}
-                  prefix="$"
+                  format="currency"
+                  onSave={(v) => handleDealTermChange('estimatedMarketValue', v as number)}
+                  size="sm"
                 />
-                <InputField
+                <EditableField
                   label="Est. Appraised Value"
                   value={dealTermInputs.estimatedAppraisedValue}
-                  onChange={(v) => handleDealTermChange('estimatedAppraisedValue', v)}
-                  prefix="$"
+                  format="currency"
+                  onSave={(v) => handleDealTermChange('estimatedAppraisedValue', v as number)}
+                  size="sm"
                 />
-                <InputField
+                <EditableField
                   label="Purchase Price"
                   value={dealTermInputs.purchasePrice}
-                  onChange={(v) => handleDealTermChange('purchasePrice', v)}
-                  prefix="$"
+                  format="currency"
+                  onSave={(v) => handleDealTermChange('purchasePrice', v as number)}
+                  size="sm"
                 />
-                <InputField
+                <EditableField
                   label="Seller Contribution"
                   value={dealTermInputs.sellerContribution}
-                  onChange={(v) => handleDealTermChange('sellerContribution', v)}
-                  prefix="$"
+                  format="currency"
+                  onSave={(v) => handleDealTermChange('sellerContribution', v as number)}
+                  size="sm"
                 />
               </div>
             </div>
@@ -163,29 +156,33 @@ export default function CalculatorSection({
                 Closing Costs
               </h3>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-                <InputField
+                <EditableField
                   label="Survey"
                   value={dealTermInputs.survey}
-                  onChange={(v) => handleDealTermChange('survey', v)}
-                  prefix="$"
+                  format="currency"
+                  onSave={(v) => handleDealTermChange('survey', v as number)}
+                  size="sm"
                 />
-                <InputField
+                <EditableField
                   label="Appraisal"
                   value={dealTermInputs.appraisal}
-                  onChange={(v) => handleDealTermChange('appraisal', v)}
-                  prefix="$"
+                  format="currency"
+                  onSave={(v) => handleDealTermChange('appraisal', v as number)}
+                  size="sm"
                 />
-                <InputField
+                <EditableField
                   label="Inspection"
                   value={dealTermInputs.inspection}
-                  onChange={(v) => handleDealTermChange('inspection', v)}
-                  prefix="$"
+                  format="currency"
+                  onSave={(v) => handleDealTermChange('inspection', v as number)}
+                  size="sm"
                 />
-                <InputField
+                <EditableField
                   label="Repairs / Make-Ready"
                   value={dealTermInputs.repairsMakeReady}
-                  onChange={(v) => handleDealTermChange('repairsMakeReady', v)}
-                  prefix="$"
+                  format="currency"
+                  onSave={(v) => handleDealTermChange('repairsMakeReady', v as number)}
+                  size="sm"
                 />
               </div>
             </div>
@@ -196,29 +193,33 @@ export default function CalculatorSection({
                 Annual / Monthly Expenses
               </h3>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-                <InputField
+                <EditableField
                   label="Property Tax (Annual)"
                   value={dealTermInputs.propertyTaxAnnual}
-                  onChange={(v) => handleDealTermChange('propertyTaxAnnual', v)}
-                  prefix="$"
+                  format="currency"
+                  onSave={(v) => handleDealTermChange('propertyTaxAnnual', v as number)}
+                  size="sm"
                 />
-                <InputField
+                <EditableField
                   label="Insurance (Annual)"
                   value={dealTermInputs.propertyInsuranceAnnual}
-                  onChange={(v) => handleDealTermChange('propertyInsuranceAnnual', v)}
-                  prefix="$"
+                  format="currency"
+                  onSave={(v) => handleDealTermChange('propertyInsuranceAnnual', v as number)}
+                  size="sm"
                 />
-                <InputField
+                <EditableField
                   label="HOA (Annual)"
                   value={dealTermInputs.hoaAnnual}
-                  onChange={(v) => handleDealTermChange('hoaAnnual', v)}
-                  prefix="$"
+                  format="currency"
+                  onSave={(v) => handleDealTermChange('hoaAnnual', v as number)}
+                  size="sm"
                 />
-                <InputField
+                <EditableField
                   label="Misc (Monthly)"
                   value={dealTermInputs.miscellaneousMonthly}
-                  onChange={(v) => handleDealTermChange('miscellaneousMonthly', v)}
-                  prefix="$"
+                  format="currency"
+                  onSave={(v) => handleDealTermChange('miscellaneousMonthly', v as number)}
+                  size="sm"
                 />
               </div>
             </div>
@@ -229,17 +230,19 @@ export default function CalculatorSection({
                 Income
               </h3>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-                <InputField
+                <EditableField
                   label="Monthly Rent"
                   value={dealTermInputs.rent}
-                  onChange={(v) => handleDealTermChange('rent', v)}
-                  prefix="$"
+                  format="currency"
+                  onSave={(v) => handleDealTermChange('rent', v as number)}
+                  size="sm"
                 />
-                <InputField
+                <EditableField
                   label="Max Refi Cashback"
                   value={dealTermInputs.maxRefiCashback}
-                  onChange={(v) => handleDealTermChange('maxRefiCashback', v)}
-                  prefix="$"
+                  format="currency"
+                  onSave={(v) => handleDealTermChange('maxRefiCashback', v as number)}
+                  size="sm"
                 />
               </div>
             </div>
@@ -270,40 +273,48 @@ export default function CalculatorSection({
                     Loan Terms
                   </h3>
                   <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-                    <InputField
+                    <EditableField
                       label="Down Payment %"
                       value={conventionalInputs.downPaymentPercent}
-                      onChange={(v) => handleConventionalChange('downPaymentPercent', v)}
-                      suffix="%"
+                      format="percent"
+                      onSave={(v) => handleConventionalChange('downPaymentPercent', v as number)}
+                      size="sm"
                     />
-                    <InputField
+                    <EditableField
                       label="Loan Term (Years)"
                       value={conventionalInputs.loanTermInYears}
-                      onChange={(v) => handleConventionalChange('loanTermInYears', v)}
+                      format="number"
+                      onSave={(v) => handleConventionalChange('loanTermInYears', v as number)}
+                      size="sm"
                     />
-                    <InputField
+                    <EditableField
                       label="Interest Rate %"
                       value={conventionalInputs.interestRatePercent}
-                      onChange={(v) => handleConventionalChange('interestRatePercent', v)}
-                      suffix="%"
+                      format="percent"
                       step={0.125}
+                      onSave={(v) => handleConventionalChange('interestRatePercent', v as number)}
+                      size="sm"
                     />
-                    <InputField
+                    <EditableField
                       label="Lender/Title Fees"
                       value={conventionalInputs.lenderAndTitleFees}
-                      onChange={(v) => handleConventionalChange('lenderAndTitleFees', v)}
-                      prefix="$"
+                      format="currency"
+                      onSave={(v) => handleConventionalChange('lenderAndTitleFees', v as number)}
+                      size="sm"
                     />
-                    <InputField
+                    <EditableField
                       label="Months Tax/Ins Escrow"
                       value={conventionalInputs.monthsTaxAndInsurance}
-                      onChange={(v) => handleConventionalChange('monthsTaxAndInsurance', v)}
+                      format="number"
+                      onSave={(v) => handleConventionalChange('monthsTaxAndInsurance', v as number)}
+                      size="sm"
                     />
-                    <InputField
+                    <EditableField
                       label="Mortgage Ins (Annual)"
                       value={conventionalInputs.mortgageInsuranceAnnual}
-                      onChange={(v) => handleConventionalChange('mortgageInsuranceAnnual', v)}
-                      prefix="$"
+                      format="currency"
+                      onSave={(v) => handleConventionalChange('mortgageInsuranceAnnual', v as number)}
+                      size="sm"
                     />
                   </div>
                 </div>
@@ -319,9 +330,9 @@ export default function CalculatorSection({
                     <ResultField label="Monthly Payment" value={formatCurrency(calculator.conventionalNotePaymentMonthly)} />
                     <ResultField label="Monthly Cashflow" value={formatCurrency(calculator.conventionalTotalCashflowMonthly)} highlight />
                     <ResultField label="Annual Cashflow" value={formatCurrency(calculator.conventionalAnnualCashFlow)} />
-                    <ResultField label="Cash-on-Cash Return" value={formatPercent(calculator.conventionalCashOnCashReturnPercent)} highlight />
+                    <ResultField label="Cash-on-Cash Return" value={formatPercent(calculator.conventionalCashOnCashReturnPercent, 1)} highlight />
                     <ResultField label="Unrealized Gain" value={formatCurrency(calculator.conventionalUnrealizedCapitalGain)} />
-                    <ResultField label="Return on Gain" value={formatPercent(calculator.conventionalReturnOnCapitalGainPercent)} />
+                    <ResultField label="Return on Gain" value={formatPercent(calculator.conventionalReturnOnCapitalGainPercent, 1)} />
                   </div>
                 </div>
               </>
@@ -353,33 +364,40 @@ export default function CalculatorSection({
                     Hard Money Loan
                   </h3>
                   <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-                    <InputField
+                    <EditableField
                       label="LTV %"
                       value={hardMoneyInputs.hardLoanToValuePercent}
-                      onChange={(v) => handleHardMoneyChange('hardLoanToValuePercent', v)}
-                      suffix="%"
+                      format="percent"
+                      onSave={(v) => handleHardMoneyChange('hardLoanToValuePercent', v as number)}
+                      size="sm"
                     />
-                    <InputField
+                    <EditableField
                       label="Interest Rate %"
                       value={hardMoneyInputs.hardInterestRate}
-                      onChange={(v) => handleHardMoneyChange('hardInterestRate', v)}
-                      suffix="%"
+                      format="percent"
+                      onSave={(v) => handleHardMoneyChange('hardInterestRate', v as number)}
+                      size="sm"
                     />
-                    <InputField
+                    <EditableField
                       label="Lender/Title Fees"
                       value={hardMoneyInputs.hardLenderAndTitleFees}
-                      onChange={(v) => handleHardMoneyChange('hardLenderAndTitleFees', v)}
-                      prefix="$"
+                      format="currency"
+                      onSave={(v) => handleHardMoneyChange('hardLenderAndTitleFees', v as number)}
+                      size="sm"
                     />
-                    <InputField
+                    <EditableField
                       label="Months to Refi"
                       value={hardMoneyInputs.hardMonthsToRefinance}
-                      onChange={(v) => handleHardMoneyChange('hardMonthsToRefinance', v)}
+                      format="number"
+                      onSave={(v) => handleHardMoneyChange('hardMonthsToRefinance', v as number)}
+                      size="sm"
                     />
-                    <InputField
+                    <EditableField
                       label="Weeks Until Leased"
                       value={hardMoneyInputs.hardWeeksUntilLeased}
-                      onChange={(v) => handleHardMoneyChange('hardWeeksUntilLeased', v)}
+                      format="number"
+                      onSave={(v) => handleHardMoneyChange('hardWeeksUntilLeased', v as number)}
+                      size="sm"
                     />
                     <div className="flex items-center gap-3">
                       <input
@@ -401,40 +419,48 @@ export default function CalculatorSection({
                     Refinance Loan
                   </h3>
                   <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-                    <InputField
+                    <EditableField
                       label="Refi LTV %"
                       value={hardMoneyInputs.refinanceLoanToValuePercent}
-                      onChange={(v) => handleHardMoneyChange('refinanceLoanToValuePercent', v)}
-                      suffix="%"
+                      format="percent"
+                      onSave={(v) => handleHardMoneyChange('refinanceLoanToValuePercent', v as number)}
+                      size="sm"
                     />
-                    <InputField
+                    <EditableField
                       label="Refi Term (Years)"
                       value={hardMoneyInputs.refinanceLoanTermInYears}
-                      onChange={(v) => handleHardMoneyChange('refinanceLoanTermInYears', v)}
+                      format="number"
+                      onSave={(v) => handleHardMoneyChange('refinanceLoanTermInYears', v as number)}
+                      size="sm"
                     />
-                    <InputField
+                    <EditableField
                       label="Refi Interest Rate %"
                       value={hardMoneyInputs.refinanceInterestRatePercent}
-                      onChange={(v) => handleHardMoneyChange('refinanceInterestRatePercent', v)}
-                      suffix="%"
+                      format="percent"
                       step={0.125}
+                      onSave={(v) => handleHardMoneyChange('refinanceInterestRatePercent', v as number)}
+                      size="sm"
                     />
-                    <InputField
+                    <EditableField
                       label="Refi Lender/Title Fees"
                       value={hardMoneyInputs.refinanceLenderAndTitleFees}
-                      onChange={(v) => handleHardMoneyChange('refinanceLenderAndTitleFees', v)}
-                      prefix="$"
+                      format="currency"
+                      onSave={(v) => handleHardMoneyChange('refinanceLenderAndTitleFees', v as number)}
+                      size="sm"
                     />
-                    <InputField
+                    <EditableField
                       label="Months Tax/Ins Escrow"
                       value={hardMoneyInputs.refinanceMonthsTaxAndInsurance}
-                      onChange={(v) => handleHardMoneyChange('refinanceMonthsTaxAndInsurance', v)}
+                      format="number"
+                      onSave={(v) => handleHardMoneyChange('refinanceMonthsTaxAndInsurance', v as number)}
+                      size="sm"
                     />
-                    <InputField
+                    <EditableField
                       label="Mortgage Ins (Annual)"
                       value={hardMoneyInputs.refinanceMortgageInsuranceAnnual}
-                      onChange={(v) => handleHardMoneyChange('refinanceMortgageInsuranceAnnual', v)}
-                      prefix="$"
+                      format="currency"
+                      onSave={(v) => handleHardMoneyChange('refinanceMortgageInsuranceAnnual', v as number)}
+                      size="sm"
                     />
                   </div>
                 </div>
@@ -455,7 +481,7 @@ export default function CalculatorSection({
                     <ResultField label="Monthly Payment" value={formatCurrency(calculator.hardRefiNotePaymentMonthly)} />
                     <ResultField label="Monthly Cashflow" value={formatCurrency(calculator.hardRefiTotalCashflowMonthly)} highlight />
                     <ResultField label="Annual Cashflow" value={formatCurrency(calculator.hardAnnualCashFlow)} />
-                    <ResultField label="Cash-on-Cash Return" value={formatPercent(calculator.hardCashOnCashReturnPercent)} highlight />
+                    <ResultField label="Cash-on-Cash Return" value={formatPercent(calculator.hardCashOnCashReturnPercent, 1)} highlight />
                     <ResultField label="Unrealized Gain" value={formatCurrency(calculator.hardUnrealizedCapitalGain)} />
                   </div>
                 </div>
@@ -468,38 +494,7 @@ export default function CalculatorSection({
   );
 }
 
-// Input field component
-interface InputFieldProps {
-  label: string;
-  value: number;
-  onChange: (value: number) => void;
-  prefix?: string;
-  suffix?: string;
-  step?: number;
-}
-
-function InputField({ label, value, onChange, prefix, suffix, step = 1 }: InputFieldProps) {
-  return (
-    <div>
-      <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
-        {label}
-      </label>
-      <div className="mt-1 flex items-center">
-        {prefix && <span className="mr-1 text-sm text-gray-500">{prefix}</span>}
-        <input
-          type="number"
-          step={step}
-          value={value}
-          onChange={(e) => onChange(Number(e.target.value))}
-          className="block w-full rounded border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700"
-        />
-        {suffix && <span className="ml-1 text-sm text-gray-500">{suffix}</span>}
-      </div>
-    </div>
-  );
-}
-
-// Result field component
+// Result field component (read-only calculated values)
 interface ResultFieldProps {
   label: string;
   value: string;

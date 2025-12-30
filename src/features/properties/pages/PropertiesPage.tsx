@@ -13,6 +13,39 @@ import {
 } from '@app-types/property.types';
 import Button from '@components/ui/button/Button';
 import Input from '@components/form/input/InputField';
+import { Skeleton } from '@components/ui/skeleton/Skeleton';
+
+function PropertyCardSkeleton() {
+  return (
+    <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] sm:p-6">
+      {/* Image placeholder */}
+      <Skeleton className="mb-4 aspect-[3/2] w-full rounded-lg" />
+
+      {/* Title and location */}
+      <div className="space-y-2">
+        <Skeleton className="h-5 w-3/4" />
+        <Skeleton className="h-4 w-1/2" />
+        <Skeleton className="h-4 w-2/5" />
+      </div>
+
+      {/* Metrics grid */}
+      <div className="mt-3 grid grid-cols-3 gap-2 rounded-lg bg-gray-50 p-2 dark:bg-gray-800/50">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="text-center space-y-1">
+            <Skeleton className="mx-auto h-3 w-8" />
+            <Skeleton className="mx-auto h-4 w-12" />
+          </div>
+        ))}
+      </div>
+
+      {/* Stage badge and date */}
+      <div className="mt-3 flex items-center justify-between">
+        <Skeleton className="h-6 w-20 rounded-full" />
+        <Skeleton className="h-3 w-16" />
+      </div>
+    </div>
+  );
+}
 
 const PROPERTIES_PER_PAGE = 6;
 
@@ -115,8 +148,10 @@ export default function PropertiesPage() {
 
         {/* Loading State */}
         {isLoading && (
-          <div className="flex items-center justify-center py-12">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-500 border-t-transparent" />
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <PropertyCardSkeleton key={i} />
+            ))}
           </div>
         )}
 

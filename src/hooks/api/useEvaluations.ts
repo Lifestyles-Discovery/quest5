@@ -415,6 +415,34 @@ export function useUpdateAttributes() {
       };
     }) =>
       evaluationsService.updateAttributes(propertyId, evaluationId, attributes),
+    onMutate: async ({ propertyId, evaluationId, attributes }) => {
+      // Optimistic update for instant feedback
+      await queryClient.cancelQueries({
+        queryKey: evaluationsKeys.detail(propertyId, evaluationId),
+      });
+
+      const previous = queryClient.getQueryData<Evaluation>(
+        evaluationsKeys.detail(propertyId, evaluationId)
+      );
+
+      if (previous) {
+        queryClient.setQueryData<Evaluation>(
+          evaluationsKeys.detail(propertyId, evaluationId),
+          { ...previous, ...attributes }
+        );
+      }
+
+      return { previous };
+    },
+    onError: (_err, { propertyId, evaluationId }, context) => {
+      // Rollback on error
+      if (context?.previous) {
+        queryClient.setQueryData(
+          evaluationsKeys.detail(propertyId, evaluationId),
+          context.previous
+        );
+      }
+    },
     onSuccess: (updatedEvaluation, { propertyId, evaluationId }) => {
       queryClient.setQueryData(
         evaluationsKeys.detail(propertyId, evaluationId),

@@ -17,6 +17,73 @@ import { PROPERTY_STAGES, type PropertyStage } from '@app-types/property.types';
 import type { Evaluation } from '@app-types/evaluation.types';
 import EvaluationContent from '@/features/evaluations/components/EvaluationContent';
 import { ScenarioHistory } from '../components/ScenarioHistory';
+import { Skeleton } from '@components/ui/skeleton/Skeleton';
+
+function PropertyDetailSkeleton() {
+  return (
+    <div className="space-y-6">
+      {/* Breadcrumb skeleton */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Skeleton className="h-7 w-48" />
+        <div className="flex items-center gap-1.5">
+          <Skeleton className="h-4 w-12" />
+          <Skeleton className="h-4 w-4" />
+          <Skeleton className="h-4 w-32" />
+        </div>
+      </div>
+
+      {/* Header card skeleton */}
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+        <div className="grid grid-cols-1 lg:grid-cols-3">
+          {/* Photo skeleton */}
+          <Skeleton className="h-64 w-full lg:h-full" />
+
+          {/* Details skeleton */}
+          <div className="col-span-2 p-6 space-y-4">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-8 w-64" />
+                <Skeleton className="h-5 w-48" />
+              </div>
+              <Skeleton className="h-10 w-28 rounded-lg" />
+            </div>
+
+            {/* Action buttons skeleton */}
+            <div className="flex flex-wrap gap-2">
+              <Skeleton className="h-9 w-28 rounded-lg" />
+              <Skeleton className="h-9 w-20 rounded-lg" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Evaluation content skeleton */}
+      <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+        <div className="space-y-6">
+          <Skeleton className="h-6 w-40" />
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="space-y-2">
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-6 w-24" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Additional section skeleton */}
+      <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+        <Skeleton className="h-6 w-32 mb-4" />
+        <div className="space-y-3">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-3/4" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function formatDate(dateString: string | null | undefined): string {
   if (!dateString) return '—';
@@ -152,11 +219,7 @@ export default function PropertyDetailPage() {
 
   // Loading state
   if (propertyLoading || createEvaluation.isPending) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-500 border-t-transparent" />
-      </div>
-    );
+    return <PropertyDetailSkeleton />;
   }
 
   // Error state
@@ -260,20 +323,48 @@ export default function PropertyDetailPage() {
                   </p>
                 </div>
 
-                {/* Stage Selector */}
-                <select
-                  value={property.stage}
-                  onChange={(e) => handleStageChange(e.target.value as PropertyStage)}
-                  disabled={updateStage.isPending}
-                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                >
-                  {PROPERTY_STAGES.map((stage) => (
-                    <option key={stage} value={stage}>
-                      {stage}
-                    </option>
-                  ))}
-                </select>
+                {/* Stage Selector - only show for non-archived deals */}
+                {property.stage !== 'Inactive' && (
+                  <select
+                    value={property.stage}
+                    onChange={(e) => handleStageChange(e.target.value as PropertyStage)}
+                    disabled={updateStage.isPending}
+                    className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                  >
+                    {PROPERTY_STAGES.map((stage) => (
+                      <option key={stage} value={stage}>
+                        {stage}
+                      </option>
+                    ))}
+                  </select>
+                )}
+
+                {/* Archived Badge - show for archived deals */}
+                {property.stage === 'Inactive' && (
+                  <span className="rounded-full bg-gray-200 px-3 py-1 text-sm font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-400">
+                    Archived
+                  </span>
+                )}
               </div>
+
+              {/* Archived Banner with Unarchive button */}
+              {property.stage === 'Inactive' && (
+                <div className="mt-4 flex items-center justify-between rounded-lg bg-gray-100 px-4 py-3 dark:bg-gray-800">
+                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                    This deal is archived
+                  </div>
+                  <button
+                    onClick={() => handleStageChange('Finding')}
+                    disabled={updateStage.isPending}
+                    className="rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                  >
+                    {updateStage.isPending ? 'Restoring...' : 'Unarchive'}
+                  </button>
+                </div>
+              )}
 
               {/* Actions Row */}
               <div className="mt-4 flex flex-wrap gap-2">
@@ -325,6 +416,20 @@ export default function PropertyDetailPage() {
                     Delete Scenario
                   </button>
                 )}
+
+                {/* Archive Button - only show for non-archived deals */}
+                {property.stage !== 'Inactive' && (
+                  <button
+                    onClick={() => handleStageChange('Inactive')}
+                    disabled={updateStage.isPending}
+                    className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
+                  >
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                    Archive
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -332,8 +437,18 @@ export default function PropertyDetailPage() {
 
         {/* Evaluation Content */}
         {evaluationLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-500 border-t-transparent" />
+          <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+            <div className="space-y-6">
+              <Skeleton className="h-6 w-40" />
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="space-y-2">
+                    <Skeleton className="h-4 w-16" />
+                    <Skeleton className="h-6 w-24" />
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         ) : evaluationError || !evaluation ? (
           <Alert
@@ -411,7 +526,7 @@ export default function PropertyDetailPage() {
                             {formatDate(note.createdUtc)}
                           </span>
                           <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400">
-                            {note.stage}
+                            {note.stage === 'Inactive' ? 'Archived' : note.stage}
                           </span>
                         </div>
                         <p className="text-sm text-gray-800 dark:text-white/90">{note.theNote}</p>

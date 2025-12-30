@@ -3,6 +3,40 @@ import Button from '@components/ui/button/Button';
 import { UserModal } from './UserModal';
 import { useAllUsers } from '@hooks/api/useAdmin';
 import type { AdminUser } from '@app-types/admin.types';
+import { Skeleton } from '@components/ui/skeleton/Skeleton';
+
+function UsersTableSkeleton() {
+  return (
+    <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead className="bg-gray-50 dark:bg-gray-800">
+          <tr>
+            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">First Name</th>
+            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Last Name</th>
+            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Email</th>
+            <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">Admin</th>
+            <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">Agent</th>
+            <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">Free Search</th>
+            <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <tr key={i}>
+              <td className="whitespace-nowrap px-4 py-3"><Skeleton className="h-4 w-20" /></td>
+              <td className="whitespace-nowrap px-4 py-3"><Skeleton className="h-4 w-24" /></td>
+              <td className="whitespace-nowrap px-4 py-3"><Skeleton className="h-4 w-40" /></td>
+              <td className="whitespace-nowrap px-4 py-3 text-center"><Skeleton className="mx-auto h-5 w-5 rounded-full" /></td>
+              <td className="whitespace-nowrap px-4 py-3 text-center"><Skeleton className="mx-auto h-5 w-5 rounded-full" /></td>
+              <td className="whitespace-nowrap px-4 py-3 text-center"><Skeleton className="mx-auto h-5 w-5 rounded-full" /></td>
+              <td className="whitespace-nowrap px-4 py-3 text-right"><Skeleton className="ml-auto h-8 w-14 rounded-lg" /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
 type SortField = 'firstName' | 'lastName' | 'email';
 type SortDirection = 'asc' | 'desc';
@@ -93,11 +127,7 @@ export function UsersList() {
       />
 
       {/* Loading State */}
-      {isLoading && (
-        <div className="flex items-center justify-center py-12">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-500 border-t-transparent" />
-        </div>
-      )}
+      {isLoading && <UsersTableSkeleton />}
 
       {/* Error State */}
       {error && (

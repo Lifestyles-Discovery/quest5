@@ -10,6 +10,102 @@ import RentCompsSection from '../components/RentCompsSection';
 import CalculatorSection from '../components/CalculatorSection';
 import EvaluationNotes from '../components/EvaluationNotes';
 import EvaluationHeader from '../components/EvaluationHeader';
+import { Skeleton } from '@components/ui/skeleton/Skeleton';
+
+function EvaluationPageSkeleton() {
+  return (
+    <div className="space-y-6">
+      {/* Breadcrumb skeleton */}
+      <nav className="flex items-center space-x-2">
+        <Skeleton className="h-4 w-12" />
+        <Skeleton className="h-4 w-2" />
+        <Skeleton className="h-4 w-24" />
+        <Skeleton className="h-4 w-2" />
+        <Skeleton className="h-4 w-16" />
+      </nav>
+
+      {/* Header skeleton */}
+      <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+        <div className="flex items-start justify-between">
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-5 w-48" />
+          </div>
+          <div className="flex gap-2">
+            <Skeleton className="h-9 w-24 rounded-lg" />
+            <Skeleton className="h-9 w-20 rounded-lg" />
+          </div>
+        </div>
+      </div>
+
+      {/* Property Attributes skeleton */}
+      <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+        <Skeleton className="h-6 w-40 mb-4" />
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="space-y-2">
+              <Skeleton className="h-4 w-16" />
+              <Skeleton className="h-8 w-full rounded-lg" />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Sale Comps skeleton */}
+      <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+        <div className="flex items-center justify-between mb-4">
+          <Skeleton className="h-6 w-32" />
+          <Skeleton className="h-9 w-28 rounded-lg" />
+        </div>
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex items-center gap-4 p-3 rounded-lg border border-gray-100 dark:border-gray-800">
+              <Skeleton className="h-16 w-24 rounded" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-48" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+              <Skeleton className="h-5 w-20" />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Rent Comps skeleton */}
+      <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+        <div className="flex items-center justify-between mb-4">
+          <Skeleton className="h-6 w-32" />
+          <Skeleton className="h-9 w-28 rounded-lg" />
+        </div>
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex items-center gap-4 p-3 rounded-lg border border-gray-100 dark:border-gray-800">
+              <Skeleton className="h-16 w-24 rounded" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-48" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+              <Skeleton className="h-5 w-20" />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Calculator skeleton */}
+      <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+        <Skeleton className="h-6 w-32 mb-4" />
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+            <div key={i} className="space-y-2">
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-10 w-full rounded-lg" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function EvaluationDetailPage() {
   const { propertyId, evaluationId } = useParams<{
@@ -54,11 +150,7 @@ export default function EvaluationDetailPage() {
   });
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <EvaluationPageSkeleton />;
   }
 
   if (error || !evaluation) {

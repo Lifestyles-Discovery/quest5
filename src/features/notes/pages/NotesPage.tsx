@@ -5,6 +5,54 @@ import { NoteCard } from '../components/NoteCard';
 import { NoteModal } from '../components/NoteModal';
 import { useNotes, useDeleteNote } from '@hooks/api/useNotes';
 import type { Note } from '@app-types/note.types';
+import { Skeleton } from '@components/ui/skeleton/Skeleton';
+
+function NoteCardSkeleton() {
+  return (
+    <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] sm:p-6">
+      <div className="space-y-3">
+        {/* Header */}
+        <div className="flex items-start justify-between">
+          <div className="space-y-1">
+            <Skeleton className="h-4 w-40" />
+            <Skeleton className="h-3 w-32" />
+          </div>
+          <Skeleton className="h-5 w-16 rounded-full" />
+        </div>
+
+        {/* Note content */}
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-3/4" />
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-2 pt-2">
+          <Skeleton className="h-8 w-14 rounded-lg" />
+          <Skeleton className="h-8 w-16 rounded-lg" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NotesPageSkeleton() {
+  return (
+    <div className="space-y-8">
+      {[1, 2].map((group) => (
+        <div key={group}>
+          <Skeleton className="mb-4 h-6 w-56" />
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            {[1, 2].map((i) => (
+              <NoteCardSkeleton key={i} />
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function NotesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -122,11 +170,7 @@ export default function NotesPage() {
         )}
 
         {/* Loading State */}
-        {isLoading && (
-          <div className="flex items-center justify-center py-12">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-500 border-t-transparent" />
-          </div>
-        )}
+        {isLoading && <NotesPageSkeleton />}
 
         {/* Error State */}
         {error && (
