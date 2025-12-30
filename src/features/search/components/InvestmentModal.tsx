@@ -51,7 +51,7 @@ export default function InvestmentModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className={`${modalClass} flex flex-col overflow-hidden rounded-lg bg-white shadow-xl dark:bg-gray-800`}>
+      <div className={`${modalClass} flex flex-col overflow-hidden rounded-lg bg-white shadow-xl dark:!bg-gray-800`}>
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-200 p-4 dark:border-gray-700">
           <div>

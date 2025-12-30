@@ -26,7 +26,7 @@ export default function MarketSummary({ summary, lastUpdated }: MarketSummaryPro
   };
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:!bg-gray-800">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
           Market Summary

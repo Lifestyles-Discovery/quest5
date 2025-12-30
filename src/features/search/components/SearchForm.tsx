@@ -34,7 +34,7 @@ export default function SearchForm({
   };
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:!bg-gray-800">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
           Property Search
@@ -49,25 +49,25 @@ export default function SearchForm({
       </div>
 
       {showMethodology && (
-        <div className="mb-4 rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
+        <div className="mb-4 rounded-lg bg-blue-50 p-4 dark:!bg-blue-900/30">
           <h3 className="mb-2 font-medium text-blue-800 dark:text-blue-200">
             Feature-to-Price Ratio (FPR) Explained
           </h3>
           <p className="mb-2 text-sm text-blue-700 dark:text-blue-300">
             FPR measures how much "property" you get for your money:
           </p>
-          <code className="block rounded bg-blue-100 p-2 text-sm dark:bg-blue-900/40">
+          <code className="block rounded bg-blue-100 p-2 text-sm dark:!bg-blue-900/50 dark:text-blue-200">
             FPR = (beds + baths + (sqft/1000)) / (price/100,000)
           </code>
           <p className="mt-2 text-sm text-blue-700 dark:text-blue-300">
             <strong>Relative FPR</strong> compares each property's FPR to the average in its zip code:
           </p>
           <ul className="mt-2 space-y-1 text-sm text-blue-700 dark:text-blue-300">
-            <li><span className="font-medium text-green-600">1.5+</span> = Excellent value</li>
-            <li><span className="font-medium text-blue-600">1.2+</span> = Good value</li>
-            <li><span className="font-medium text-cyan-600">1.0+</span> = Average</li>
-            <li><span className="font-medium text-yellow-600">0.8+</span> = Below average</li>
-            <li><span className="font-medium text-red-600">&lt;0.8</span> = Poor value</li>
+            <li><span className="font-medium text-green-600 dark:text-green-400">1.5+</span> = Excellent value</li>
+            <li><span className="font-medium text-blue-600 dark:text-blue-400">1.2+</span> = Good value</li>
+            <li><span className="font-medium text-cyan-600 dark:text-cyan-400">1.0+</span> = Average</li>
+            <li><span className="font-medium text-yellow-600 dark:text-yellow-400">0.8+</span> = Below average</li>
+            <li><span className="font-medium text-red-600 dark:text-red-400">&lt;0.8</span> = Poor value</li>
           </ul>
         </div>
       )}
@@ -83,7 +83,7 @@ export default function SearchForm({
               value={cities}
               onChange={(e) => setCities(e.target.value)}
               placeholder="e.g., Austin, Round Rock, Cedar Park"
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700"
+              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
               required
             />
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -98,7 +98,7 @@ export default function SearchForm({
             <select
               value={state}
               onChange={(e) => setState(e.target.value)}
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700"
+              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               required
             >
               <option value="">Select State</option>
@@ -117,7 +117,7 @@ export default function SearchForm({
             <select
               value={resultLimit}
               onChange={(e) => setResultLimit(Number(e.target.value))}
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700"
+              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             >
               <option value={25}>25</option>
               <option value={50}>50</option>
@@ -135,7 +135,7 @@ export default function SearchForm({
               min={1}
               value={daysOnMarket}
               onChange={(e) => setDaysOnMarket(Number(e.target.value))}
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700"
+              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             />
           </div>
         </div>
@@ -144,7 +144,7 @@ export default function SearchForm({
           <button
             type="submit"
             disabled={isLoading || !cities.trim() || !state}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium !text-white hover:bg-primary/90 disabled:opacity-50"
           >
             {isLoading ? (
               <>

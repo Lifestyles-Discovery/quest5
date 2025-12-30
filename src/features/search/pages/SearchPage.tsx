@@ -199,7 +199,7 @@ export default function SearchPage() {
 
       {/* Empty State */}
       {!searchResults && !fprSearch.isPending && (
-        <div className="rounded-lg border border-gray-200 bg-white p-12 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div className="rounded-lg border border-gray-200 bg-white p-12 text-center shadow-sm dark:border-gray-700 dark:!bg-gray-800">
           <svg
             className="mx-auto h-12 w-12 text-gray-400"
             fill="none"
