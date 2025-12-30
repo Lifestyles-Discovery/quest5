@@ -80,7 +80,7 @@ export interface Property extends PropertySummary {
  */
 export interface PropertyEvaluation {
   id: string;
-  createdUtc: string;
+  created: string;
   notes: string;
   beds: number;
   baths: number;

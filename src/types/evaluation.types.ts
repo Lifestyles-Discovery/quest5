@@ -253,7 +253,7 @@ export interface SearchType {
 export interface Evaluation {
   id: string;
   propertyId: string;
-  createdUtc: string;
+  created: string;
 
   // Property attributes (can be edited per evaluation)
   beds: number;
@@ -295,7 +295,7 @@ export interface Evaluation {
  */
 export interface EvaluationSummary {
   id: string;
-  createdUtc: string;
+  created: string;
   notes: string;
   beds: number;
   baths: number;

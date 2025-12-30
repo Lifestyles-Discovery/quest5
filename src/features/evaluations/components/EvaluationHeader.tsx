@@ -101,7 +101,7 @@ export default function EvaluationHeader({
               </p>
             )}
             <p className="mt-1 text-sm text-gray-400 dark:text-gray-500">
-              Created: {formatDate(evaluation.createdUtc)}
+              Created: {formatDate(evaluation.created)}
             </p>
           </div>
 

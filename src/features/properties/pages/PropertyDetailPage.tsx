@@ -248,7 +248,7 @@ export default function PropertyDetailPage() {
                           {evaluation.beds} bed / {evaluation.baths} bath / {evaluation.sqft?.toLocaleString()} sqft
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Created {formatDate(evaluation.createdUtc)}
+                          Created {formatDate(evaluation.created)}
                         </p>
                       </div>
                       <div className="flex items-center gap-3">
