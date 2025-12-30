@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router';
 import { useFprSearchMutation, useCreatePropertyFromSearch } from '@/hooks/api/useSearch';
 import SearchForm from '../components/SearchForm';
 import MarketSummary from '../components/MarketSummary';
-import PropertyRankingTable from '../components/PropertyRankingTable';
-import InvestmentModal from '../components/InvestmentModal';
+import PropertyList from '../components/PropertyList';
 import type {
   FprSearchParams,
   FprSearchResponse,
@@ -23,7 +22,6 @@ export default function SearchPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useState<FprSearchParams | null>(null);
   const [searchResults, setSearchResults] = useState<FprSearchResponse | null>(null);
-  const [selectedProperty, setSelectedProperty] = useState<RankedProperty | null>(null);
   const [evaluatingPropertyId, setEvaluatingPropertyId] = useState<string | null>(null);
   const [noPropertiesWarning, setNoPropertiesWarning] = useState(false);
 
@@ -69,13 +67,8 @@ export default function SearchPage() {
     });
   };
 
-  const handlePropertySelect = (property: RankedProperty) => {
-    setSelectedProperty(property);
-  };
-
   const handleEvaluate = (property: RankedProperty) => {
     if (!property.mlsMarket || !property.mlsNumber) {
-      // Fallback: navigate to properties page to create manually
       navigate('/properties');
       return;
     }
@@ -87,7 +80,6 @@ export default function SearchPage() {
       {
         onSuccess: (result) => {
           setEvaluatingPropertyId(null);
-          setSelectedProperty(null);
           navigate(`/properties/${result.propertyId}/evaluations/${result.id}`);
         },
         onError: () => {
@@ -95,10 +87,6 @@ export default function SearchPage() {
         },
       }
     );
-  };
-
-  const handleCloseModal = () => {
-    setSelectedProperty(null);
   };
 
   return (
@@ -109,7 +97,7 @@ export default function SearchPage() {
           Property Search
         </h1>
         <p className="mt-1 text-gray-500 dark:text-gray-400">
-          Find investment properties ranked by Feature-to-Price Ratio (FPR)
+          Find investment properties ranked by Feature-to-Price Ratio
         </p>
       </div>
 
@@ -123,25 +111,12 @@ export default function SearchPage() {
       {/* No Properties Warning */}
       {noPropertiesWarning && (
         <div className="flex items-center justify-between rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-800 dark:bg-yellow-900/20">
-          <div className="flex items-center gap-3">
-            <svg
-              className="h-5 w-5 text-yellow-600 dark:text-yellow-400"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fillRule="evenodd"
-                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <span className="text-yellow-800 dark:text-yellow-200">
-              No properties found matching your criteria. Try adjusting your search parameters.
-            </span>
-          </div>
+          <span className="text-yellow-800 dark:text-yellow-200">
+            No properties found. Try different cities or expand your search.
+          </span>
           <button
             onClick={() => setNoPropertiesWarning(false)}
-            className="text-yellow-600 hover:text-yellow-800 dark:text-yellow-400 dark:hover:text-yellow-200"
+            className="text-yellow-600 hover:text-yellow-800 dark:text-yellow-400"
           >
             <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
               <path
@@ -157,49 +132,35 @@ export default function SearchPage() {
       {/* Error State */}
       {fprSearch.isError && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
-          <div className="flex items-center gap-3">
-            <svg
-              className="h-5 w-5 text-red-600 dark:text-red-400"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <span className="text-red-800 dark:text-red-200">
-              {fprSearch.error instanceof Error
-                ? fprSearch.error.message
-                : 'An error occurred while searching. Please try again.'}
-            </span>
-          </div>
+          <span className="text-red-800 dark:text-red-200">
+            {fprSearch.error instanceof Error
+              ? fprSearch.error.message
+              : 'Search failed. Please try again.'}
+          </span>
         </div>
       )}
 
       {/* Results */}
       {searchResults && !searchResults.noPropertiesFound && (
-        <>
-          {/* Market Summary */}
+        <div className="space-y-4">
+          {/* Market Summary - now just a one-liner */}
           <MarketSummary
             summary={searchResults.marketSummary}
-            lastUpdated={searchResults.lastUpdated}
+            propertyCount={searchResults.rankedProperties.length}
           />
 
-          {/* Property Rankings */}
-          <PropertyRankingTable
+          {/* Property List */}
+          <PropertyList
             properties={searchResults.rankedProperties}
-            onPropertySelect={handlePropertySelect}
             onEvaluate={handleEvaluate}
             isEvaluating={evaluatingPropertyId}
           />
-        </>
+        </div>
       )}
 
       {/* Empty State */}
       {!searchResults && !fprSearch.isPending && (
-        <div className="rounded-lg border border-gray-200 bg-white p-12 text-center shadow-sm dark:border-gray-700 dark:!bg-gray-800">
+        <div className="rounded-lg border border-gray-200 bg-white p-12 text-center dark:border-gray-700 dark:bg-gray-800">
           <svg
             className="mx-auto h-12 w-12 text-gray-400"
             fill="none"
@@ -217,19 +178,9 @@ export default function SearchPage() {
             Start Your Search
           </h3>
           <p className="mt-2 text-gray-500 dark:text-gray-400">
-            Enter cities and state above to find investment properties ranked by FPR.
+            Enter cities and state above to find investment properties.
           </p>
         </div>
-      )}
-
-      {/* Investment Modal */}
-      {selectedProperty && (
-        <InvestmentModal
-          property={selectedProperty}
-          onClose={handleCloseModal}
-          onEvaluate={() => handleEvaluate(selectedProperty)}
-          isEvaluating={evaluatingPropertyId === selectedProperty.id}
-        />
       )}
     </div>
   );

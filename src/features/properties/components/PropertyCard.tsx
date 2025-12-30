@@ -10,18 +10,53 @@ interface PropertyCardProps {
 const STAGE_STYLES: Record<PropertyStage, { bg: string; text: string }> = {
   None: { bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-600 dark:text-gray-400' },
   Finding: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-600 dark:text-blue-400' },
-  Evaluating: { bg: 'bg-purple-100 dark:bg-purple-900/30', text: 'text-purple-600 dark:text-purple-400' },
-  Negotiating: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-600 dark:text-yellow-400' },
-  Diligence: { bg: 'bg-orange-100 dark:bg-orange-900/30', text: 'text-orange-600 dark:text-orange-400' },
+  Evaluating: {
+    bg: 'bg-purple-100 dark:bg-purple-900/30',
+    text: 'text-purple-600 dark:text-purple-400',
+  },
+  Negotiating: {
+    bg: 'bg-yellow-100 dark:bg-yellow-900/30',
+    text: 'text-yellow-600 dark:text-yellow-400',
+  },
+  Diligence: {
+    bg: 'bg-orange-100 dark:bg-orange-900/30',
+    text: 'text-orange-600 dark:text-orange-400',
+  },
   Closing: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-600 dark:text-red-400' },
   Rehabbing: { bg: 'bg-pink-100 dark:bg-pink-900/30', text: 'text-pink-600 dark:text-pink-400' },
   Leasing: { bg: 'bg-teal-100 dark:bg-teal-900/30', text: 'text-teal-600 dark:text-teal-400' },
   Selling: { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-600 dark:text-green-400' },
 };
 
+function formatCurrency(value: number | undefined, compact = false): string {
+  if (value === undefined || value === null) return '—';
+  if (compact && Math.abs(value) >= 1000) {
+    return `$${(value / 1000).toFixed(0)}K`;
+  }
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function formatCashflow(value: number | undefined): string {
+  if (value === undefined || value === null) return '—';
+  const sign = value >= 0 ? '' : '-';
+  return `${sign}$${Math.abs(value).toFixed(0)}/mo`;
+}
+
 export function PropertyCard({ property }: PropertyCardProps) {
   const stageStyle = STAGE_STYLES[property.stage] || STAGE_STYLES.None;
   const lastUpdateDate = new Date(property.lastUpdate);
+  const hasMetrics = property.arv !== undefined || property.monthlyCashflow !== undefined;
+
+  // Build property specs string
+  const specs: string[] = [];
+  if (property.beds !== undefined) specs.push(`${property.beds} bd`);
+  if (property.baths !== undefined) specs.push(`${property.baths} ba`);
+  if (property.sqft !== undefined) specs.push(`${property.sqft.toLocaleString()} sf`);
 
   return (
     <Link to={`/properties/${property.id}`}>
@@ -44,25 +79,51 @@ export function PropertyCard({ property }: PropertyCardProps) {
             <p className="text-sm text-gray-500 dark:text-gray-400">
               {property.city}, {property.state} {property.zip}
             </p>
+            {specs.length > 0 && (
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{specs.join(' · ')}</p>
+            )}
           </div>
 
-          {/* Stage, Evaluations, and Date Row */}
-          <div className="mt-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span
-                className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${stageStyle.bg} ${stageStyle.text}`}
-              >
-                {property.stage}
-              </span>
-              {property.evaluationCount > 0 && (
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {property.evaluationCount} eval{property.evaluationCount !== 1 ? 's' : ''}
-                </span>
-              )}
+          {/* Investment Metrics */}
+          {hasMetrics && (
+            <div className="mt-3 grid grid-cols-3 gap-2 rounded-lg bg-gray-50 p-2 dark:bg-gray-800/50">
+              <div className="text-center">
+                <p className="text-xs text-gray-500 dark:text-gray-400">ARV</p>
+                <p className="text-sm font-medium text-gray-800 dark:text-white">
+                  {formatCurrency(property.arv, true)}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs text-gray-500 dark:text-gray-400">Rent</p>
+                <p className="text-sm font-medium text-gray-800 dark:text-white">
+                  {formatCurrency(property.estimatedRent)}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs text-gray-500 dark:text-gray-400">Cash Flow</p>
+                <p
+                  className={`text-sm font-medium ${
+                    property.monthlyCashflow !== undefined && property.monthlyCashflow >= 0
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-red-600 dark:text-red-400'
+                  }`}
+                >
+                  {formatCashflow(property.monthlyCashflow)}
+                </p>
+              </div>
             </div>
-            <div className="text-right text-xs text-gray-500 dark:text-gray-400">
-              <p>{formatDistanceToNow(lastUpdateDate, { addSuffix: true })}</p>
-            </div>
+          )}
+
+          {/* Stage and Date Row */}
+          <div className="mt-3 flex items-center justify-between">
+            <span
+              className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${stageStyle.bg} ${stageStyle.text}`}
+            >
+              {property.stage}
+            </span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              {formatDistanceToNow(lastUpdateDate, { addSuffix: true })}
+            </span>
           </div>
         </div>
       </Card>

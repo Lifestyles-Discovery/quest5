@@ -1,4 +1,16 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router";
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from "react-router";
+
+/**
+ * Redirect legacy evaluation URLs to new scenario URLs
+ * /properties/:propertyId/evaluations/:evaluationId -> /properties/:propertyId/scenario/:evaluationId
+ */
+function LegacyEvaluationRedirect() {
+  const { propertyId, evaluationId } = useParams<{
+    propertyId: string;
+    evaluationId: string;
+  }>();
+  return <Navigate to={`/properties/${propertyId}/scenario/${evaluationId}`} replace />;
+}
 
 // Layout
 import AppLayout from "./layout/AppLayout";
@@ -18,7 +30,6 @@ import Maintenance from "./pages/OtherPage/Maintenance";
 
 // Quest Features
 import { PropertiesPage, PropertyDetailPage } from "./features/properties";
-import { EvaluationDetailPage } from "./features/evaluations";
 import { SearchPage } from "./features/search";
 import { SettingsPage } from "./features/settings";
 import { AdminPage } from "./features/admin";
@@ -43,11 +54,12 @@ export default function App() {
             {/* Properties */}
             <Route path="/properties" element={<PropertiesPage />} />
             <Route path="/properties/:id" element={<PropertyDetailPage />} />
+            <Route path="/properties/:id/scenario/:scenarioId" element={<PropertyDetailPage />} />
 
-            {/* Evaluations */}
+            {/* Legacy evaluation route - redirect to new scenario URL */}
             <Route
               path="/properties/:propertyId/evaluations/:evaluationId"
-              element={<EvaluationDetailPage />}
+              element={<LegacyEvaluationRedirect />}
             />
 
             {/* Search */}

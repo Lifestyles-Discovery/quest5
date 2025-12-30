@@ -1,10 +1,22 @@
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router';
+import { useQuery } from '@tanstack/react-query';
 import PageMeta from '@components/common/PageMeta';
-import Button from '@components/ui/button/Button';
 import Alert from '@components/ui/alert/Alert';
+import Button from '@components/ui/button/Button';
 import { useProperty, useUpdatePropertyStage } from '@hooks/api/useProperties';
-import { useCreateEvaluation } from '@hooks/api/useEvaluations';
+import {
+  useCreateEvaluation,
+  useDeleteEvaluation,
+  useExportPdf,
+  useShareEvaluation,
+  evaluationsKeys,
+} from '@hooks/api/useEvaluations';
+import { propertiesService } from '@services/properties.service';
 import { PROPERTY_STAGES, type PropertyStage } from '@app-types/property.types';
+import type { Evaluation } from '@app-types/evaluation.types';
+import EvaluationContent from '@/features/evaluations/components/EvaluationContent';
+import { ScenarioHistory } from '../components/ScenarioHistory';
 
 function formatDate(dateString: string | null | undefined): string {
   if (!dateString) return '—';
@@ -13,28 +25,133 @@ function formatDate(dateString: string | null | undefined): string {
 }
 
 export default function PropertyDetailPage() {
-  const { id } = useParams<{ id: string }>();
+  const { id, scenarioId } = useParams<{ id: string; scenarioId?: string }>();
   const navigate = useNavigate();
 
-  const { data: property, isLoading, error } = useProperty(id!);
+  // State for modals
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareUrl, setShareUrl] = useState('');
+
+  // Hooks
+  const { data: property, isLoading: propertyLoading, error: propertyError } = useProperty(id!);
   const updateStage = useUpdatePropertyStage();
   const createEvaluation = useCreateEvaluation();
+  const deleteEvaluation = useDeleteEvaluation();
+  const exportPdf = useExportPdf();
+  const shareEvaluation = useShareEvaluation();
 
+  // Determine which evaluation to show
+  const currentEvaluationId = scenarioId || property?.evaluations?.[0]?.id;
+
+  // Fetch full evaluation data when we have an evaluation ID
+  const {
+    data: evaluation,
+    isLoading: evaluationLoading,
+    error: evaluationError,
+  } = useQuery({
+    queryKey: evaluationsKeys.detail(id!, currentEvaluationId!),
+    queryFn: async () => {
+      // The evaluation summary is in the property, but we need full data
+      // This fetches the full evaluation with comp groups and calculator
+      const prop = await propertiesService.getProperty(id!);
+      const evalSummary = prop.evaluations?.find((e) => e.id === currentEvaluationId);
+      if (!evalSummary) {
+        throw new Error('Evaluation not found');
+      }
+      // For now, return what we have - the sub-components will fetch what they need
+      return evalSummary as unknown as Evaluation;
+    },
+    enabled: !!id && !!currentEvaluationId,
+  });
+
+  // Auto-create evaluation if property has none
+  useEffect(() => {
+    if (
+      property &&
+      property.evaluations?.length === 0 &&
+      !createEvaluation.isPending &&
+      !createEvaluation.isSuccess
+    ) {
+      createEvaluation.mutate(property.id, {
+        onSuccess: (newEval) => {
+          navigate(`/properties/${property.id}/scenario/${newEval.id}`, { replace: true });
+        },
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [property, createEvaluation.isPending, createEvaluation.isSuccess]);
+
+  // Update URL to include scenarioId if not present but evaluation exists
+  useEffect(() => {
+    if (property && currentEvaluationId && !scenarioId) {
+      navigate(`/properties/${id}/scenario/${currentEvaluationId}`, { replace: true });
+    }
+  }, [property, currentEvaluationId, scenarioId, id, navigate]);
+
+  // Handlers
   const handleStageChange = (newStage: PropertyStage) => {
     if (!property) return;
     updateStage.mutate({ propertyId: property.id, stage: newStage });
   };
 
-  const handleCreateEvaluation = () => {
-    if (!property) return;
-    createEvaluation.mutate(property.id, {
-      onSuccess: (newEval) => {
-        navigate(`/properties/${property.id}/evaluations/${newEval.id}`);
-      },
-    });
+  const handleScenarioSelect = (evaluationId: string) => {
+    navigate(`/properties/${id}/scenario/${evaluationId}`);
   };
 
-  if (isLoading) {
+  const handleExportPdf = () => {
+    if (!currentEvaluationId) return;
+    exportPdf.mutate(
+      { propertyId: id!, evaluationId: currentEvaluationId },
+      {
+        onSuccess: ({ url }) => {
+          window.open(url, '_blank');
+        },
+      }
+    );
+  };
+
+  const handleShare = () => {
+    if (!currentEvaluationId) return;
+    shareEvaluation.mutate(
+      { propertyId: id!, evaluationId: currentEvaluationId },
+      {
+        onSuccess: (data) => {
+          setShareUrl(data.shareUrl);
+          setShowShareModal(true);
+        },
+      }
+    );
+  };
+
+  const handleDelete = () => {
+    if (!currentEvaluationId || !property) return;
+
+    // If this is the only evaluation, just close modal - can't delete
+    if (property.evaluations?.length === 1) {
+      setShowDeleteConfirm(false);
+      return;
+    }
+
+    deleteEvaluation.mutate(
+      { propertyId: id!, evaluationId: currentEvaluationId },
+      {
+        onSuccess: () => {
+          setShowDeleteConfirm(false);
+          // Navigate to first remaining evaluation
+          const remaining = property.evaluations?.find((e) => e.id !== currentEvaluationId);
+          if (remaining) {
+            navigate(`/properties/${id}/scenario/${remaining.id}`, { replace: true });
+          } else {
+            navigate(`/properties/${id}`, { replace: true });
+          }
+        },
+      }
+    );
+  };
+
+  // Loading state
+  if (propertyLoading || createEvaluation.isPending) {
     return (
       <div className="flex items-center justify-center py-24">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-500 border-t-transparent" />
@@ -42,7 +159,8 @@ export default function PropertyDetailPage() {
     );
   }
 
-  if (error || !property) {
+  // Error state
+  if (propertyError || !property) {
     return (
       <div className="py-12">
         <Alert
@@ -61,13 +179,15 @@ export default function PropertyDetailPage() {
 
   const fullAddress = `${property.address}, ${property.city}, ${property.state} ${property.zip}`;
   const primaryPhoto = property.photoUrl || '/images/cards/card-01.jpg';
-  const latestEvaluation = property.evaluations?.[0];
 
   // Check if there's any secondary content to show
   const hasNotes = property.notes && property.notes.length > 0;
   const hasDocuments = property.documents && property.documents.length > 0;
   const hasConnections = property.connections && property.connections.length > 0;
   const hasSecondaryContent = hasNotes || hasDocuments || hasConnections;
+
+  // Determine if we should auto-expand secondary content based on stage
+  const shouldExpandSecondary = ['Negotiating', 'Diligence', 'Closing'].includes(property.stage);
 
   return (
     <>
@@ -89,14 +209,23 @@ export default function PropertyDetailPage() {
                 to="/properties"
               >
                 Properties
-                <svg className="stroke-current" width="17" height="16" viewBox="0 0 17 16" fill="none">
-                  <path d="M6.0765 12.667L10.2432 8.50033L6.0765 4.33366" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                <svg
+                  className="stroke-current"
+                  width="17"
+                  height="16"
+                  viewBox="0 0 17 16"
+                  fill="none"
+                >
+                  <path
+                    d="M6.0765 12.667L10.2432 8.50033L6.0765 4.33366"
+                    strokeWidth="1.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </Link>
             </li>
-            <li className="text-sm text-gray-800 dark:text-white/90">
-              {property.address}
-            </li>
+            <li className="text-sm text-gray-800 dark:text-white/90">{property.address}</li>
           </ol>
         </nav>
       </div>
@@ -131,152 +260,110 @@ export default function PropertyDetailPage() {
                   </p>
                 </div>
 
-                {/* Stage + New Evaluation */}
-                <div className="flex items-center gap-3">
-                  <select
-                    value={property.stage}
-                    onChange={(e) => handleStageChange(e.target.value as PropertyStage)}
-                    disabled={updateStage.isPending}
-                    className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                  >
-                    {PROPERTY_STAGES.map((stage) => (
-                      <option key={stage} value={stage}>
-                        {stage}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    onClick={handleCreateEvaluation}
-                    disabled={createEvaluation.isPending}
-                    className="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
-                  >
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                    {createEvaluation.isPending ? 'Creating...' : 'New Evaluation'}
-                  </button>
-                </div>
+                {/* Stage Selector */}
+                <select
+                  value={property.stage}
+                  onChange={(e) => handleStageChange(e.target.value as PropertyStage)}
+                  disabled={updateStage.isPending}
+                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                >
+                  {PROPERTY_STAGES.map((stage) => (
+                    <option key={stage} value={stage}>
+                      {stage}
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              {/* Property Stats from latest evaluation */}
-              {latestEvaluation ? (
-                <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-                  <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Beds</p>
-                    <p className="text-lg font-semibold text-gray-800 dark:text-white">
-                      {latestEvaluation.beds ?? '—'}
-                    </p>
-                  </div>
-                  <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Baths</p>
-                    <p className="text-lg font-semibold text-gray-800 dark:text-white">
-                      {latestEvaluation.baths ?? '—'}
-                    </p>
-                  </div>
-                  <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Sq Ft</p>
-                    <p className="text-lg font-semibold text-gray-800 dark:text-white">
-                      {latestEvaluation.sqft?.toLocaleString() ?? '—'}
-                    </p>
-                  </div>
-                  <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Year Built</p>
-                    <p className="text-lg font-semibold text-gray-800 dark:text-white">
-                      {latestEvaluation.yearBuilt ?? '—'}
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="mt-6 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    No evaluations yet. Create an evaluation to see property details.
-                  </p>
-                </div>
-              )}
+              {/* Actions Row */}
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  onClick={handleExportPdf}
+                  disabled={exportPdf.isPending || !currentEvaluationId}
+                  className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                >
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                  {exportPdf.isPending ? 'Generating...' : 'Export PDF'}
+                </button>
+
+                <button
+                  onClick={handleShare}
+                  disabled={shareEvaluation.isPending || !currentEvaluationId}
+                  className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                >
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                    />
+                  </svg>
+                  {shareEvaluation.isPending ? 'Sharing...' : 'Share'}
+                </button>
+
+                {property.evaluations && property.evaluations.length > 1 && (
+                  <button
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="inline-flex items-center gap-2 rounded-lg border border-red-300 bg-white px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:border-red-600 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-red-900/20"
+                  >
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
+                    </svg>
+                    Delete Scenario
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Evaluations Section - Always Visible (Hero) */}
-        <div className="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
-          <div className="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-            <h3 className="text-lg font-medium text-gray-800 dark:text-white/90">
-              Evaluations
-              {property.evaluations && property.evaluations.length > 0 && (
-                <span className="ml-2 text-sm font-normal text-gray-500">
-                  ({property.evaluations.length})
-                </span>
-              )}
-            </h3>
+        {/* Evaluation Content */}
+        {evaluationLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-500 border-t-transparent" />
           </div>
-          <div className="p-6">
-            {!property.evaluations?.length ? (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <div className="mb-4 rounded-full bg-gray-100 p-4 dark:bg-gray-800">
-                  <svg className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <h4 className="mb-1 text-lg font-medium text-gray-800 dark:text-white/90">
-                  No Evaluations Yet
-                </h4>
-                <p className="mb-4 max-w-sm text-sm text-gray-500 dark:text-gray-400">
-                  Create an evaluation to analyze sale comps, rent comps, and investment returns.
-                </p>
-                <button
-                  onClick={handleCreateEvaluation}
-                  disabled={createEvaluation.isPending}
-                  className="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
-                >
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  {createEvaluation.isPending ? 'Creating...' : 'Create First Evaluation'}
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {property.evaluations.map((evaluation) => (
-                  <Link
-                    key={evaluation.id}
-                    to={`/properties/${property.id}/evaluations/${evaluation.id}`}
-                    className="block rounded-lg border border-gray-200 p-4 transition-colors hover:border-brand-300 hover:bg-gray-50 dark:border-gray-700 dark:hover:border-brand-600 dark:hover:bg-gray-800"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-800 dark:text-white">
-                          {evaluation.beds} bed / {evaluation.baths} bath / {evaluation.sqft?.toLocaleString()} sqft
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Created {formatDate(evaluation.created)}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        {evaluation.listPrice && (
-                          <p className="font-semibold text-gray-800 dark:text-white">
-                            ${evaluation.listPrice.toLocaleString()}
-                          </p>
-                        )}
-                        <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </div>
-                    </div>
-                    {evaluation.notes && (
-                      <p className="mt-2 line-clamp-2 text-sm text-gray-600 dark:text-gray-400">
-                        {evaluation.notes}
-                      </p>
-                    )}
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+        ) : evaluationError || !evaluation ? (
+          <Alert
+            variant="error"
+            title="Error loading evaluation"
+            message="Could not load evaluation data. Please try again."
+          />
+        ) : (
+          <EvaluationContent
+            propertyId={id!}
+            evaluationId={currentEvaluationId!}
+            evaluation={evaluation}
+          />
+        )}
 
-        {/* Secondary Content - Collapsible (only shown if content exists) */}
+        {/* Scenario History */}
+        {property && currentEvaluationId && (
+          <ScenarioHistory
+            property={property}
+            currentEvaluationId={currentEvaluationId}
+            onScenarioSelect={handleScenarioSelect}
+          />
+        )}
+
+        {/* Secondary Content - Collapsible */}
         {hasSecondaryContent && (
-          <details className="group rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+          <details
+            className="group rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
+            open={shouldExpandSecondary}
+          >
             <summary className="cursor-pointer list-none px-6 py-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-medium text-gray-800 dark:text-white/90">
@@ -286,7 +373,9 @@ export default function PropertyDetailPage() {
                       hasNotes && `${property.notes!.length} notes`,
                       hasDocuments && `${property.documents!.length} docs`,
                       hasConnections && `${property.connections!.length} contacts`,
-                    ].filter(Boolean).join(' · ')}
+                    ]
+                      .filter(Boolean)
+                      .join(' · ')}
                   </span>
                 </h3>
                 <svg
@@ -295,7 +384,12 @@ export default function PropertyDetailPage() {
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
                 </svg>
               </div>
             </summary>
@@ -341,8 +435,18 @@ export default function PropertyDetailPage() {
                       >
                         <div className="flex items-center gap-3">
                           <div className="rounded bg-gray-100 p-2 dark:bg-gray-800">
-                            <svg className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            <svg
+                              className="h-5 w-5 text-gray-500"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={1.5}
+                                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                              />
                             </svg>
                           </div>
                           <div>
@@ -375,8 +479,12 @@ export default function PropertyDetailPage() {
                       >
                         <div className="flex items-start justify-between">
                           <div>
-                            <p className="font-medium text-gray-800 dark:text-white">{connection.name}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">{connection.type}</p>
+                            <p className="font-medium text-gray-800 dark:text-white">
+                              {connection.name}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              {connection.type}
+                            </p>
                           </div>
                         </div>
                         <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
@@ -392,6 +500,74 @@ export default function PropertyDetailPage() {
           </details>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Delete Scenario?
+            </h3>
+            <p className="mt-2 text-gray-600 dark:text-gray-300">
+              This action cannot be undone. All comp data and calculations for this scenario will be
+              permanently deleted.
+            </p>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleteEvaluation.isPending}
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                {deleteEvaluation.isPending ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Share Modal */}
+      {showShareModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Share Evaluation
+            </h3>
+            <p className="mt-2 text-gray-600 dark:text-gray-300">
+              Copy this link to share the evaluation:
+            </p>
+            <div className="mt-4 flex gap-2">
+              <input
+                type="text"
+                readOnly
+                value={shareUrl}
+                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700"
+              />
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(shareUrl);
+                }}
+                className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600"
+              >
+                Copy
+              </button>
+            </div>
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

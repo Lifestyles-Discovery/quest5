@@ -1,23 +1,38 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import PageMeta from '@components/common/PageMeta';
 import PageBreadcrumb from '@components/common/PageBreadCrumb';
 import { PropertyCard } from '../components/PropertyCard';
-import { PropertyFilter } from '../components/PropertyFilter';
+import { StageTabsFilter } from '../components/StageTabsFilter';
 import { NewPropertyModal } from '../components/NewPropertyModal';
 import { useProperties } from '@hooks/api/useProperties';
 import {
-  DEFAULT_PROPERTIES_FILTER,
+  STAGE_TAB_GROUPS,
+  PROPERTY_STAGES,
+  type StageTabKey,
   type PropertiesFilter,
 } from '@app-types/property.types';
 import Button from '@components/ui/button/Button';
+import Input from '@components/form/input/InputField';
 
 const PROPERTIES_PER_PAGE = 6;
 
 export default function PropertiesPage() {
-  const [filter, setFilter] = useState<PropertiesFilter>(DEFAULT_PROPERTIES_FILTER);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<StageTabKey>('all');
+  const [searchTerm, setSearchTerm] = useState('');
   const [isNewPropertyOpen, setIsNewPropertyOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Build filter from tab and search
+  const filter: PropertiesFilter = useMemo(
+    () => ({
+      searchTerm,
+      stages: STAGE_TAB_GROUPS[activeTab].stages as typeof PROPERTY_STAGES,
+      useDates: false,
+      startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      endDate: new Date(),
+    }),
+    [activeTab, searchTerm]
+  );
 
   const { data: properties, isLoading, error } = useProperties(filter);
 
@@ -28,8 +43,13 @@ export default function PropertiesPage() {
   const paginatedProperties = properties?.slice(startIndex, startIndex + PROPERTIES_PER_PAGE);
 
   // Reset to page 1 when filter changes
-  const handleFilterChange = (newFilter: PropertiesFilter) => {
-    setFilter(newFilter);
+  const handleTabChange = (tab: StageTabKey) => {
+    setActiveTab(tab);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (term: string) => {
+    setSearchTerm(term);
     setCurrentPage(1);
   };
 
@@ -80,13 +100,18 @@ export default function PropertiesPage() {
           onClose={() => setIsNewPropertyOpen(false)}
         />
 
-        {/* Filter */}
-        <PropertyFilter
-          filter={filter}
-          onFilterChange={handleFilterChange}
-          isOpen={isFilterOpen}
-          onToggle={() => setIsFilterOpen(!isFilterOpen)}
-        />
+        {/* Stage Tabs and Search */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <StageTabsFilter activeTab={activeTab} onTabChange={handleTabChange} />
+          <div className="w-full sm:w-64">
+            <Input
+              type="text"
+              placeholder="Search properties..."
+              value={searchTerm}
+              onChange={(e) => handleSearchChange(e.target.value)}
+            />
+          </div>
+        </div>
 
         {/* Loading State */}
         {isLoading && (

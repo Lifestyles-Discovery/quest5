@@ -43,6 +43,27 @@ export const STAGE_COLORS: Record<PropertyStage, string> = {
 };
 
 /**
+ * Stage tab groups for simplified filtering
+ */
+export const STAGE_TAB_GROUPS = {
+  all: { label: 'All', stages: PROPERTY_STAGES },
+  active: {
+    label: 'Active',
+    stages: ['Finding', 'Evaluating', 'Negotiating'] as PropertyStage[],
+  },
+  inProgress: {
+    label: 'In Progress',
+    stages: ['Diligence', 'Closing', 'Rehabbing'] as PropertyStage[],
+  },
+  managing: {
+    label: 'Managing',
+    stages: ['Leasing', 'Selling'] as PropertyStage[],
+  },
+} as const;
+
+export type StageTabKey = keyof typeof STAGE_TAB_GROUPS;
+
+/**
  * Property summary (returned from list endpoint)
  */
 export interface PropertySummary {
@@ -59,6 +80,17 @@ export interface PropertySummary {
   connectionCount: number;
   noteCount: number;
   documentCount: number;
+
+  // Investment metrics from latest evaluation (optional - populated when evaluation exists)
+  latestEvaluationId?: string;
+  arv?: number;
+  listPrice?: number;
+  estimatedRent?: number;
+  monthlyCashflow?: number;
+  cashOnCashReturn?: number;
+  beds?: number;
+  baths?: number;
+  sqft?: number;
 }
 
 /**

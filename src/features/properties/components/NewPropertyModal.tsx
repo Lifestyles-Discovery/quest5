@@ -5,10 +5,9 @@ import Input from '@components/form/input/InputField';
 import Label from '@components/form/Label';
 import Button from '@components/ui/button/Button';
 import Alert from '@components/ui/alert/Alert';
-import {
-  useCreatePropertyByAddress,
-  useCreatePropertyByMls,
-} from '@hooks/api/useProperties';
+import { useCreatePropertyByAddress } from '@hooks/api/useProperties';
+import { useCreateEvaluation } from '@hooks/api/useEvaluations';
+import { useCreatePropertyFromSearch } from '@hooks/api/useSearch';
 import { useMlsMarkets, useStates } from '@hooks/api/useAdmin';
 import { useAuth } from '@context/AuthContext';
 
@@ -41,9 +40,13 @@ export function NewPropertyModal({ isOpen, onClose }: NewPropertyModalProps) {
 
   // Mutations
   const createByAddress = useCreatePropertyByAddress();
-  const createByMls = useCreatePropertyByMls();
+  const createEvaluation = useCreateEvaluation();
+  const createPropertyFromSearch = useCreatePropertyFromSearch();
 
-  const isPending = createByAddress.isPending || createByMls.isPending;
+  const isPending =
+    createByAddress.isPending ||
+    createEvaluation.isPending ||
+    createPropertyFromSearch.isPending;
 
   const resetForm = () => {
     setAddress('');
@@ -67,12 +70,23 @@ export function NewPropertyModal({ isOpen, onClose }: NewPropertyModalProps) {
       return;
     }
 
+    // Create property, then auto-create evaluation and navigate to it
     createByAddress.mutate(
       { address, city, state, zip },
       {
         onSuccess: (property) => {
-          handleClose();
-          navigate(`/properties/${property.id}`);
+          // Auto-create first evaluation
+          createEvaluation.mutate(property.id, {
+            onSuccess: (evaluation) => {
+              handleClose();
+              navigate(`/properties/${property.id}/scenario/${evaluation.id}`);
+            },
+            onError: () => {
+              // Property created but evaluation failed - still navigate
+              handleClose();
+              navigate(`/properties/${property.id}`);
+            },
+          });
         },
         onError: () => {
           setError(`Could not find property at ${address}, ${city}, ${state} ${zip}`);
@@ -89,12 +103,13 @@ export function NewPropertyModal({ isOpen, onClose }: NewPropertyModalProps) {
       return;
     }
 
-    createByMls.mutate(
+    // Use combined endpoint that creates property + evaluation in one call
+    createPropertyFromSearch.mutate(
       { mlsMarket, mlsNumber },
       {
-        onSuccess: (property) => {
+        onSuccess: (result) => {
           handleClose();
-          navigate(`/properties/${property.id}`);
+          navigate(`/properties/${result.propertyId}/scenario/${result.id}`);
         },
         onError: () => {
           setError(`Could not find property with MLS# ${mlsNumber} in ${mlsMarket}`);
