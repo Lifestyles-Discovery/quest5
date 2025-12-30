@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { Link, useLocation } from "react-router";
 
 // Icons
@@ -14,7 +14,11 @@ import {
   UserCircleIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
+import { useSession } from "@/hooks/api/useAuth";
 import SidebarWidget from "./SidebarWidget";
+
+// Check if we're in development mode
+const isDev = import.meta.env.DEV;
 
 type NavItem = {
   name: string;
@@ -75,13 +79,23 @@ const settingsItems: NavItem[] = [
   },
 ];
 
-// Keep othersItems and supportItems as empty for template compatibility
-const othersItems: NavItem[] = devItems;
-const supportItems: NavItem[] = settingsItems;
-
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
+  const { data: session } = useSession();
+
+  // Filter settings items based on user rights
+  const supportItems = useMemo(() => {
+    const items = [...settingsItems];
+    // Only show Admin if user has admin rights
+    if (!session?.rights?.admin) {
+      return items.filter((item) => item.name !== "Admin");
+    }
+    return items;
+  }, [session?.rights?.admin]);
+
+  // Only show dev items in development mode
+  const othersItems = useMemo(() => (isDev ? devItems : []), []);
 
   const [openSubmenu, setOpenSubmenu] = useState<{
     type: "main" | "support" | "others";
@@ -364,22 +378,24 @@ const AppSidebar: React.FC = () => {
               </h2>
               {renderMenuItems(supportItems, "support")}
             </div>
-            <div className="">
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "Dev"
-                ) : (
-                  <HorizontaLDots />
-                )}
-              </h2>
-              {renderMenuItems(othersItems, "others")}
-            </div>
+            {othersItems.length > 0 && (
+              <div className="">
+                <h2
+                  className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                    !isExpanded && !isHovered
+                      ? "lg:justify-center"
+                      : "justify-start"
+                  }`}
+                >
+                  {isExpanded || isHovered || isMobileOpen ? (
+                    "Dev"
+                  ) : (
+                    <HorizontaLDots />
+                  )}
+                </h2>
+                {renderMenuItems(othersItems, "others")}
+              </div>
+            )}
           </div>
         </nav>
         {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}
