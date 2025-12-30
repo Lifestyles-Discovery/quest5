@@ -8,7 +8,7 @@ export default function ImpressionChart() {
       position: "top",
       horizontalAlign: "left",
     },
-    colors: ["#465FFF", "#9CB9FF"],
+    colors: ["#003366", "#9CB9FF"],
     chart: {
       fontFamily: "Outfit, sans-serif",
       height: 310,

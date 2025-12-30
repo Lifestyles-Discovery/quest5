@@ -54,9 +54,9 @@ export function PropertyCard({ property }: PropertyCardProps) {
 
   // Build property specs string
   const specs: string[] = [];
-  if (property.beds !== undefined) specs.push(`${property.beds} bd`);
-  if (property.baths !== undefined) specs.push(`${property.baths} ba`);
-  if (property.sqft !== undefined) specs.push(`${property.sqft.toLocaleString()} sf`);
+  if (property.beds != null) specs.push(`${property.beds} bd`);
+  if (property.baths != null) specs.push(`${property.baths} ba`);
+  if (property.sqft != null) specs.push(`${property.sqft.toLocaleString()} sf`);
 
   return (
     <Link to={`/deals/${property.id}`}>

@@ -41,18 +41,18 @@ layer(base);
   --color-white: #ffffff;
   --color-black: #101828;
 
-  --color-brand-25: #f2f7ff;
-  --color-brand-50: #ecf3ff;
-  --color-brand-100: #dde9ff;
-  --color-brand-200: #c2d6ff;
-  --color-brand-300: #9cb9ff;
-  --color-brand-400: #7592ff;
-  --color-brand-500: #465fff;
-  --color-brand-600: #3641f5;
-  --color-brand-700: #2a31d8;
-  --color-brand-800: #252dae;
-  --color-brand-900: #262e89;
-  --color-brand-950: #161950;
+  --color-brand-25: #f5f8fa;
+  --color-brand-50: #edf2f7;
+  --color-brand-100: #dce5ef;
+  --color-brand-200: #b8c9db;
+  --color-brand-300: #8aa6c2;
+  --color-brand-400: #1a5c99;
+  --color-brand-500: #003366;
+  --color-brand-600: #002952;
+  --color-brand-700: #00203f;
+  --color-brand-800: #00182e;
+  --color-brand-900: #00101f;
+  --color-brand-950: #000810;
 
   --color-blue-light-25: #f5fbff;
   --color-blue-light-50: #f0f9ff;
@@ -133,6 +133,19 @@ layer(base);
   --color-warning-900: #7a2e0e;
   --color-warning-950: #4e1d09;
 
+  --color-accent-25: #fffdf5;
+  --color-accent-50: #fffbeb;
+  --color-accent-100: #fff5cc;
+  --color-accent-200: #ffeda3;
+  --color-accent-300: #ffe47a;
+  --color-accent-400: #ffe066;
+  --color-accent-500: #ffdd57;
+  --color-accent-600: #e6c74e;
+  --color-accent-700: #ccb145;
+  --color-accent-800: #b39a3c;
+  --color-accent-900: #8a7730;
+  --color-accent-950: #5c4f20;
+
   --color-theme-pink-500: #ee46bc;
 
   --color-theme-purple-500: #7a5af8;
@@ -147,7 +160,7 @@ layer(base);
   --shadow-theme-xl: 0px 20px 24px -4px rgba(16, 24, 40, 0.08),
     0px 8px 8px -4px rgba(16, 24, 40, 0.03);
   --shadow-datepicker: -5px 0 0 #262d3c, 5px 0 0 #262d3c;
-  --shadow-focus-ring: 0px 0px 0px 4px rgba(70, 95, 255, 0.12);
+  --shadow-focus-ring: 0px 0px 0px 4px rgba(0, 51, 102, 0.12);
   --shadow-slider-navigation: 0px 1px 2px 0px rgba(16, 24, 40, 0.1),
     0px 1px 3px 0px rgba(16, 24, 40, 0.1);
   --shadow-tooltip: 0px 4px 6px -2px rgba(16, 24, 40, 0.05),
@@ -527,13 +540,13 @@ span.flatpickr-weekday,
 .flatpickr-day.selected.nextMonthDay,
 .flatpickr-day.startRange.nextMonthDay,
 .flatpickr-day.endRange.nextMonthDay {
-  background: #465fff;
+  background: #003366;
   @apply border-brand-500! bg-brand-500! hover:border-brand-500! hover:bg-brand-500!;
 }
 .flatpickr-day.selected.startRange + .endRange:not(:nth-child(7n + 1)),
 .flatpickr-day.startRange.startRange + .endRange:not(:nth-child(7n + 1)),
 .flatpickr-day.endRange.startRange + .endRange:not(:nth-child(7n + 1)) {
-  box-shadow: -10px 0 0 #465fff;
+  box-shadow: -10px 0 0 #003366;
 }
 
 .flatpickr-months .flatpickr-prev-month svg,

@@ -241,7 +241,7 @@ export default function PortfolioPerformance() {
       position: "top",
       horizontalAlign: "left",
     },
-    colors: ["#465FFF"],
+    colors: ["#003366"],
     chart: {
       fontFamily: "Outfit, sans-serif",
       height: 335,

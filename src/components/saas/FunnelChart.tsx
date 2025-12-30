@@ -20,7 +20,7 @@ export default function FunnelChart() {
     },
   ];
   const options: ApexOptions = {
-    colors: ["#2a31d8", "#465fff", "#7592ff", "#c2d6ff"],
+    colors: ["#2a31d8", "#003366", "#7592ff", "#c2d6ff"],
     chart: {
       fontFamily: "Outfit, sans-serif",
       type: "bar",

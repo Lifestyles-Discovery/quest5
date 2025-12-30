@@ -305,26 +305,17 @@ const AppSidebar: React.FC = () => {
       >
         <Link to="/">
           {isExpanded || isHovered || isMobileOpen ? (
-            <>
-              <img
-                className="dark:hidden"
-                src="/images/logo/logo.svg"
-                alt="Logo"
-                width={150}
-                height={40}
-              />
-              <img
-                className="hidden dark:block"
-                src="/images/logo/logo-dark.svg"
-                alt="Logo"
-                width={150}
-                height={40}
-              />
-            </>
+            <img
+              src="/images/logo/quest-logo-small.png"
+              alt="Quest Logo"
+              width={150}
+              height={30}
+              className="object-contain"
+            />
           ) : (
             <img
               src="/images/logo/logo-icon.svg"
-              alt="Logo"
+              alt="Quest Logo"
               width={32}
               height={32}
             />

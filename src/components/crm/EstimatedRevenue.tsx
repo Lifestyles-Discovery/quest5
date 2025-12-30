@@ -17,7 +17,7 @@ export default function EstimatedRevenue() {
   }
   // ApexCharts configuration
   const options: ApexOptions = {
-    colors: ["#465FFF"],
+    colors: ["#003366"],
     chart: {
       fontFamily: "Outfit, sans-serif",
       type: "radialBar",
@@ -56,7 +56,7 @@ export default function EstimatedRevenue() {
     },
     fill: {
       type: "solid",
-      colors: ["#465FFF"],
+      colors: ["#003366"],
     },
     stroke: {
       lineCap: "round",
