@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useUpdateCalculator } from '@/hooks/api/useEvaluations';
 import { EditableField } from '@/components/form/EditableField';
 import { formatCurrency, formatPercent } from '@/utils/formatters';
@@ -8,7 +8,6 @@ import type {
   ConventionalInputs,
   HardMoneyInputs,
 } from '@app-types/evaluation.types';
-import { debounce } from '@/utils/debounce';
 
 interface CalculatorSectionProps {
   propertyId: string;
@@ -28,37 +27,28 @@ export default function CalculatorSection({
 
   const updateCalculator = useUpdateCalculator();
 
-  // Debounced update function
-  const debouncedUpdate = useCallback(
-    debounce(
-      (
-        dealTermInputs?: Partial<DealTermInputs>,
-        conventionalInputs?: Partial<ConventionalInputs>,
-        hardMoneyInputs?: Partial<HardMoneyInputs>
-      ) => {
-        updateCalculator.mutate({
-          propertyId,
-          evaluationId,
-          dealTermInputs,
-          conventionalInputs,
-          hardMoneyInputs,
-        });
-      },
-      500
-    ),
-    [propertyId, evaluationId]
-  );
-
-  const handleDealTermChange = (field: keyof DealTermInputs, value: number) => {
-    debouncedUpdate({ [field]: value }, undefined, undefined);
+  const handleDealTermChange = async (field: keyof DealTermInputs, value: number) => {
+    await updateCalculator.mutateAsync({
+      propertyId,
+      evaluationId,
+      dealTermInputs: { [field]: value },
+    });
   };
 
-  const handleConventionalChange = (field: keyof ConventionalInputs, value: number | boolean) => {
-    debouncedUpdate(undefined, { [field]: value }, undefined);
+  const handleConventionalChange = async (field: keyof ConventionalInputs, value: number | boolean) => {
+    await updateCalculator.mutateAsync({
+      propertyId,
+      evaluationId,
+      conventionalInputs: { [field]: value },
+    });
   };
 
-  const handleHardMoneyChange = (field: keyof HardMoneyInputs, value: number | boolean) => {
-    debouncedUpdate(undefined, undefined, { [field]: value });
+  const handleHardMoneyChange = async (field: keyof HardMoneyInputs, value: number | boolean) => {
+    await updateCalculator.mutateAsync({
+      propertyId,
+      evaluationId,
+      hardMoneyInputs: { [field]: value },
+    });
   };
 
   if (!calculator) {

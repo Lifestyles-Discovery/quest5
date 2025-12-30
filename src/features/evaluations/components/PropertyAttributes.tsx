@@ -15,8 +15,8 @@ export default function PropertyAttributes({
 }: PropertyAttributesProps) {
   const updateAttributes = useUpdateAttributes();
 
-  const handleSave = (field: string, value: number | string) => {
-    updateAttributes.mutate({
+  const handleSave = async (field: string, value: number | string) => {
+    await updateAttributes.mutateAsync({
       propertyId,
       evaluationId,
       attributes: { [field]: value },

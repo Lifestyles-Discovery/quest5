@@ -23,8 +23,8 @@ interface EditableFieldProps {
   label: string;
   /** Current value */
   value: number | string;
-  /** Called when value is saved */
-  onSave: (value: number | string) => void;
+  /** Called when value is saved - can be async for error handling */
+  onSave: (value: number | string) => void | Promise<void>;
   /** How to format the display value */
   format?: EditableFieldFormat;
   /** Suffix to append to display (e.g., " beds", " sqft") */
@@ -90,6 +90,7 @@ export function EditableField({
     handleKeyDown,
     inputRef,
     justSaved,
+    hasError,
   } = useEditableField({
     value,
     onSave,
@@ -183,6 +184,7 @@ export function EditableField({
             hover:bg-gray-100 dark:hover:bg-gray-700/50
             transition-colors
             ${sizes.value}
+            ${hasError ? 'bg-red-50 dark:bg-red-900/20' : ''}
           `}
           role="button"
           tabIndex={0}
@@ -193,7 +195,9 @@ export function EditableField({
             }
           }}
         >
-          <span className="flex-1">{getDisplayValue()}</span>
+          <span className={`flex-1 ${hasError ? 'text-red-600 dark:text-red-400' : ''}`}>
+            {getDisplayValue()}
+          </span>
           {justSaved && (
             <svg
               className="ml-2 h-4 w-4 text-green-500"
@@ -206,6 +210,21 @@ export function EditableField({
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 d="M5 13l4 4L19 7"
+              />
+            </svg>
+          )}
+          {hasError && (
+            <svg
+              className="ml-2 h-4 w-4 text-red-500"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
               />
             </svg>
           )}
