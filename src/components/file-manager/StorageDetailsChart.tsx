@@ -1,10 +1,11 @@
 import { useMemo } from "react";
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
+import { useTheme } from "../../context/ThemeContext";
 
 const StorageDetailsChart: React.FC = () => {
-  // Mocked dark mode state (replace with actual context/state if applicable)
-  const isDarkMode = true; // Change this to your dark mode logic
+  const { theme } = useTheme();
+  const isDarkMode = theme === "dark";
 
   // Chart configuration using useMemo for optimization
   const options: ApexOptions = useMemo(

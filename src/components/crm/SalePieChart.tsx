@@ -4,8 +4,17 @@ import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { MoreDotIcon } from "../../icons";
 import { useState } from "react";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function SalePieChart() {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
+  // Theme-aware colors
+  const textColor = isDark ? "#e4e7ec" : "#1D2939"; // gray-200 for dark, gray-800 for light
+  const secondaryTextColor = isDark ? "#98a2b3" : "#667085"; // gray-400 for dark, gray-500 for light
+  const totalTextColor = isDark ? "#ffffff" : "#000000"; // white for dark, black for light
+
   // ApexCharts configuration
   const options: ApexOptions = {
     colors: ["#3641f5", "#7592ff", "#dde9ff"],
@@ -30,7 +39,7 @@ export default function SalePieChart() {
             name: {
               show: true,
               offsetY: 0,
-              color: "#1D2939",
+              color: textColor,
               fontSize: "12px",
               fontWeight: "normal",
               // text: "",
@@ -39,14 +48,14 @@ export default function SalePieChart() {
             value: {
               show: true,
               offsetY: 10,
-              color: "#667085",
+              color: secondaryTextColor,
               fontSize: "14px",
               formatter: () => "Used of 1.1K",
             },
             total: {
               show: true,
               label: "Total",
-              color: "#000000",
+              color: totalTextColor,
               fontSize: "20px",
               fontWeight: "bold",
             },

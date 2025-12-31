@@ -4,9 +4,16 @@ import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { MoreDotIcon } from "../../icons";
 import { useState } from "react";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function EstimatedRevenue() {
   const [isOpen, setIsOpen] = useState(false);
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
+  // Theme-aware colors
+  const textColor = isDark ? "#e4e7ec" : "#1D2939"; // gray-200 for dark, gray-800 for light
+  const trackColor = isDark ? "#344054" : "#E4E7EC"; // gray-700 for dark, gray-200 for light
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -34,7 +41,7 @@ export default function EstimatedRevenue() {
           size: "80%",
         },
         track: {
-          background: "#E4E7EC",
+          background: trackColor,
           strokeWidth: "100%",
           margin: 5, // margin is in pixels
         },
@@ -46,7 +53,7 @@ export default function EstimatedRevenue() {
             fontSize: "36px",
             fontWeight: "600",
             offsetY: -25,
-            color: "#1D2939",
+            color: textColor,
             formatter: function (val) {
               return "$" + val;
             },
