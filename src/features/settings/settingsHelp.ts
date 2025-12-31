@@ -28,15 +28,15 @@ export const SETTINGS_HELP = {
 
   // Deal Inputs
   dealSurvey:
-    'Suggested: $400. How much it costs to purchase a survey. Adjust when you have a more accurate number for your market.',
+    'Suggested: $500. How much it costs to purchase a survey. Adjust when you have a more accurate number for your market.',
   dealAppraisal:
-    'Suggested: $400. How much it costs to purchase an appraisal. Adjust when you have a more accurate number for your market.',
+    'Suggested: $450. How much it costs to purchase an appraisal. Adjust when you have a more accurate number for your market.',
   dealInspection:
-    'Suggested: $400. How much it costs to perform an inspection with a licensed inspector. Adjust for your market.',
+    'Suggested: $450. How much it costs to perform an inspection with a licensed inspector. Adjust for your market.',
   dealPropertyInsurancePercentListPrice:
-    'Suggested: 1.2%. Rough estimate of insurance cost as a percentage of property value. Rates vary by state.',
+    'Suggested: 0.8%. Rough estimate of insurance cost as a percentage of property value. Rates vary by state.',
   dealPropertyTaxPercentListPrice:
-    'Suggested: 2.5%. Rough estimate of property tax as a percentage of property value. The default is appropriate for Texas—adjust for your location.',
+    'Suggested: 1.8%. Rough estimate of property tax as a percentage of property value. The default is appropriate for Texas—adjust for your location.',
   dealRepairs:
     'Suggested: $0. Default repair estimate. Each property will have different needs, so plan to enter an amount on each evaluation.',
   dealMaxRefiCashback:
@@ -46,9 +46,9 @@ export const SETTINGS_HELP = {
   conventionalDownPayment:
     'Suggested: 20%. Default down payment percentage of the purchase price used in financial calculations.',
   conventionalInterestRate:
-    'Suggested: current market rate. Default interest rate used in financial calculations.',
+    'Suggested: 7%. Default interest rate used in financial calculations. Adjust based on current market rates.',
   conventionalLenderFeesPercentOfListPrice:
-    'Suggested: 4%. Conventional financing cost as a percentage of the purchase price.',
+    'Suggested: 3%. Conventional financing cost as a percentage of the purchase price.',
   conventionalMonthsTaxEscrow:
     'Suggested: 0. Months of principal and interest added to closing costs if you escrow. Set to 0 if you don\'t escrow.',
   conventionalLoanTermInYears: 'Suggested: 30. Most conventional loans are 30-year loans.',
@@ -57,9 +57,9 @@ export const SETTINGS_HELP = {
   hardLoanToValuePercent:
     'Suggested: 70%. Hard-money lenders only lend up to a percentage of the after-repaired value.',
   hardLenderFeesPercentOfListPrice:
-    'Suggested: 8%. Hard-money financing costs more than conventional—you pay more points. Check with your lender for exact fees.',
+    'Suggested: 3%. Hard-money origination points. Check with your lender for exact fees.',
   hardInterestRate:
-    'Suggested: 14%. Hard-money loans typically have higher interest rates than conventional. Check with your lender for exact rates.',
+    'Suggested: 11%. Hard-money loans typically have higher interest rates than conventional. Check with your lender for exact rates.',
   hardMonthsUntilRefi:
     'Suggested: 3. How many months from when the hard-money loan funds to when the refi loan pays it off.',
   hardRollInLenderFees:
@@ -70,9 +70,9 @@ export const SETTINGS_HELP = {
   hardRefiLoanToValue:
     'Suggested: 75%. Refinance loans usually only lend up to a percentage of the after-repaired estimated sale price.',
   hardRefiLoanTermInYears: 'Suggested: 30. Most refinance loans have 30-year terms.',
-  hardRefiInterestRate: 'Suggested: 5%. The interest rate for the refinance loan.',
+  hardRefiInterestRate: 'Suggested: 7%. The interest rate for the refinance loan. Adjust based on current market rates.',
   hardRefiLenderFeesPercentListPrice:
-    'Suggested: 4%. Refinance financing cost as a percentage of the purchase price.',
+    'Suggested: 3%. Refinance financing cost as a percentage of the purchase price.',
 } as const;
 
 export type SettingKey = keyof typeof SETTINGS_HELP;

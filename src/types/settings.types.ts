@@ -35,30 +35,30 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   evaluationRadius: 1,
 
   // Deal cost defaults
-  dealSurvey: 400,
-  dealAppraisal: 400,
-  dealInspection: 400,
-  dealPropertyInsurancePercentListPrice: 1.2,
-  dealPropertyTaxPercentListPrice: 2.5,
+  dealSurvey: 500,
+  dealAppraisal: 450,
+  dealInspection: 450,
+  dealPropertyInsurancePercentListPrice: 0.8,
+  dealPropertyTaxPercentListPrice: 1.8,
   dealRepairs: 0,
   dealMaxRefiCashback: 2000,
 
   // Conventional financing defaults
   conventionalDownPayment: 20,
   conventionalInterestRate: 7,
-  conventionalLenderFeesPercentOfListPrice: 4,
+  conventionalLenderFeesPercentOfListPrice: 3,
   conventionalMonthsTaxEscrow: 0,
   conventionalLoanTermInYears: 30,
 
   // Hard money financing defaults
   hardLoanToValuePercent: 70,
-  hardLenderFeesPercentOfListPrice: 8,
-  hardInterestRate: 14,
+  hardLenderFeesPercentOfListPrice: 3,
+  hardInterestRate: 11,
   hardMonthsUntilRefi: 3,
   hardRollInLenderFees: true,
   hardWeeksUntilLeased: 8,
   hardRefiLoanToValue: 75,
   hardRefiLoanTermInYears: 30,
-  hardRefiInterestRate: 5,
-  hardRefiLenderFeesPercentListPrice: 4,
+  hardRefiInterestRate: 7,
+  hardRefiLenderFeesPercentListPrice: 3,
 };
