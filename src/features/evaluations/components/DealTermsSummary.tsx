@@ -6,25 +6,19 @@ import type { DealTermInputs } from '@app-types/evaluation.types';
 interface DealTermsSummaryProps {
   dealTerms: DealTermInputs;
   onChange: (field: keyof DealTermInputs, value: number) => void;
-  showHardMoney: boolean;
 }
 
 export default function DealTermsSummary({
   dealTerms,
   onChange,
-  showHardMoney,
 }: DealTermsSummaryProps) {
-  const [showDefaults, setShowDefaults] = useState(false);
+  const [showMore, setShowMore] = useState(false);
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-      {/* Primary Zone: This Property */}
+      {/* Primary: The 4 numbers that define the deal */}
       <div className="p-6">
-        <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">
-          This Property
-        </h3>
-
-        <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-4">
           <EditableField
             label="Purchase Price"
             value={dealTerms.purchasePrice}
@@ -38,50 +32,46 @@ export default function DealTermsSummary({
             onSave={(v) => onChange('estimatedMarketValue', v as number)}
           />
           <EditableField
-            label="Repairs"
-            value={dealTerms.repairsMakeReady}
-            format="currency"
-            onSave={(v) => onChange('repairsMakeReady', v as number)}
-          />
-          <EditableField
             label="Monthly Rent"
             value={dealTerms.rent}
             format="currency"
             onSave={(v) => onChange('rent', v as number)}
           />
-          {showHardMoney && (
-            <EditableField
-              label="Appraised Value"
-              value={dealTerms.estimatedAppraisedValue}
-              format="currency"
-              onSave={(v) => onChange('estimatedAppraisedValue', v as number)}
-            />
-          )}
+          <EditableField
+            label="Repairs"
+            value={dealTerms.repairsMakeReady}
+            format="currency"
+            onSave={(v) => onChange('repairsMakeReady', v as number)}
+          />
         </div>
       </div>
 
-      {/* Secondary Zone: Costs & Defaults */}
+      {/* Secondary: Costs & adjustments */}
       <div className="border-t border-gray-200 dark:border-gray-700">
         <button
-          onClick={() => setShowDefaults(!showDefaults)}
-          aria-expanded={showDefaults}
+          onClick={() => setShowMore(!showMore)}
+          aria-expanded={showMore}
           className="flex w-full items-center gap-2 px-6 py-3 text-left text-sm text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700/50"
         >
           <ChevronDownIcon
-            className={`size-4 transition-transform ${showDefaults ? '' : '-rotate-90'}`}
+            className={`size-4 transition-transform ${showMore ? '' : '-rotate-90'}`}
           />
-          <span>Costs & Defaults</span>
-          {!showDefaults && (
-            <span className="ml-auto text-xs text-gray-400 dark:text-gray-500">
-              Survey, taxes, insurance, etc.
-            </span>
-          )}
+          <span>Costs & adjustments</span>
         </button>
 
-        {showDefaults && (
+        {showMore && (
           <div className="border-t border-gray-100 bg-gray-50 px-6 py-5 dark:border-gray-700 dark:bg-gray-900/50">
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-              {/* Closing Costs */}
+              {/* Hard money appraisal */}
+              <EditableField
+                label="Appraised Value"
+                value={dealTerms.estimatedAppraisedValue}
+                format="currency"
+                onSave={(v) => onChange('estimatedAppraisedValue', v as number)}
+                size="sm"
+              />
+
+              {/* Closing costs */}
               <EditableField
                 label="Survey"
                 value={dealTerms.survey}
@@ -104,7 +94,7 @@ export default function DealTermsSummary({
                 size="sm"
               />
 
-              {/* Annual Expenses */}
+              {/* Annual expenses */}
               <EditableField
                 label="Property Tax"
                 value={dealTerms.propertyTaxAnnual}
