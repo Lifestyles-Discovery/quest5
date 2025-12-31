@@ -214,6 +214,7 @@ export default function SaleCompsSection({
           zips={saleCompGroup?.zips}
           counties={saleCompGroup?.counties}
           onReset={handleResetFilters}
+          subdivision={evaluation.subdivision}
         />
       </div>
 

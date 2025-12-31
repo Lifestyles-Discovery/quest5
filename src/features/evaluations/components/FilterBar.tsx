@@ -11,11 +11,21 @@ interface FilterBarProps {
   zips?: string[];
   counties?: string[];
   onReset?: () => void;
+  subdivision?: string; // For repopulating search term when switching to subdivision search
 }
 
 const BEDS_MAX = 6;
 const BATHS_MAX = 5;
 const GARAGE_MAX = 4;
+
+// Strip common suffixes from subdivision names for cleaner search
+function stripSubdivisionSuffix(subdivision: string): string {
+  if (!subdivision) return '';
+  return subdivision
+    .replace(/\s+(SEC|SECTION|PHASE|PH|UNIT|BLK|BLOCK|LOT|PT|PART|RESUB|REPLAT|AMEND|AMD|REV|REVISED)\s*\d*\s*[A-Z]?\s*$/i, '')
+    .replace(/\s+\d+\s*$/, '')
+    .trim();
+}
 
 // Format helpers for chip labels
 function formatLocation(searchTerm?: string, searchType?: string): string {
@@ -54,6 +64,7 @@ export default function FilterBar({
   zips = [],
   counties = [],
   onReset,
+  subdivision,
 }: FilterBarProps) {
   const [showMore, setShowMore] = useState(false);
   const isBroadSearch = filters.ignoreParametersExceptMonthsClosed || false;
@@ -104,7 +115,17 @@ export default function FilterBar({
             searchType={filters.searchType || defaultSearchType}
             searchTerm={filters.searchTerm || ''}
             searchTypes={searchTypes}
-            onSearchTypeChange={(type) => onChange({ ...filters, searchType: type })}
+            onSearchTypeChange={(type) => {
+              const wasRadius = filters.searchType?.toLowerCase() === 'radius';
+              const isNowSubdivision = type.toLowerCase() === 'subdivision';
+              // Repopulate search term with subdivision when switching from radius to subdivision
+              if (wasRadius && isNowSubdivision && subdivision) {
+                const strippedSubdivision = stripSubdivisionSuffix(subdivision);
+                onChange({ ...filters, searchType: type, searchTerm: strippedSubdivision });
+              } else {
+                onChange({ ...filters, searchType: type });
+              }
+            }}
             onSearchTermChange={(term) => onChange({ ...filters, searchTerm: term })}
           />
         </FilterChip>

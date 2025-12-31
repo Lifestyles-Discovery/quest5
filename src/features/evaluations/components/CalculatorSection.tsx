@@ -70,7 +70,7 @@ export default function CalculatorSection({
             onClick={() => setActiveTab('deal')}
             className={`px-6 py-3 text-sm font-medium ${
               activeTab === 'deal'
-                ? 'border-b-2 border-primary text-primary'
+                ? 'border-b-2 border-primary text-primary dark:text-white'
                 : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
             }`}
           >
@@ -80,7 +80,7 @@ export default function CalculatorSection({
             onClick={() => setActiveTab('conventional')}
             className={`px-6 py-3 text-sm font-medium ${
               activeTab === 'conventional'
-                ? 'border-b-2 border-primary text-primary'
+                ? 'border-b-2 border-primary text-primary dark:text-white'
                 : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
             }`}
           >
@@ -90,7 +90,7 @@ export default function CalculatorSection({
             onClick={() => setActiveTab('hardmoney')}
             className={`px-6 py-3 text-sm font-medium ${
               activeTab === 'hardmoney'
-                ? 'border-b-2 border-primary text-primary'
+                ? 'border-b-2 border-primary text-primary dark:text-white'
                 : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
             }`}
           >

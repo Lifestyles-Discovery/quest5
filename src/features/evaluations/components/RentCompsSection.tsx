@@ -205,6 +205,7 @@ export default function RentCompsSection({
           zips={rentCompGroup?.zips}
           counties={rentCompGroup?.counties}
           onReset={handleResetFilters}
+          subdivision={evaluation.subdivision}
         />
       </div>
 
