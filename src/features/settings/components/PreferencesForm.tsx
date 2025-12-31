@@ -437,31 +437,33 @@ export function PreferencesForm() {
       </section>
 
       {/* Actions */}
-      <div className="flex justify-between border-t border-gray-200 pt-6 dark:border-gray-700">
+      <div className="flex flex-col gap-4 border-t border-gray-200 pt-6 dark:border-gray-700 sm:flex-row sm:items-center sm:justify-between">
         <div>
           {showResetConfirm ? (
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <span className="text-sm text-gray-600 dark:text-gray-400">
                 Reset all preferences?
               </span>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleReset}
-                disabled={isPending}
-              >
-                Yes, Reset
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setShowResetConfirm(false)}
-                disabled={isPending}
-              >
-                Cancel
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleReset}
+                  disabled={isPending}
+                >
+                  Yes, Reset
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowResetConfirm(false)}
+                  disabled={isPending}
+                >
+                  Cancel
+                </Button>
+              </div>
             </div>
           ) : (
             <Button
@@ -474,7 +476,7 @@ export function PreferencesForm() {
             </Button>
           )}
         </div>
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
           {isPending ? 'Saving...' : 'Save Preferences'}
         </Button>
       </div>
