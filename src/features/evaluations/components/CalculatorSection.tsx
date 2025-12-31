@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useUpdateCalculator } from '@/hooks/api/useEvaluations';
 import DealScorecard from './DealScorecard';
 import DealTermsSummary from './DealTermsSummary';
@@ -22,6 +23,10 @@ export default function CalculatorSection({
 }: CalculatorSectionProps) {
   const calculator = evaluation.calculator;
   const updateCalculator = useUpdateCalculator();
+
+  // Track which financing sections are expanded (loan settings are rarely changed)
+  const [conventionalExpanded, setConventionalExpanded] = useState(false);
+  const [hardMoneyExpanded, setHardMoneyExpanded] = useState(false);
 
   // API requires ALL calculator values to be sent each time (like Quest4)
   const handleDealTermChange = async (field: keyof DealTermInputs, value: number) => {
@@ -70,33 +75,37 @@ export default function CalculatorSection({
 
   return (
     <div className="space-y-4">
-      {/* Scorecard - Always visible at top */}
+      {/* Deal Terms - Always visible, this is why you're here */}
+      <DealTermsSummary
+        dealTerms={calculator.dealTermInputs}
+        onChange={handleDealTermChange}
+      />
+
+      {/* Results - The payoff, right after your inputs */}
       <DealScorecard
         calculator={calculator}
         onToggleConventional={(show) => handleConventionalChange('show', show)}
         onToggleHardMoney={(show) => handleHardMoneyChange('show', show)}
       />
 
-      {/* Deal Terms - Collapsible */}
-      <DealTermsSummary
-        dealTerms={calculator.dealTermInputs}
-        onChange={handleDealTermChange}
-      />
-
-      {/* Conventional - Collapsible (only if enabled) */}
+      {/* Conventional - Collapsed by default, rarely changed */}
       <FinancingSection
         type="conventional"
         calculator={calculator}
         onConventionalChange={handleConventionalChange}
         onHardMoneyChange={handleHardMoneyChange}
+        isExpanded={conventionalExpanded}
+        onToggle={() => setConventionalExpanded(!conventionalExpanded)}
       />
 
-      {/* Hard Money - Collapsible (only if enabled) */}
+      {/* Hard Money - Collapsed by default, rarely changed */}
       <FinancingSection
         type="hardmoney"
         calculator={calculator}
         onConventionalChange={handleConventionalChange}
         onHardMoneyChange={handleHardMoneyChange}
+        isExpanded={hardMoneyExpanded}
+        onToggle={() => setHardMoneyExpanded(!hardMoneyExpanded)}
       />
     </div>
   );

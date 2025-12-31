@@ -1,6 +1,4 @@
-import { useState } from 'react';
 import { EditableField } from '@/components/form/EditableField';
-import { formatCurrency, formatPercent } from '@/utils/formatters';
 import { ChevronDownIcon } from '@/icons';
 import Checkbox from '@/components/form/input/Checkbox';
 import type {
@@ -16,7 +14,8 @@ interface FinancingSectionProps {
   calculator: Calculator;
   onConventionalChange: (field: keyof ConventionalInputs, value: number | boolean) => void;
   onHardMoneyChange: (field: keyof HardMoneyInputs, value: number | boolean) => void;
-  defaultExpanded?: boolean;
+  isExpanded: boolean;
+  onToggle: () => void;
 }
 
 export default function FinancingSection({
@@ -24,9 +23,9 @@ export default function FinancingSection({
   calculator,
   onConventionalChange,
   onHardMoneyChange,
-  defaultExpanded = false,
+  isExpanded,
+  onToggle,
 }: FinancingSectionProps) {
-  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
   if (type === 'conventional') {
     return (
@@ -34,7 +33,7 @@ export default function FinancingSection({
         calculator={calculator}
         onChange={onConventionalChange}
         isExpanded={isExpanded}
-        onToggle={() => setIsExpanded(!isExpanded)}
+        onToggle={onToggle}
       />
     );
   }
@@ -44,7 +43,7 @@ export default function FinancingSection({
       calculator={calculator}
       onChange={onHardMoneyChange}
       isExpanded={isExpanded}
-      onToggle={() => setIsExpanded(!isExpanded)}
+      onToggle={onToggle}
     />
   );
 }
@@ -158,49 +157,6 @@ function ConventionalSection({
                   suffix="/yr"
                   onSave={(v) => onChange('mortgageInsuranceAnnual', v as number)}
                   size="sm"
-                />
-              </div>
-            </div>
-
-            {/* Results */}
-            <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-900/50">
-              <h4 className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                Results
-              </h4>
-              <div className="grid grid-cols-2 gap-4">
-                <ResultField
-                  label="Loan Amount"
-                  value={formatCurrency(calculator.conventionalLoanAmount)}
-                />
-                <ResultField
-                  label="Cash Needed"
-                  value={formatCurrency(calculator.conventionalCashToClose)}
-                />
-                <ResultField
-                  label="Monthly Payment"
-                  value={formatCurrency(calculator.conventionalNotePaymentMonthly)}
-                />
-                <ResultField
-                  label="Monthly Cashflow"
-                  value={formatCurrency(calculator.conventionalTotalCashflowMonthly)}
-                  highlight={calculator.conventionalTotalCashflowMonthly >= 0}
-                />
-                <ResultField
-                  label="Annual Cashflow"
-                  value={formatCurrency(calculator.conventionalAnnualCashFlow)}
-                />
-                <ResultField
-                  label="Cash-on-Cash Return"
-                  value={formatPercent(calculator.conventionalCashOnCashReturnPercent, 1)}
-                  highlight={calculator.conventionalCashOnCashReturnPercent >= 8}
-                />
-                <ResultField
-                  label="Unrealized Gain"
-                  value={formatCurrency(calculator.conventionalUnrealizedCapitalGain)}
-                />
-                <ResultField
-                  label="Return on Gain"
-                  value={formatPercent(calculator.conventionalReturnOnCapitalGainPercent, 1)}
                 />
               </div>
             </div>
@@ -374,96 +330,9 @@ function HardMoneySection({
                 />
               </div>
             </div>
-
-            {/* Results */}
-            <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-900/50">
-              <h4 className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                Results
-              </h4>
-              <div className="grid grid-cols-2 gap-4">
-                <ResultField
-                  label="Hard Money Loan"
-                  value={formatCurrency(calculator.hardLoanAmount)}
-                />
-                <ResultField
-                  label="Cash to Close"
-                  value={formatCurrency(calculator.hardCashToClose)}
-                />
-                <ResultField
-                  label="Holding Cost"
-                  value={formatCurrency(calculator.hardHoldingCost)}
-                />
-                <ResultField
-                  label="Refi Loan Amount"
-                  value={formatCurrency(calculator.hardRefiLoanAmount)}
-                />
-                <ResultField
-                  label="Refi Cash to Close"
-                  value={formatCurrency(calculator.hardRefiCashToClose)}
-                />
-                <ResultField
-                  label="Cash Back at Refi"
-                  value={formatCurrency(calculator.hardRefiCashBack)}
-                  highlight={calculator.hardRefiCashBack > 0}
-                />
-                <ResultField
-                  label="Total Out of Pocket"
-                  value={formatCurrency(calculator.hardCashOutOfPocketTotal)}
-                />
-                <ResultField
-                  label="Monthly Payment"
-                  value={formatCurrency(calculator.hardRefiNotePaymentMonthly)}
-                />
-                <ResultField
-                  label="Monthly Cashflow"
-                  value={formatCurrency(calculator.hardRefiTotalCashflowMonthly)}
-                  highlight={calculator.hardRefiTotalCashflowMonthly >= 0}
-                />
-                <ResultField
-                  label="Annual Cashflow"
-                  value={formatCurrency(calculator.hardAnnualCashFlow)}
-                />
-                <ResultField
-                  label="Cash-on-Cash Return"
-                  value={formatPercent(calculator.hardCashOnCashReturnPercent, 1)}
-                  highlight={calculator.hardCashOnCashReturnPercent >= 8}
-                />
-                <ResultField
-                  label="Unrealized Gain"
-                  value={formatCurrency(calculator.hardUnrealizedCapitalGain)}
-                />
-              </div>
-            </div>
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-// ============================================================================
-// Shared Components
-// ============================================================================
-
-interface ResultFieldProps {
-  label: string;
-  value: string;
-  highlight?: boolean;
-}
-
-function ResultField({ label, value, highlight }: ResultFieldProps) {
-  return (
-    <div>
-      <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
-      <p
-        className={`text-sm font-semibold ${
-          highlight
-            ? 'text-green-600 dark:text-green-400'
-            : 'text-gray-900 dark:text-white'
-        }`}
-      >
-        {value}
-      </p>
     </div>
   );
 }

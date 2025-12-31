@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { formatCurrency, formatPercent } from '@/utils/formatters';
+import { ChevronDownIcon } from '@/icons';
 import type { Calculator } from '@app-types/evaluation.types';
 
 interface DealScorecardProps {
@@ -12,6 +14,7 @@ export default function DealScorecard({
   onToggleConventional,
   onToggleHardMoney,
 }: DealScorecardProps) {
+  const [showDetails, setShowDetails] = useState(false);
   const { conventionalInputs, hardMoneyInputs } = calculator;
 
   const showConventional = conventionalInputs.show;
@@ -42,6 +45,7 @@ export default function DealScorecard({
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      {/* Primary Metrics - Gains & Returns */}
       <div className="grid grid-cols-1 divide-y divide-gray-200 dark:divide-gray-700 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
         {/* Conventional Column */}
         <div className={`p-6 ${!showConventional ? 'opacity-40' : ''}`}>
@@ -56,10 +60,11 @@ export default function DealScorecard({
           </div>
 
           {showConventional ? (
-            <ScoreColumn
-              cashflow={calculator.conventionalTotalCashflowMonthly}
-              returnPercent={calculator.conventionalCashOnCashReturnPercent}
-              cashNeeded={calculator.conventionalCashToClose}
+            <GainsColumn
+              equityCapture={calculator.conventionalUnrealizedCapitalGain}
+              cashOnCashReturn={calculator.conventionalCashOnCashReturnPercent}
+              annualCashflow={calculator.conventionalAnnualCashFlow}
+              returnOnEquity={calculator.conventionalReturnOnCapitalGainPercent}
             />
           ) : (
             <div className="h-32 flex items-center justify-center">
@@ -81,10 +86,11 @@ export default function DealScorecard({
           </div>
 
           {showHardMoney ? (
-            <ScoreColumn
-              cashflow={calculator.hardRefiTotalCashflowMonthly}
-              returnPercent={calculator.hardCashOnCashReturnPercent}
-              cashNeeded={calculator.hardCashOutOfPocketTotal}
+            <GainsColumn
+              equityCapture={calculator.hardUnrealizedCapitalGain}
+              cashOnCashReturn={calculator.hardCashOnCashReturnPercent}
+              annualCashflow={calculator.hardAnnualCashFlow}
+              returnOnEquity={calculator.hardReturnOnCapitalGainPercent}
             />
           ) : (
             <div className="h-32 flex items-center justify-center">
@@ -93,34 +99,110 @@ export default function DealScorecard({
           )}
         </div>
       </div>
+
+      {/* Show Details Toggle */}
+      {(showConventional || showHardMoney) && (
+        <>
+          <button
+            onClick={() => setShowDetails(!showDetails)}
+            className="flex w-full items-center justify-center gap-2 border-t border-gray-200 py-3 text-sm text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700/50"
+          >
+            <ChevronDownIcon
+              className={`size-4 transition-transform ${showDetails ? 'rotate-180' : ''}`}
+            />
+            {showDetails ? 'Hide Details' : 'Show Details'}
+          </button>
+
+          {/* Expanded Details */}
+          {showDetails && (
+            <div className="grid grid-cols-1 divide-y divide-gray-200 border-t border-gray-200 bg-gray-50 dark:divide-gray-700 dark:border-gray-700 dark:bg-gray-900/50 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+              {/* Conventional Details */}
+              <div className={`p-6 ${!showConventional ? 'opacity-40' : ''}`}>
+                {showConventional ? (
+                  <DetailsColumn
+                    cashNeeded={calculator.conventionalCashToClose}
+                    monthlyCashflow={calculator.conventionalTotalCashflowMonthly}
+                  />
+                ) : (
+                  <div className="h-20 flex items-center justify-center">
+                    <span className="text-sm text-gray-400 dark:text-gray-500">—</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Hard Money Details */}
+              <div className={`p-6 ${!showHardMoney ? 'opacity-40' : ''}`}>
+                {showHardMoney ? (
+                  <DetailsColumn
+                    cashNeeded={calculator.hardCashOutOfPocketTotal}
+                    monthlyCashflow={calculator.hardRefiTotalCashflowMonthly}
+                  />
+                ) : (
+                  <div className="h-20 flex items-center justify-center">
+                    <span className="text-sm text-gray-400 dark:text-gray-500">—</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
 
-interface ScoreColumnProps {
-  cashflow: number;
-  returnPercent: number;
-  cashNeeded: number;
+// ============================================================================
+// Gains & Returns Column (Primary)
+// ============================================================================
+
+interface GainsColumnProps {
+  equityCapture: number;
+  cashOnCashReturn: number;
+  annualCashflow: number;
+  returnOnEquity: number;
 }
 
-function ScoreColumn({ cashflow, returnPercent, cashNeeded }: ScoreColumnProps) {
-  const isPositiveCashflow = cashflow >= 0;
-  const isGoodReturn = returnPercent >= 8; // 8% is generally considered good
+function GainsColumn({ equityCapture, cashOnCashReturn, annualCashflow, returnOnEquity }: GainsColumnProps) {
+  const isPositiveEquity = equityCapture > 0;
+  const isGoodReturn = cashOnCashReturn >= 8;
+  const isPositiveCashflow = annualCashflow >= 0;
 
   return (
     <div className="space-y-4">
-      {/* Monthly Cashflow - Hero metric */}
+      {/* Equity Capture */}
       <div>
-        <p className="text-xs text-gray-500 dark:text-gray-400">Monthly Cashflow</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400">Equity Capture</p>
         <p
-          className={`text-3xl font-bold ${
+          className={`text-2xl font-bold ${
+            isPositiveEquity
+              ? 'text-green-600 dark:text-green-400'
+              : 'text-gray-900 dark:text-white'
+          }`}
+        >
+          {formatCurrency(equityCapture)}
+        </p>
+      </div>
+
+      {/* Annual Cashflow */}
+      <div>
+        <p className="text-xs text-gray-500 dark:text-gray-400">Annual Cashflow</p>
+        <p
+          className={`text-2xl font-bold ${
             isPositiveCashflow
               ? 'text-green-600 dark:text-green-400'
               : 'text-red-600 dark:text-red-400'
           }`}
         >
-          {formatCurrency(cashflow)}
-          <span className="text-lg font-normal text-gray-400">/mo</span>
+          {formatCurrency(annualCashflow)}
+          <span className="text-base font-normal text-gray-400">/yr</span>
+        </p>
+      </div>
+
+      {/* Return on Equity Capture */}
+      <div>
+        <p className="text-xs text-gray-500 dark:text-gray-400">Return on Equity</p>
+        <p className="text-lg font-semibold text-gray-900 dark:text-white">
+          {formatPercent(returnOnEquity, 1)}
         </p>
       </div>
 
@@ -128,26 +210,61 @@ function ScoreColumn({ cashflow, returnPercent, cashNeeded }: ScoreColumnProps) 
       <div>
         <p className="text-xs text-gray-500 dark:text-gray-400">Cash-on-Cash Return</p>
         <p
-          className={`text-2xl font-semibold ${
+          className={`text-lg font-semibold ${
             isGoodReturn
               ? 'text-green-600 dark:text-green-400'
               : 'text-gray-900 dark:text-white'
           }`}
         >
-          {formatPercent(returnPercent, 1)}
-        </p>
-      </div>
-
-      {/* Cash Needed */}
-      <div>
-        <p className="text-xs text-gray-500 dark:text-gray-400">Cash Needed</p>
-        <p className="text-lg font-medium text-gray-900 dark:text-white">
-          {formatCurrency(cashNeeded)}
+          {formatPercent(cashOnCashReturn, 1)}
         </p>
       </div>
     </div>
   );
 }
+
+// ============================================================================
+// Details Column (Secondary - Expandable)
+// ============================================================================
+
+interface DetailsColumnProps {
+  cashNeeded: number;
+  monthlyCashflow: number;
+}
+
+function DetailsColumn({ cashNeeded, monthlyCashflow }: DetailsColumnProps) {
+  const isPositiveCashflow = monthlyCashflow >= 0;
+
+  return (
+    <div className="space-y-3">
+      {/* Cash Needed */}
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-gray-500 dark:text-gray-400">Cash Needed</p>
+        <p className="text-sm font-semibold text-gray-900 dark:text-white">
+          {formatCurrency(cashNeeded)}
+        </p>
+      </div>
+
+      {/* Monthly Cashflow */}
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-gray-500 dark:text-gray-400">Monthly Cashflow</p>
+        <p
+          className={`text-sm font-semibold ${
+            isPositiveCashflow
+              ? 'text-green-600 dark:text-green-400'
+              : 'text-red-600 dark:text-red-400'
+          }`}
+        >
+          {formatCurrency(monthlyCashflow)}/mo
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// Toggle Button
+// ============================================================================
 
 interface ToggleButtonProps {
   label?: string;
