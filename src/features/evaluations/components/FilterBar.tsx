@@ -79,7 +79,7 @@ export default function FilterBar({
           <span className="rounded-full bg-amber-100 px-3 py-1 font-medium text-amber-800 dark:bg-amber-900/50 dark:text-amber-200">
             Broad search active
           </span>
-          <span className="text-gray-500 dark:text-gray-400">— only time filter applies</span>
+          <span className="text-gray-500 dark:text-gray-400">— only location + time apply</span>
           <button
             type="button"
             onClick={() => onChange({ ...filters, ignoreParametersExceptMonthsClosed: false })}
@@ -92,18 +92,16 @@ export default function FilterBar({
 
       {/* Main filter chips */}
       <div className="flex flex-wrap items-center gap-2">
-        {/* Location - muted when broad search */}
-        <div className={mutedChipClass} onClick={isBroadSearch ? handleMutedChipClick : undefined}>
-          <FilterChip label={formatLocation(filters.searchTerm)}>
-            <LocationEditor
-              searchType={filters.searchType || 'subdivision'}
-              searchTerm={filters.searchTerm || ''}
-              searchTypes={searchTypes}
-              onSearchTypeChange={(type) => onChange({ ...filters, searchType: type })}
-              onSearchTermChange={(term) => onChange({ ...filters, searchTerm: term })}
-            />
-          </FilterChip>
-        </div>
+        {/* Location - always active, even in broad search */}
+        <FilterChip label={formatLocation(filters.searchTerm)}>
+          <LocationEditor
+            searchType={filters.searchType || 'subdivision'}
+            searchTerm={filters.searchTerm || ''}
+            searchTypes={searchTypes}
+            onSearchTypeChange={(type) => onChange({ ...filters, searchType: type })}
+            onSearchTermChange={(term) => onChange({ ...filters, searchTerm: term })}
+          />
+        </FilterChip>
 
         {/* Beds - muted when broad search */}
         <div className={mutedChipClass} onClick={isBroadSearch ? handleMutedChipClick : undefined}>
