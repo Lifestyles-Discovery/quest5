@@ -4,6 +4,7 @@ import Input from '@components/form/input/InputField';
 import Label from '@components/form/Label';
 import Button from '@components/ui/button/Button';
 import Alert from '@components/ui/alert/Alert';
+import Checkbox from '@components/form/input/Checkbox';
 import {
   useCreateUser,
   useUpdateUserFromAdmin,
@@ -189,40 +190,28 @@ export function UserModal({ isOpen, onClose, user }: UserModalProps) {
           </h4>
 
           {isEditing && (
-            <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-              <input
-                type="checkbox"
-                checked={isAdmin}
-                onChange={(e) => setIsAdmin(e.target.checked)}
-                disabled={isPending}
-                className="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
-              />
-              Admin
-            </label>
+            <Checkbox
+              label="Admin"
+              checked={isAdmin}
+              onChange={setIsAdmin}
+              disabled={isPending}
+            />
           )}
 
-          <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-            <input
-              type="checkbox"
-              checked={isAgent}
-              onChange={(e) => setIsAgent(e.target.checked)}
-              disabled={isPending}
-              className="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
-            />
-            Agent
-          </label>
+          <Checkbox
+            label="Agent"
+            checked={isAgent}
+            onChange={setIsAgent}
+            disabled={isPending}
+          />
 
           {isEditing && (
-            <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-              <input
-                type="checkbox"
-                checked={isSearchFree}
-                onChange={(e) => setIsSearchFree(e.target.checked)}
-                disabled={isPending}
-                className="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
-              />
-              Free Search
-            </label>
+            <Checkbox
+              label="Free Search"
+              checked={isSearchFree}
+              onChange={setIsSearchFree}
+              disabled={isPending}
+            />
           )}
         </div>
 

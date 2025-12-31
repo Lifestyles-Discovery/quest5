@@ -8,6 +8,8 @@ import { useMlsMarkets, useStates } from '@hooks/api/useAdmin';
 import { useAuth } from '@context/AuthContext';
 import type { UserPreferences } from '@app-types/auth.types';
 import { DEFAULT_PREFERENCES } from '@app-types/settings.types';
+import { SettingHelp } from './SettingHelp';
+import Checkbox from '@components/form/input/Checkbox';
 
 export function PreferencesForm() {
   const { user } = useAuth();
@@ -102,6 +104,7 @@ export function PreferencesForm() {
                 </option>
               ))}
             </select>
+            <SettingHelp settingKey="mlsMarket" />
           </div>
           <div>
             <Label>State</Label>
@@ -116,6 +119,7 @@ export function PreferencesForm() {
                 <option key={s} value={s}>{s}</option>
               ))}
             </select>
+            <SettingHelp settingKey="state" />
           </div>
         </div>
       </section>
@@ -134,6 +138,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('evaluationSalePlusMinusSqft', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="evaluationSalePlusMinusSqft" />
           </div>
           <div>
             <Label>Sale Comps Year Built +/-</Label>
@@ -143,6 +148,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('evaluationSalePlusMinusYearBuilt', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="evaluationSalePlusMinusYearBuilt" />
           </div>
           <div>
             <Label>Sale Comps Months Closed</Label>
@@ -152,6 +158,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('evaluationSaleMonthsClosed', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="evaluationSaleMonthsClosed" />
           </div>
           <div>
             <Label>Rent Comps Sqft +/-</Label>
@@ -161,6 +168,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('evaluationRentPlusMinusSqft', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="evaluationRentPlusMinusSqft" />
           </div>
           <div>
             <Label>Rent Comps Year Built +/-</Label>
@@ -170,6 +178,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('evaluationRentPlusMinusYearBuilt', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="evaluationRentPlusMinusYearBuilt" />
           </div>
           <div>
             <Label>Rent Comps Months Closed</Label>
@@ -179,6 +188,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('evaluationRentMonthsClosed', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="evaluationRentMonthsClosed" />
           </div>
           <div>
             <Label>Search Radius (miles)</Label>
@@ -189,6 +199,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('evaluationRadius', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="evaluationRadius" />
           </div>
         </div>
       </section>
@@ -207,6 +218,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('dealSurvey', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="dealSurvey" />
           </div>
           <div>
             <Label>Appraisal ($)</Label>
@@ -216,6 +228,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('dealAppraisal', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="dealAppraisal" />
           </div>
           <div>
             <Label>Inspection ($)</Label>
@@ -225,6 +238,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('dealInspection', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="dealInspection" />
           </div>
           <div>
             <Label>Property Insurance (% of Value)</Label>
@@ -235,6 +249,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('dealPropertyInsurancePercentListPrice', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="dealPropertyInsurancePercentListPrice" />
           </div>
           <div>
             <Label>Property Tax (% of Value)</Label>
@@ -245,6 +260,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('dealPropertyTaxPercentListPrice', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="dealPropertyTaxPercentListPrice" />
           </div>
           <div>
             <Label>Default Repairs ($)</Label>
@@ -254,6 +270,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('dealRepairs', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="dealRepairs" />
           </div>
           <div>
             <Label>Max Refi Cashback ($)</Label>
@@ -263,6 +280,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('dealMaxRefiCashback', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="dealMaxRefiCashback" />
           </div>
         </div>
       </section>
@@ -282,6 +300,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('conventionalDownPayment', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="conventionalDownPayment" />
           </div>
           <div>
             <Label>Interest Rate (%)</Label>
@@ -292,6 +311,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('conventionalInterestRate', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="conventionalInterestRate" />
           </div>
           <div>
             <Label>Lender Fees (%)</Label>
@@ -302,6 +322,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('conventionalLenderFeesPercentOfListPrice', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="conventionalLenderFeesPercentOfListPrice" />
           </div>
           <div>
             <Label>Months Escrow</Label>
@@ -311,6 +332,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('conventionalMonthsTaxEscrow', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="conventionalMonthsTaxEscrow" />
           </div>
           <div>
             <Label>Loan Term (years)</Label>
@@ -320,6 +342,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('conventionalLoanTermInYears', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="conventionalLoanTermInYears" />
           </div>
         </div>
       </section>
@@ -339,6 +362,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('hardLoanToValuePercent', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="hardLoanToValuePercent" />
           </div>
           <div>
             <Label>Lender Fees (%)</Label>
@@ -349,6 +373,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('hardLenderFeesPercentOfListPrice', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="hardLenderFeesPercentOfListPrice" />
           </div>
           <div>
             <Label>Interest Rate (%)</Label>
@@ -359,6 +384,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('hardInterestRate', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="hardInterestRate" />
           </div>
           <div>
             <Label>Months Until Refi</Label>
@@ -368,6 +394,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('hardMonthsUntilRefi', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="hardMonthsUntilRefi" />
           </div>
           <div>
             <Label>Weeks Until Leased</Label>
@@ -377,16 +404,18 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('hardWeeksUntilLeased', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="hardWeeksUntilLeased" />
           </div>
-          <div className="flex items-center gap-2 pt-6">
-            <input
-              type="checkbox"
-              checked={preferences.hardRollInLenderFees}
-              onChange={(e) => handleChange('hardRollInLenderFees', e.target.checked)}
-              disabled={isPending}
-              className="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
-            />
-            <Label>Roll In Lender Fees</Label>
+          <div>
+            <div className="pt-6">
+              <Checkbox
+                label="Roll In Lender Fees"
+                checked={preferences.hardRollInLenderFees}
+                onChange={(checked) => handleChange('hardRollInLenderFees', checked)}
+                disabled={isPending}
+              />
+            </div>
+            <SettingHelp settingKey="hardRollInLenderFees" />
           </div>
         </div>
 
@@ -403,6 +432,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('hardRefiLoanToValue', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="hardRefiLoanToValue" />
           </div>
           <div>
             <Label>Refi Loan Term (years)</Label>
@@ -412,6 +442,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('hardRefiLoanTermInYears', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="hardRefiLoanTermInYears" />
           </div>
           <div>
             <Label>Refi Interest Rate (%)</Label>
@@ -422,6 +453,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('hardRefiInterestRate', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="hardRefiInterestRate" />
           </div>
           <div>
             <Label>Refi Lender Fees (%)</Label>
@@ -432,6 +464,7 @@ export function PreferencesForm() {
               onChange={(e) => handleNumberChange('hardRefiLenderFeesPercentListPrice', e.target.value)}
               disabled={isPending}
             />
+            <SettingHelp settingKey="hardRefiLenderFeesPercentListPrice" />
           </div>
         </div>
       </section>

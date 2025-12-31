@@ -6,6 +6,7 @@ import { NoteModal } from '../components/NoteModal';
 import { useNotes, useDeleteNote } from '@hooks/api/useNotes';
 import type { Note } from '@app-types/note.types';
 import { Skeleton } from '@components/ui/skeleton/Skeleton';
+import Checkbox from '@components/form/input/Checkbox';
 
 function NoteCardSkeleton() {
   return (
@@ -148,15 +149,11 @@ export default function NotesPage() {
             />
           </div>
 
-          <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-            <input
-              type="checkbox"
-              checked={includeInactive}
-              onChange={(e) => setIncludeInactive(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
-            />
-            Include inactive
-          </label>
+          <Checkbox
+            label="Include inactive"
+            checked={includeInactive}
+            onChange={setIncludeInactive}
+          />
         </div>
 
         {/* Note Modal */}

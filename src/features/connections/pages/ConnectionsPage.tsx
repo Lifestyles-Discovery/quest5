@@ -13,6 +13,7 @@ import { useAuth } from '@context/AuthContext';
 import type { Connection, ConnectionType } from '@app-types/connection.types';
 import { CONNECTION_TYPES } from '@app-types/connection.types';
 import { Skeleton } from '@components/ui/skeleton/Skeleton';
+import Checkbox from '@components/form/input/Checkbox';
 
 function ConnectionCardSkeleton() {
   return (
@@ -137,15 +138,11 @@ export default function ConnectionsPage() {
             ))}
           </select>
 
-          <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-            <input
-              type="checkbox"
-              checked={showHidden}
-              onChange={(e) => setShowHidden(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
-            />
-            Show hidden
-          </label>
+          <Checkbox
+            label="Show hidden"
+            checked={showHidden}
+            onChange={setShowHidden}
+          />
         </div>
 
         {/* Connection Modal */}

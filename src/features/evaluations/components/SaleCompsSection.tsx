@@ -5,6 +5,7 @@ import type { Evaluation, SaleComp, SearchType, SaleCompInputs } from '@app-type
 import CompsMap from './CompsMap';
 import FilterBar from './FilterBar';
 import PhotoThumbnail from '@/components/common/PhotoThumbnail';
+import Checkbox from '@/components/form/input/Checkbox';
 
 /**
  * Strips common suffixes from subdivision names for cleaner search
@@ -282,11 +283,9 @@ export default function SaleCompsSection({
                   }`}
                 >
                   <td className="px-3 py-2">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={comp.include}
                       onChange={() => handleToggleComp(comp)}
-                      className="rounded border-gray-300 dark:border-gray-600"
                     />
                   </td>
                   <td className="px-2 py-2">
