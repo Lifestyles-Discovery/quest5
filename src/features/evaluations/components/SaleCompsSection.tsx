@@ -232,7 +232,7 @@ export default function SaleCompsSection({
       )}
 
       {/* Comps List */}
-      <div className={`max-h-[500px] overflow-auto transition-opacity duration-150 ${updateSaleComps.isPending ? 'opacity-60' : ''}`}>
+      <div className={`transition-opacity duration-150 ${updateSaleComps.isPending ? 'opacity-60' : ''}`}>
         {saleComps.length === 0 ? (
           <div className="p-8 text-center text-gray-500 dark:text-gray-400">
             <p>No sale comps found.</p>
