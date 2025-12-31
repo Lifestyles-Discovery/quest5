@@ -461,6 +461,9 @@ export default function PropertyDetailPage() {
             propertyId={id!}
             evaluationId={currentEvaluationId!}
             evaluation={evaluation}
+            subjectLatitude={property.latitude}
+            subjectLongitude={property.longitude}
+            subjectAddress={property.address}
           />
         )}
 

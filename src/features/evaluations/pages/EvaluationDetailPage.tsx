@@ -213,6 +213,9 @@ export default function EvaluationDetailPage() {
           evaluationId={evaluationId!}
           evaluation={eval_}
           searchTypes={searchTypes || []}
+          subjectLatitude={property?.latitude}
+          subjectLongitude={property?.longitude}
+          subjectAddress={property?.address}
         />
 
         {/* Rent Comps */}
@@ -221,6 +224,9 @@ export default function EvaluationDetailPage() {
           evaluationId={evaluationId!}
           evaluation={eval_}
           searchTypes={searchTypes || []}
+          subjectLatitude={property?.latitude}
+          subjectLongitude={property?.longitude}
+          subjectAddress={property?.address}
         />
       </div>
 

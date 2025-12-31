@@ -12,6 +12,9 @@ interface EvaluationContentProps {
   propertyId: string;
   evaluationId: string;
   evaluation: Evaluation;
+  subjectLatitude?: number;
+  subjectLongitude?: number;
+  subjectAddress?: string;
 }
 
 /**
@@ -30,6 +33,9 @@ export default function EvaluationContent({
   propertyId,
   evaluationId,
   evaluation,
+  subjectLatitude,
+  subjectLongitude,
+  subjectAddress,
 }: EvaluationContentProps) {
   // Fetch search types for comp filters
   const { data: searchTypes } = useQuery({
@@ -55,6 +61,9 @@ export default function EvaluationContent({
           evaluationId={evaluationId}
           evaluation={evaluation}
           searchTypes={searchTypes || []}
+          subjectLatitude={subjectLatitude}
+          subjectLongitude={subjectLongitude}
+          subjectAddress={subjectAddress}
         />
 
         {/* Rent Comps */}
@@ -63,6 +72,9 @@ export default function EvaluationContent({
           evaluationId={evaluationId}
           evaluation={evaluation}
           searchTypes={searchTypes || []}
+          subjectLatitude={subjectLatitude}
+          subjectLongitude={subjectLongitude}
+          subjectAddress={subjectAddress}
         />
       </div>
 

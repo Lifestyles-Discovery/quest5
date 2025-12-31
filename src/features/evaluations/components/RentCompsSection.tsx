@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useUpdateRentComps, useToggleRentCompInclusion } from '@/hooks/api/useEvaluations';
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback';
 import type { Evaluation, RentComp, SearchType, RentCompInputs } from '@app-types/evaluation.types';
+import CompsMap from './CompsMap';
 
 /**
  * Strips common suffixes from subdivision names for cleaner search
@@ -21,6 +22,9 @@ interface RentCompsSectionProps {
   evaluationId: string;
   evaluation: Evaluation;
   searchTypes: SearchType[];
+  subjectLatitude?: number;
+  subjectLongitude?: number;
+  subjectAddress?: string;
 }
 
 export default function RentCompsSection({
@@ -28,11 +32,20 @@ export default function RentCompsSection({
   evaluationId,
   evaluation,
   searchTypes,
+  subjectLatitude,
+  subjectLongitude,
+  subjectAddress,
 }: RentCompsSectionProps) {
   const rentCompGroup = evaluation.rentCompGroup;
   const [filters, setFilters] = useState<Partial<RentCompInputs>>(
     rentCompGroup?.rentCompInputs || {}
   );
+  const [showMoreFilters, setShowMoreFilters] = useState(() => {
+    return localStorage.getItem('showMoreCompFilters') === 'true';
+  });
+  const [showMap, setShowMap] = useState(() => {
+    return localStorage.getItem('showRentCompsMap') === 'true';
+  });
   const isInitialMount = useRef(true);
   const isSyncingFromServer = useRef(false);
   const hasInitializedSearchTerm = useRef(false);
@@ -139,24 +152,48 @@ export default function RentCompsSection({
   const rentComps = rentCompGroup?.rentComps || [];
   const includedComps = rentComps.filter((c) => c.include);
 
+  const toggleMoreFilters = () => {
+    const newValue = !showMoreFilters;
+    setShowMoreFilters(newValue);
+    localStorage.setItem('showMoreCompFilters', newValue.toString());
+  };
+
+  const toggleMap = () => {
+    const newValue = !showMap;
+    setShowMap(newValue);
+    localStorage.setItem('showRentCompsMap', newValue.toString());
+  };
+
   return (
     <div className="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
       {/* Header */}
       <div className="border-b border-gray-200 p-4 dark:border-gray-700">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-          Rent Comps
-        </h2>
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Rent Comps
+            </h2>
 
-        {/* Summary */}
-        <div className="mt-2">
-          {rentCompGroup && includedComps.length > 0 && (
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {formatCurrency(rentCompGroup.calculatedValue)}/mo
+            {/* Summary */}
+            <div className="mt-2">
+              {rentCompGroup && includedComps.length > 0 && (
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                  {formatCurrency(rentCompGroup.calculatedValue)}/mo
+                </div>
+              )}
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                {includedComps.length} of {rentComps.length} included
+              </div>
             </div>
-          )}
-          <div className="text-sm text-gray-500 dark:text-gray-400">
-            {includedComps.length} of {rentComps.length} included
           </div>
+
+          <button
+            type="button"
+            onClick={toggleMap}
+            className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+          >
+            {showMap ? 'Hide Map' : 'Show Map'}
+          </button>
         </div>
       </div>
 
@@ -260,6 +297,22 @@ export default function RentCompsSection({
             />
           </div>
 
+          <div>
+            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
+              Zip
+            </label>
+            <select
+              value={filters.confineToZip || ''}
+              onChange={(e) => setFilters({ ...filters, confineToZip: e.target.value })}
+              className="mt-1 block w-full rounded border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            >
+              <option value="">Any zip</option>
+              {rentCompGroup?.zips?.map((zip) => (
+                <option key={zip} value={zip}>{zip}</option>
+              ))}
+            </select>
+          </div>
+
           <div className="flex flex-col justify-end gap-1">
             <label className="flex items-center gap-2">
               <input
@@ -270,18 +323,102 @@ export default function RentCompsSection({
               />
               <span className="text-xs text-gray-700 dark:text-gray-300">Broad search</span>
             </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={filters.confineToZip || false}
-                onChange={(e) => setFilters({ ...filters, confineToZip: e.target.checked })}
-                className="rounded border-gray-300 dark:border-gray-600"
-              />
-              <span className="text-xs text-gray-700 dark:text-gray-300">Same Zip</span>
-            </label>
+            <button
+              type="button"
+              onClick={toggleMoreFilters}
+              className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-left"
+            >
+              {showMoreFilters ? 'Less ▴' : 'More ▾'}
+            </button>
           </div>
         </div>
+
+        {/* Expanded filters */}
+        {showMoreFilters && (
+          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-5">
+            <div className={filters.ignoreParametersExceptMonthsClosed ? 'opacity-50' : ''}>
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
+                Baths Min
+              </label>
+              <input
+                type="number"
+                value={filters.bathsMin || ''}
+                onChange={(e) => setFilters({ ...filters, bathsMin: Number(e.target.value) })}
+                onFocus={(e) => e.target.select()}
+                className="mt-1 block w-full rounded border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+
+            <div className={filters.ignoreParametersExceptMonthsClosed ? 'opacity-50' : ''}>
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
+                Baths Max
+              </label>
+              <input
+                type="number"
+                value={filters.bathsMax || ''}
+                onChange={(e) => setFilters({ ...filters, bathsMax: Number(e.target.value) })}
+                onFocus={(e) => e.target.select()}
+                className="mt-1 block w-full rounded border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+
+            <div className={filters.ignoreParametersExceptMonthsClosed ? 'opacity-50' : ''}>
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
+                Garage Min
+              </label>
+              <input
+                type="number"
+                value={filters.garageMin || ''}
+                onChange={(e) => setFilters({ ...filters, garageMin: Number(e.target.value) })}
+                onFocus={(e) => e.target.select()}
+                className="mt-1 block w-full rounded border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+
+            <div className={filters.ignoreParametersExceptMonthsClosed ? 'opacity-50' : ''}>
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
+                Garage Max
+              </label>
+              <input
+                type="number"
+                value={filters.garageMax || ''}
+                onChange={(e) => setFilters({ ...filters, garageMax: Number(e.target.value) })}
+                onFocus={(e) => e.target.select()}
+                className="mt-1 block w-full rounded border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
+                County
+              </label>
+              <select
+                value={filters.confineToCounty || ''}
+                onChange={(e) => setFilters({ ...filters, confineToCounty: e.target.value })}
+                className="mt-1 block w-full rounded border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              >
+                <option value="">Any county</option>
+                {rentCompGroup?.counties?.map((county) => (
+                  <option key={county} value={county}>{county}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Map */}
+      {showMap && (
+        <div className="border-b border-gray-200 p-4 dark:border-gray-700">
+          <CompsMap
+            subjectLatitude={subjectLatitude}
+            subjectLongitude={subjectLongitude}
+            subjectAddress={subjectAddress}
+            comps={includedComps}
+            type="rent"
+          />
+        </div>
+      )}
 
       {/* Comps List */}
       <div className={`max-h-[500px] overflow-auto transition-opacity duration-150 ${updateRentComps.isPending ? 'opacity-60' : ''}`}>
