@@ -50,13 +50,13 @@ export default function SettingsPage() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="border-b border-gray-200 dark:border-gray-700">
-          <nav className="-mb-px flex gap-6">
+        <div className="-mx-4 border-b border-gray-200 px-4 dark:border-gray-700 sm:mx-0 sm:px-0">
+          <nav className="-mb-px flex gap-4 overflow-x-auto sm:gap-6">
             {TABS.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 border-b-2 pb-3 text-sm font-medium transition-colors ${
+                className={`flex shrink-0 items-center gap-2 border-b-2 pb-3 text-sm font-medium transition-colors ${
                   activeTab === tab.id
                     ? 'border-brand-500 text-brand-500'
                     : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
@@ -83,7 +83,7 @@ export default function SettingsPage() {
 
         {/* Tab Content */}
         <Card>
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             {activeTab === 'account' && <AccountForm />}
             {activeTab === 'preferences' && <PreferencesForm />}
             {activeTab === 'billing' && <BillingSection />}

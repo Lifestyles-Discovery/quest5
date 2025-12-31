@@ -138,9 +138,9 @@ export function UsersList() {
         </div>
       )}
 
-      {/* Users Table */}
+      {/* Users Table - Desktop */}
       {!isLoading && !error && sortedUsers && (
-        <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="hidden overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 md:block">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
@@ -231,6 +231,62 @@ export function UsersList() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Users Cards - Mobile */}
+      {!isLoading && !error && sortedUsers && (
+        <div className="space-y-3 md:hidden">
+          {sortedUsers.map((user) => (
+            <div
+              key={user.id}
+              className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900"
+            >
+              <div className="flex items-start justify-between">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-gray-800 dark:text-white/90">
+                    {user.firstName} {user.lastName}
+                  </p>
+                  <p className="mt-0.5 truncate text-sm text-gray-500 dark:text-gray-400">
+                    {user.email}
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleEdit(user)}
+                >
+                  Edit
+                </Button>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {user.rights?.admin && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
+                    <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Admin
+                  </span>
+                )}
+                {user.rights?.search && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                    <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Agent
+                  </span>
+                )}
+                {user.rights?.searchFree && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                    <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Free Search
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
