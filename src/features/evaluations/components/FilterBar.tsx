@@ -57,6 +57,8 @@ export default function FilterBar({
 }: FilterBarProps) {
   const [showMore, setShowMore] = useState(false);
   const isBroadSearch = filters.ignoreParametersExceptMonthsClosed || false;
+  // Use first available search type as default (handles case where only Radius is available)
+  const defaultSearchType = searchTypes[0]?.type || 'subdivision';
 
   const hasMoreFilters =
     (filters.garageMin !== undefined && filters.garageMin > 0) ||
@@ -97,9 +99,9 @@ export default function FilterBar({
       {/* Main filter chips */}
       <div className="flex flex-wrap items-center gap-2">
         {/* Location - always active, even in broad search */}
-        <FilterChip label={formatLocation(filters.searchTerm, filters.searchType)}>
+        <FilterChip label={formatLocation(filters.searchTerm, filters.searchType || defaultSearchType)}>
           <LocationEditor
-            searchType={filters.searchType || 'subdivision'}
+            searchType={filters.searchType || defaultSearchType}
             searchTerm={filters.searchTerm || ''}
             searchTypes={searchTypes}
             onSearchTypeChange={(type) => onChange({ ...filters, searchType: type })}
