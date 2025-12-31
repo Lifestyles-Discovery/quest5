@@ -1,6 +1,9 @@
+import { useRef, useLayoutEffect } from 'react';
 import { useEditableField } from '@/hooks/useEditableField';
 import {
   formatCurrency,
+  formatCurrencyInput,
+  getCurrencyInputCursorPosition,
   formatNumber,
   formatPercent,
   formatDecimal,
@@ -63,7 +66,12 @@ export function EditableField({
   debounceMs = 0,
 }: EditableFieldProps) {
   // Determine input type based on format
-  const inputType = type ?? (format === 'text' ? 'text' : 'number');
+  // Currency uses 'text' to allow $ and comma formatting while typing
+  const inputType = type ?? (format === 'text' || format === 'currency' ? 'text' : 'number');
+
+  // Track cursor position for currency input formatting
+  const cursorPositionRef = useRef<number | null>(null);
+  const localInputRef = useRef<HTMLInputElement>(null);
 
   // Get parser function based on format
   const getParser = () => {
@@ -89,6 +97,7 @@ export function EditableField({
     handleBlur,
     handleKeyDown,
     inputRef,
+    isSaving,
     justSaved,
     hasError,
   } = useEditableField({
@@ -98,9 +107,31 @@ export function EditableField({
     parseValue: getParser(),
   });
 
+  // Restore cursor position after currency formatting
+  useLayoutEffect(() => {
+    if (format === 'currency' && cursorPositionRef.current !== null && localInputRef.current) {
+      localInputRef.current.setSelectionRange(cursorPositionRef.current, cursorPositionRef.current);
+      cursorPositionRef.current = null;
+    }
+  }, [inputValue, format]);
+
+  // Handle currency input change with formatting
+  const handleCurrencyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target;
+    const rawValue = input.value;
+    const cursor = input.selectionStart ?? 0;
+    const newValue = formatCurrencyInput(rawValue);
+
+    // Calculate new cursor position based on digit count in raw input
+    cursorPositionRef.current = getCurrencyInputCursorPosition(rawValue, newValue, cursor);
+    setInputValue(newValue);
+  };
+
   // Format the display value
+  // When saving, use inputValue to avoid flicker back to old value while API responds
   const getDisplayValue = (): string => {
-    const numValue = typeof value === 'number' ? value : parseFloat(String(value));
+    const displaySource = isSaving ? getParser()(inputValue) : value;
+    const numValue = typeof displaySource === 'number' ? displaySource : parseFloat(String(displaySource));
 
     switch (format) {
       case 'currency':
@@ -121,7 +152,7 @@ export function EditableField({
         return String(numValue || '-');
       case 'text':
       default:
-        return String(value || '-');
+        return String(displaySource || '-');
     }
   };
 
@@ -154,17 +185,26 @@ export function EditableField({
 
       {isEditing ? (
         <div className="mt-1 flex items-center">
-          {prefix && (
+          {prefix && format !== 'currency' && (
             <span className="mr-1 text-sm text-gray-500 dark:text-gray-400">
               {prefix}
             </span>
           )}
           <input
-            ref={inputRef as React.RefObject<HTMLInputElement>}
+            ref={(el) => {
+              // Set both refs for currency (local for cursor, hook for focus)
+              if (format === 'currency') {
+                localInputRef.current = el;
+              }
+              if (inputRef && typeof inputRef === 'object') {
+                (inputRef as React.MutableRefObject<HTMLInputElement | null>).current = el;
+              }
+            }}
             type={inputType}
-            step={step}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            inputMode={format === 'currency' ? 'numeric' : undefined}
+            step={format !== 'currency' ? step : undefined}
+            value={format === 'currency' ? (inputValue.startsWith('$') ? inputValue : formatCurrencyInput(inputValue || String(value))) : inputValue}
+            onChange={format === 'currency' ? handleCurrencyChange : (e) => setInputValue(e.target.value)}
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
             className={`

@@ -89,3 +89,46 @@ export function parsePercent(value: string): number {
   const parsed = parseFloat(cleaned);
   return isNaN(parsed) ? 0 : parsed;
 }
+
+/**
+ * Format a string as currency while typing (for live input formatting)
+ * Strips non-digits, adds $ prefix and thousand separators
+ * @example formatCurrencyInput("1234") → "$1,234"
+ * @example formatCurrencyInput("$1,234") → "$1,234"
+ * @example formatCurrencyInput("") → ""
+ */
+export function formatCurrencyInput(value: string): string {
+  // Remove everything except digits
+  const digits = value.replace(/\D/g, '');
+  if (!digits) return '';
+  // Format with $ and commas
+  return '$' + Number(digits).toLocaleString('en-US');
+}
+
+/**
+ * Get the cursor position after formatting a currency input
+ * @param rawInputValue The raw input value (before formatting)
+ * @param formattedValue The formatted value (after formatting)
+ * @param rawCursor Cursor position in the raw input value
+ */
+export function getCurrencyInputCursorPosition(
+  rawInputValue: string,
+  formattedValue: string,
+  rawCursor: number
+): number {
+  // Count digits before cursor in raw input
+  const digitsBeforeCursor = rawInputValue.slice(0, rawCursor).replace(/\D/g, '').length;
+
+  // Find position in formatted value where we have the same number of digits
+  let digitCount = 0;
+  for (let i = 0; i < formattedValue.length; i++) {
+    if (/\d/.test(formattedValue[i])) {
+      digitCount++;
+    }
+    if (digitCount === digitsBeforeCursor) {
+      return i + 1;
+    }
+  }
+
+  return formattedValue.length;
+}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Input from '@components/form/input/InputField';
+import CurrencyInput from '@components/form/input/CurrencyInput';
 import Label from '@components/form/Label';
 import Button from '@components/ui/button/Button';
 import Alert from '@components/ui/alert/Alert';
@@ -41,6 +42,10 @@ export function PreferencesForm() {
     if (!isNaN(num)) {
       handleChange(field, num);
     }
+  };
+
+  const handleCurrencyChange = (field: keyof UserPreferences, value: number) => {
+    handleChange(field, value);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -211,31 +216,28 @@ export function PreferencesForm() {
         </h3>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div>
-            <Label>Survey ($)</Label>
-            <Input
-              type="number"
+            <Label>Survey</Label>
+            <CurrencyInput
               value={preferences.dealSurvey}
-              onChange={(e) => handleNumberChange('dealSurvey', e.target.value)}
+              onChange={(value) => handleCurrencyChange('dealSurvey', value)}
               disabled={isPending}
             />
             <SettingHelp settingKey="dealSurvey" />
           </div>
           <div>
-            <Label>Appraisal ($)</Label>
-            <Input
-              type="number"
+            <Label>Appraisal</Label>
+            <CurrencyInput
               value={preferences.dealAppraisal}
-              onChange={(e) => handleNumberChange('dealAppraisal', e.target.value)}
+              onChange={(value) => handleCurrencyChange('dealAppraisal', value)}
               disabled={isPending}
             />
             <SettingHelp settingKey="dealAppraisal" />
           </div>
           <div>
-            <Label>Inspection ($)</Label>
-            <Input
-              type="number"
+            <Label>Inspection</Label>
+            <CurrencyInput
               value={preferences.dealInspection}
-              onChange={(e) => handleNumberChange('dealInspection', e.target.value)}
+              onChange={(value) => handleCurrencyChange('dealInspection', value)}
               disabled={isPending}
             />
             <SettingHelp settingKey="dealInspection" />
@@ -263,21 +265,19 @@ export function PreferencesForm() {
             <SettingHelp settingKey="dealPropertyTaxPercentListPrice" />
           </div>
           <div>
-            <Label>Default Repairs ($)</Label>
-            <Input
-              type="number"
+            <Label>Default Repairs</Label>
+            <CurrencyInput
               value={preferences.dealRepairs}
-              onChange={(e) => handleNumberChange('dealRepairs', e.target.value)}
+              onChange={(value) => handleCurrencyChange('dealRepairs', value)}
               disabled={isPending}
             />
             <SettingHelp settingKey="dealRepairs" />
           </div>
           <div>
-            <Label>Max Refi Cashback ($)</Label>
-            <Input
-              type="number"
+            <Label>Max Refi Cashback</Label>
+            <CurrencyInput
               value={preferences.dealMaxRefiCashback}
-              onChange={(e) => handleNumberChange('dealMaxRefiCashback', e.target.value)}
+              onChange={(value) => handleCurrencyChange('dealMaxRefiCashback', value)}
               disabled={isPending}
             />
             <SettingHelp settingKey="dealMaxRefiCashback" />
