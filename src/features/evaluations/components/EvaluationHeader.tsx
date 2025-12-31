@@ -197,7 +197,7 @@ export default function EvaluationHeader({
                 type="text"
                 readOnly
                 value={shareUrl}
-                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700"
+                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               />
               <button
                 onClick={() => {

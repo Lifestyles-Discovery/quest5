@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 
 const PageMeta = ({
@@ -6,12 +7,18 @@ const PageMeta = ({
 }: {
   title: string;
   description: string;
-}) => (
-  <Helmet>
-    <title>{title}</title>
-    <meta name="description" content={description} />
-  </Helmet>
-);
+}) => {
+  // Use useEffect for reliable title updates during client-side navigation
+  useEffect(() => {
+    document.title = title;
+  }, [title]);
+
+  return (
+    <Helmet>
+      <meta name="description" content={description} />
+    </Helmet>
+  );
+};
 
 export const AppWrapper = ({ children }: { children: React.ReactNode }) => (
   <HelmetProvider>{children}</HelmetProvider>

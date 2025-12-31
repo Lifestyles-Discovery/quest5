@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { useFprSearchMutation, useCreatePropertyFromSearch } from '@/hooks/api/useSearch';
+import PageMeta from '@components/common/PageMeta';
 import SearchForm from '../components/SearchForm';
 import MarketSummary from '../components/MarketSummary';
 import PropertyList from '../components/PropertyList';
@@ -90,8 +91,13 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
+    <>
+      <PageMeta
+        title="Search | Quest"
+        description="Find investment properties ranked by Feature-to-Price Ratio"
+      />
+      <div className="space-y-6">
+        {/* Page Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
           Property Search
@@ -182,6 +188,7 @@ export default function SearchPage() {
           </p>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

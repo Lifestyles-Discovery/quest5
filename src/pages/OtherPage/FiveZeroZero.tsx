@@ -6,8 +6,8 @@ export default function FiveZeroZero() {
   return (
     <>
       <PageMeta
-        title="React.js 500 Dashboard | TailAdmin - React.js Admin Dashboard Template"
-        description="This is React.js 500 Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
+        title="Server Error | Quest"
+        description="Something went wrong on our end"
       />
       <div className="relative flex flex-col items-center justify-center min-h-screen p-6 overflow-hidden z-1">
         <GridShape />
@@ -38,7 +38,7 @@ export default function FiveZeroZero() {
 
         {/* <!-- Footer --> */}
         <p className="absolute text-sm text-center text-gray-500 -translate-x-1/2 bottom-6 left-1/2 dark:text-gray-400">
-          &copy; {new Date().getFullYear()} - TailAdmin
+          &copy; {new Date().getFullYear()} Quest
         </p>
       </div>
     </>
