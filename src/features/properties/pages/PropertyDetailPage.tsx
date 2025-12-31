@@ -18,6 +18,7 @@ import type { Evaluation } from '@app-types/evaluation.types';
 import EvaluationContent from '@/features/evaluations/components/EvaluationContent';
 import { ScenarioHistory } from '../components/ScenarioHistory';
 import { Skeleton } from '@components/ui/skeleton/Skeleton';
+import PhotoGallery from '@components/common/PhotoGallery';
 
 function PropertyDetailSkeleton() {
   return (
@@ -99,6 +100,7 @@ export default function PropertyDetailPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
+  const [showGallery, setShowGallery] = useState(false);
 
   // Hooks
   const { data: property, isLoading: propertyLoading, error: propertyError } = useProperty(id!);
@@ -299,15 +301,28 @@ export default function PropertyDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3">
             {/* Photo */}
             <div className="relative h-64 lg:h-auto">
-              <img
-                src={primaryPhoto}
-                alt={property.address}
-                className="h-full w-full object-cover"
-              />
-              {property.photoUrls && property.photoUrls.length > 1 && (
-                <div className="absolute bottom-2 right-2 rounded bg-black/60 px-2 py-1 text-xs text-white">
-                  +{property.photoUrls.length - 1} photos
-                </div>
+              {property.photoUrls && property.photoUrls.length > 0 ? (
+                <button
+                  onClick={() => setShowGallery(true)}
+                  className="h-full w-full cursor-pointer"
+                >
+                  <img
+                    src={primaryPhoto}
+                    alt={property.address}
+                    className="h-full w-full object-cover hover:opacity-95"
+                  />
+                  {property.photoUrls.length > 1 && (
+                    <div className="absolute bottom-2 right-2 rounded bg-black/60 px-2 py-1 text-xs text-white">
+                      +{property.photoUrls.length - 1} photos
+                    </div>
+                  )}
+                </button>
+              ) : (
+                <img
+                  src={primaryPhoto}
+                  alt={property.address}
+                  className="h-full w-full object-cover"
+                />
               )}
             </div>
 
@@ -685,6 +700,14 @@ export default function PropertyDetailPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Photo Gallery */}
+      {showGallery && property.photoUrls && property.photoUrls.length > 0 && (
+        <PhotoGallery
+          photos={property.photoUrls}
+          onClose={() => setShowGallery(false)}
+        />
       )}
     </>
   );

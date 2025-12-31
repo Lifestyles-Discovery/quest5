@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import { createPortal } from 'react-dom';
+import { useState } from 'react';
 import type { RankedProperty } from '@app-types/search.types';
+import PhotoGallery from '@/components/common/PhotoGallery';
 
 interface PropertyListProps {
   properties: RankedProperty[];
@@ -8,18 +8,12 @@ interface PropertyListProps {
   isEvaluating?: string | null;
 }
 
-interface GalleryState {
-  photos: string[];
-  currentIndex: number;
-}
-
 export default function PropertyList({
   properties,
   onEvaluate,
   isEvaluating,
 }: PropertyListProps) {
-  const [gallery, setGallery] = useState<GalleryState | null>(null);
-  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [galleryPhotos, setGalleryPhotos] = useState<string[] | null>(null);
 
   const formatCurrency = (value: number) => {
     if (value >= 1000000) {
@@ -44,43 +38,8 @@ export default function PropertyList({
         : [];
 
     if (photos.length > 0) {
-      setGallery({ photos, currentIndex: 0 });
+      setGalleryPhotos(photos);
     }
-  };
-
-  const closeGallery = useCallback(() => setGallery(null), []);
-
-  const nextPhoto = useCallback(() => {
-    if (gallery && gallery.currentIndex < gallery.photos.length - 1) {
-      setGallery({ ...gallery, currentIndex: gallery.currentIndex + 1 });
-    }
-  }, [gallery]);
-
-  const prevPhoto = useCallback(() => {
-    if (gallery && gallery.currentIndex > 0) {
-      setGallery({ ...gallery, currentIndex: gallery.currentIndex - 1 });
-    }
-  }, [gallery]);
-
-  // Keyboard navigation
-  useEffect(() => {
-    if (!gallery) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight') nextPhoto();
-      else if (e.key === 'ArrowLeft') prevPhoto();
-      else if (e.key === 'Escape') closeGallery();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [gallery, nextPhoto, prevPhoto, closeGallery]);
-
-  // Touch swipe
-  const handleTouchStart = (e: React.TouchEvent) => setTouchStart(e.touches[0].clientX);
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStart === null) return;
-    const diff = touchStart - e.changedTouches[0].clientX;
-    if (Math.abs(diff) > 50) diff > 0 ? nextPhoto() : prevPhoto();
-    setTouchStart(null);
   };
 
   return (
@@ -217,62 +176,12 @@ export default function PropertyList({
         })}
       </div>
 
-      {/* Photo Gallery - Rendered via portal to escape stacking contexts */}
-      {gallery && createPortal(
-        <div
-          className="fixed inset-0 z-[999999] flex items-center justify-center bg-black px-16 py-12"
-          onClick={closeGallery}
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-        >
-          {/* Close */}
-          <button
-            onClick={closeGallery}
-            className="absolute right-4 top-4 z-10 rounded-full bg-white/10 p-2 text-white/70 hover:bg-white/20 hover:text-white"
-          >
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-
-          {/* Previous */}
-          {gallery.currentIndex > 0 && (
-            <button
-              onClick={(e) => { e.stopPropagation(); prevPhoto(); }}
-              className="absolute left-4 z-10 rounded-full bg-white/10 p-3 text-white/70 hover:bg-white/20 hover:text-white"
-            >
-              <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-          )}
-
-          {/* Photo */}
-          <img
-            src={gallery.photos[gallery.currentIndex]}
-            alt=""
-            className="max-h-full max-w-full object-contain"
-            onClick={(e) => e.stopPropagation()}
-          />
-
-          {/* Next */}
-          {gallery.currentIndex < gallery.photos.length - 1 && (
-            <button
-              onClick={(e) => { e.stopPropagation(); nextPhoto(); }}
-              className="absolute right-4 z-10 rounded-full bg-white/10 p-3 text-white/70 hover:bg-white/20 hover:text-white"
-            >
-              <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          )}
-
-          {/* Counter */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-white/60">
-            {gallery.currentIndex + 1} / {gallery.photos.length}
-          </div>
-        </div>,
-        document.body
+      {/* Photo Gallery */}
+      {galleryPhotos && (
+        <PhotoGallery
+          photos={galleryPhotos}
+          onClose={() => setGalleryPhotos(null)}
+        />
       )}
     </>
   );

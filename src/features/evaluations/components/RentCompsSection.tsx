@@ -4,6 +4,7 @@ import { useDebouncedCallback } from '@/hooks/useDebouncedCallback';
 import type { Evaluation, RentComp, SearchType, RentCompInputs } from '@app-types/evaluation.types';
 import CompsMap from './CompsMap';
 import FilterBar from './FilterBar';
+import PhotoThumbnail from '@/components/common/PhotoThumbnail';
 
 /**
  * Strips common suffixes from subdivision names for cleaner search
@@ -234,6 +235,9 @@ export default function RentCompsSection({
                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">
                   Include
                 </th>
+                <th className="w-12 px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">
+                  Photo
+                </th>
                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">
                   Address
                 </th>
@@ -274,6 +278,9 @@ export default function RentCompsSection({
                       onChange={() => handleToggleComp(comp)}
                       className="rounded border-gray-300 dark:border-gray-600"
                     />
+                  </td>
+                  <td className="px-2 py-2">
+                    <PhotoThumbnail photos={comp.photoURLs} size="sm" />
                   </td>
                   <td className="px-3 py-2">
                     <p className="text-sm font-medium text-gray-900 dark:text-white">
