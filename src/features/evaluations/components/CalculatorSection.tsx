@@ -79,6 +79,7 @@ export default function CalculatorSection({
       <DealTermsSummary
         dealTerms={calculator.dealTermInputs}
         onChange={handleDealTermChange}
+        showHardMoney={calculator.hardMoneyInputs.show}
       />
 
       {/* Results - The payoff, right after your inputs */}
