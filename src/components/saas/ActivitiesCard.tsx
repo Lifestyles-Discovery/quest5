@@ -61,6 +61,7 @@ export default function ActivitiesCard() {
           <div className="ml-4">
             <div className="mb-1 flex items-center gap-1">
               <svg
+                className="text-success-500"
                 width="18"
                 height="18"
                 viewBox="0 0 18 18"
@@ -69,7 +70,7 @@ export default function ActivitiesCard() {
               >
                 <path
                   d="M9 5.0625H14.0625L12.5827 8.35084C12.4506 8.64443 12.4506 8.98057 12.5827 9.27416L14.0625 12.5625H10.125C9.50368 12.5625 9 12.0588 9 11.4375V10.875M3.9375 10.875H9M3.9375 3.375H7.875C8.49632 3.375 9 3.87868 9 4.5V10.875M3.9375 15.9375V2.0625"
-                  stroke="#12B76A"
+                  stroke="currentColor"
                   strokeWidth="1.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"

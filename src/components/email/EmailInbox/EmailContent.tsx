@@ -145,10 +145,11 @@ export default function EmailContent() {
                 >
                   {starredItems[index] ? (
                     <svg
+                      className="text-warning-500"
                       width="20"
                       height="20"
                       viewBox="0 0 20 20"
-                      fill="#FDB022"
+                      fill="currentColor"
                       xmlns="http://www.w3.org/2000/svg"
                     >
                       <path d="M9.99991 3.125L12.2337 7.65114L17.2286 8.37694L13.6142 11.9L14.4675 16.8747L9.99991 14.526L5.53235 16.8747L6.38558 11.9L2.77124 8.37694L7.76613 7.65114L9.99991 3.125Z" />
