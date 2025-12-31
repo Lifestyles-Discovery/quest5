@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useUpdateSaleComps, useToggleSaleCompInclusion } from '@/hooks/api/useEvaluations';
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback';
 import type { Evaluation, SaleComp, SearchType, SaleCompInputs } from '@app-types/evaluation.types';
-import { DEFAULT_SALE_COMP_INPUTS } from '@app-types/evaluation.types';
 import CompsMap from './CompsMap';
 import FilterBar from './FilterBar';
 
@@ -49,6 +48,8 @@ export default function SaleCompsSection({
   const isSyncingFromServer = useRef(false);
   const hasInitializedSearchTerm = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
+  // Capture original inputs from server for reset functionality
+  const originalInputs = useRef<Partial<SaleCompInputs>>(saleCompGroup?.saleCompInputs || {});
 
   const updateSaleComps = useUpdateSaleComps();
   const toggleInclusion = useToggleSaleCompInclusion();
@@ -161,7 +162,7 @@ export default function SaleCompsSection({
   const includedComps = saleComps.filter((c) => c.include);
 
   const handleResetFilters = () => {
-    setFilters(DEFAULT_SALE_COMP_INPUTS);
+    setFilters(originalInputs.current);
   };
 
   const toggleMap = () => {

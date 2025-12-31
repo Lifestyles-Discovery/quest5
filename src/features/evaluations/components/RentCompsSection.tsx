@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useUpdateRentComps, useToggleRentCompInclusion } from '@/hooks/api/useEvaluations';
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback';
 import type { Evaluation, RentComp, SearchType, RentCompInputs } from '@app-types/evaluation.types';
-import { DEFAULT_RENT_COMP_INPUTS } from '@app-types/evaluation.types';
 import CompsMap from './CompsMap';
 import FilterBar from './FilterBar';
 
@@ -49,6 +48,8 @@ export default function RentCompsSection({
   const isSyncingFromServer = useRef(false);
   const hasInitializedSearchTerm = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
+  // Capture original inputs from server for reset functionality
+  const originalInputs = useRef<Partial<RentCompInputs>>(rentCompGroup?.rentCompInputs || {});
 
   const updateRentComps = useUpdateRentComps();
   const toggleInclusion = useToggleRentCompInclusion();
@@ -152,7 +153,7 @@ export default function RentCompsSection({
   const includedComps = rentComps.filter((c) => c.include);
 
   const handleResetFilters = () => {
-    setFilters(DEFAULT_RENT_COMP_INPUTS);
+    setFilters(originalInputs.current);
   };
 
   const toggleMap = () => {
