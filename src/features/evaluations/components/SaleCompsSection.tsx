@@ -2,7 +2,9 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useUpdateSaleComps, useToggleSaleCompInclusion } from '@/hooks/api/useEvaluations';
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback';
 import type { Evaluation, SaleComp, SearchType, SaleCompInputs } from '@app-types/evaluation.types';
+import { DEFAULT_SALE_COMP_INPUTS } from '@app-types/evaluation.types';
 import CompsMap from './CompsMap';
+import FilterBar from './FilterBar';
 
 /**
  * Strips common suffixes from subdivision names for cleaner search
@@ -40,9 +42,6 @@ export default function SaleCompsSection({
   const [filters, setFilters] = useState<Partial<SaleCompInputs>>(
     saleCompGroup?.saleCompInputs || {}
   );
-  const [showMoreFilters, setShowMoreFilters] = useState(() => {
-    return localStorage.getItem('showMoreCompFilters') === 'true';
-  });
   const [showMap, setShowMap] = useState(() => {
     return localStorage.getItem('showSaleCompsMap') === 'true';
   });
@@ -161,10 +160,8 @@ export default function SaleCompsSection({
   const saleComps = saleCompGroup?.saleComps || [];
   const includedComps = saleComps.filter((c) => c.include);
 
-  const toggleMoreFilters = () => {
-    const newValue = !showMoreFilters;
-    setShowMoreFilters(newValue);
-    localStorage.setItem('showMoreCompFilters', newValue.toString());
+  const handleResetFilters = () => {
+    setFilters(DEFAULT_SALE_COMP_INPUTS);
   };
 
   const toggleMap = () => {
@@ -207,213 +204,15 @@ export default function SaleCompsSection({
       </div>
 
       {/* Filters */}
-      <div className="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/50">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-8">
-          <div>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
-              Search Type
-            </label>
-            <select
-              value={filters.searchType || ''}
-              onChange={(e) => setFilters({ ...filters, searchType: e.target.value })}
-              className="mt-1 block w-full rounded border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-            >
-              {filteredSearchTypes.map((st) => (
-                <option key={st.type} value={st.type}>
-                  {st.type}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
-              {filters.searchType?.toLowerCase() === 'radius' ? 'Radius (miles)' : 'Subdivision'}
-            </label>
-            <input
-              type={filters.searchType?.toLowerCase() === 'radius' ? 'number' : 'text'}
-              value={filters.searchTerm || ''}
-              onChange={(e) => setFilters({ ...filters, searchTerm: e.target.value })}
-              placeholder={filters.searchType?.toLowerCase() === 'radius' ? '0.5' : 'e.g. Oak Forest'}
-              step={filters.searchType?.toLowerCase() === 'radius' ? '0.1' : undefined}
-              onFocus={(e) => e.target.select()}
-              className="mt-1 block w-full rounded border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-            />
-          </div>
-
-          <div className={filters.ignoreParametersExceptMonthsClosed ? 'opacity-50' : ''}>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
-              Sqft +/-
-            </label>
-            <input
-              type="number"
-              value={filters.sqftPlusMinus || ''}
-              onChange={(e) => setFilters({ ...filters, sqftPlusMinus: Number(e.target.value) })}
-              onFocus={(e) => e.target.select()}
-              className="mt-1 block w-full rounded border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-            />
-          </div>
-
-          <div className={filters.ignoreParametersExceptMonthsClosed ? 'opacity-50' : ''}>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
-              Year +/-
-            </label>
-            <input
-              type="number"
-              value={filters.yearBuiltPlusMinus || ''}
-              onChange={(e) => setFilters({ ...filters, yearBuiltPlusMinus: Number(e.target.value) })}
-              onFocus={(e) => e.target.select()}
-              className="mt-1 block w-full rounded border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-            />
-          </div>
-
-          <div className={filters.ignoreParametersExceptMonthsClosed ? 'opacity-50' : ''}>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
-              Beds Min
-            </label>
-            <input
-              type="number"
-              value={filters.bedsMin || ''}
-              onChange={(e) => setFilters({ ...filters, bedsMin: Number(e.target.value) })}
-              onFocus={(e) => e.target.select()}
-              className="mt-1 block w-full rounded border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-            />
-          </div>
-
-          <div className={filters.ignoreParametersExceptMonthsClosed ? 'opacity-50' : ''}>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
-              Beds Max
-            </label>
-            <input
-              type="number"
-              value={filters.bedsMax || ''}
-              onChange={(e) => setFilters({ ...filters, bedsMax: Number(e.target.value) })}
-              onFocus={(e) => e.target.select()}
-              className="mt-1 block w-full rounded border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
-              Months
-            </label>
-            <input
-              type="number"
-              value={filters.monthsClosed || ''}
-              onChange={(e) => setFilters({ ...filters, monthsClosed: Number(e.target.value) })}
-              onFocus={(e) => e.target.select()}
-              className="mt-1 block w-full rounded border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
-              Zip
-            </label>
-            <select
-              value={filters.confineToZip || ''}
-              onChange={(e) => setFilters({ ...filters, confineToZip: e.target.value })}
-              className="mt-1 block w-full rounded border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-            >
-              <option value="">Any zip</option>
-              {saleCompGroup?.zips?.map((zip) => (
-                <option key={zip} value={zip}>{zip}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex flex-col justify-end gap-1">
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={filters.ignoreParametersExceptMonthsClosed || false}
-                onChange={(e) => setFilters({ ...filters, ignoreParametersExceptMonthsClosed: e.target.checked })}
-                className="rounded border-gray-300 dark:border-gray-600"
-              />
-              <span className="text-xs text-gray-700 dark:text-gray-300">Broad search</span>
-            </label>
-            <button
-              type="button"
-              onClick={toggleMoreFilters}
-              className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-left"
-            >
-              {showMoreFilters ? 'Less ▴' : 'More ▾'}
-            </button>
-          </div>
-        </div>
-
-        {/* Expanded filters */}
-        {showMoreFilters && (
-          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-5">
-            <div className={filters.ignoreParametersExceptMonthsClosed ? 'opacity-50' : ''}>
-              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
-                Baths Min
-              </label>
-              <input
-                type="number"
-                value={filters.bathsMin || ''}
-                onChange={(e) => setFilters({ ...filters, bathsMin: Number(e.target.value) })}
-                onFocus={(e) => e.target.select()}
-                className="mt-1 block w-full rounded border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              />
-            </div>
-
-            <div className={filters.ignoreParametersExceptMonthsClosed ? 'opacity-50' : ''}>
-              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
-                Baths Max
-              </label>
-              <input
-                type="number"
-                value={filters.bathsMax || ''}
-                onChange={(e) => setFilters({ ...filters, bathsMax: Number(e.target.value) })}
-                onFocus={(e) => e.target.select()}
-                className="mt-1 block w-full rounded border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              />
-            </div>
-
-            <div className={filters.ignoreParametersExceptMonthsClosed ? 'opacity-50' : ''}>
-              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
-                Garage Min
-              </label>
-              <input
-                type="number"
-                value={filters.garageMin || ''}
-                onChange={(e) => setFilters({ ...filters, garageMin: Number(e.target.value) })}
-                onFocus={(e) => e.target.select()}
-                className="mt-1 block w-full rounded border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              />
-            </div>
-
-            <div className={filters.ignoreParametersExceptMonthsClosed ? 'opacity-50' : ''}>
-              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
-                Garage Max
-              </label>
-              <input
-                type="number"
-                value={filters.garageMax || ''}
-                onChange={(e) => setFilters({ ...filters, garageMax: Number(e.target.value) })}
-                onFocus={(e) => e.target.select()}
-                className="mt-1 block w-full rounded border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
-                County
-              </label>
-              <select
-                value={filters.confineToCounty || ''}
-                onChange={(e) => setFilters({ ...filters, confineToCounty: e.target.value })}
-                className="mt-1 block w-full rounded border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              >
-                <option value="">Any county</option>
-                {saleCompGroup?.counties?.map((county) => (
-                  <option key={county} value={county}>{county}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-        )}
+      <div className="border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-900/50">
+        <FilterBar
+          filters={filters}
+          onChange={setFilters}
+          searchTypes={filteredSearchTypes}
+          zips={saleCompGroup?.zips}
+          counties={saleCompGroup?.counties}
+          onReset={handleResetFilters}
+        />
       </div>
 
       {/* Map */}

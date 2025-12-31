@@ -1,0 +1,264 @@
+import { useState } from 'react';
+import type { SaleCompInputs, RentCompInputs, SearchType } from '@app-types/evaluation.types';
+import FilterChip, { RangeEditor, NumberEditor, SelectEditor, LocationEditor } from './FilterChip';
+
+type CompInputs = SaleCompInputs | RentCompInputs;
+
+interface FilterBarProps {
+  filters: Partial<CompInputs>;
+  onChange: (filters: Partial<CompInputs>) => void;
+  searchTypes: SearchType[];
+  zips?: string[];
+  counties?: string[];
+  onReset?: () => void;
+}
+
+const BEDS_MAX = 6;
+const BATHS_MAX = 5;
+const GARAGE_MAX = 4;
+
+// Format helpers for chip labels
+function formatLocation(searchTerm?: string): string {
+  return searchTerm || 'any location';
+}
+
+function formatRange(min: number, max: number, unit: string, rangeMax: number): string {
+  const hasMin = min > 0;
+  const hasMax = max < rangeMax;
+
+  if (!hasMin && !hasMax) return `any ${unit}`;
+  if (min === max) return `${min} ${unit}`;
+  if (hasMin && hasMax) return `${min}-${max} ${unit}`;
+  if (hasMin) return `${min}+ ${unit}`;
+  return `any ${unit}`;
+}
+
+function formatTolerance(value: number | undefined, prefix: string, suffix: string): string {
+  if (!value) return `any ${suffix}`;
+  return `${prefix}${value} ${suffix}`;
+}
+
+function formatMonths(value: number | undefined): string {
+  if (!value) return 'any time';
+  return `${value} mo`;
+}
+
+export default function FilterBar({
+  filters,
+  onChange,
+  searchTypes,
+  zips = [],
+  counties = [],
+  onReset,
+}: FilterBarProps) {
+  const [showMore, setShowMore] = useState(false);
+  const isBroadSearch = filters.ignoreParametersExceptMonthsClosed || false;
+
+  const hasMoreFilters =
+    (filters.garageMin !== undefined && filters.garageMin > 0) ||
+    (filters.garageMax !== undefined && filters.garageMax < 10) ||
+    filters.confineToZip ||
+    filters.confineToCounty ||
+    filters.yearBuiltPlusMinus;
+
+  // When broad search is on, clicking a muted chip turns it off and activates that filter
+  const handleMutedChipClick = () => {
+    onChange({ ...filters, ignoreParametersExceptMonthsClosed: false });
+  };
+
+  // Muted chip style for when broad search is active
+  const mutedChipClass = isBroadSearch
+    ? 'opacity-40 pointer-events-none'
+    : '';
+
+  return (
+    <div className="space-y-2">
+      {/* Broad search banner - shown when active */}
+      {isBroadSearch && (
+        <div className="flex items-center gap-2 text-sm">
+          <span className="rounded-full bg-amber-100 px-3 py-1 font-medium text-amber-800 dark:bg-amber-900/50 dark:text-amber-200">
+            Broad search active
+          </span>
+          <span className="text-gray-500 dark:text-gray-400">— only time filter applies</span>
+          <button
+            type="button"
+            onClick={() => onChange({ ...filters, ignoreParametersExceptMonthsClosed: false })}
+            className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+          >
+            use precise filters
+          </button>
+        </div>
+      )}
+
+      {/* Main filter chips */}
+      <div className="flex flex-wrap items-center gap-2">
+        {/* Location - muted when broad search */}
+        <div className={mutedChipClass} onClick={isBroadSearch ? handleMutedChipClick : undefined}>
+          <FilterChip label={formatLocation(filters.searchTerm)}>
+            <LocationEditor
+              searchType={filters.searchType || 'subdivision'}
+              searchTerm={filters.searchTerm || ''}
+              searchTypes={searchTypes}
+              onSearchTypeChange={(type) => onChange({ ...filters, searchType: type })}
+              onSearchTermChange={(term) => onChange({ ...filters, searchTerm: term })}
+            />
+          </FilterChip>
+        </div>
+
+        {/* Beds - muted when broad search */}
+        <div className={mutedChipClass} onClick={isBroadSearch ? handleMutedChipClick : undefined}>
+          <FilterChip label={formatRange(filters.bedsMin || 0, filters.bedsMax || BEDS_MAX, 'beds', BEDS_MAX)}>
+            <RangeEditor
+              label="Beds"
+              min={filters.bedsMin || 0}
+              max={filters.bedsMax || BEDS_MAX}
+              rangeMax={BEDS_MAX}
+              onChange={(min, max) => onChange({ ...filters, bedsMin: min, bedsMax: max })}
+            />
+          </FilterChip>
+        </div>
+
+        {/* Baths - muted when broad search */}
+        <div className={mutedChipClass} onClick={isBroadSearch ? handleMutedChipClick : undefined}>
+          <FilterChip label={formatRange(filters.bathsMin || 0, filters.bathsMax || BATHS_MAX, 'baths', BATHS_MAX)}>
+            <RangeEditor
+              label="Baths"
+              min={filters.bathsMin || 0}
+              max={filters.bathsMax || BATHS_MAX}
+              rangeMax={BATHS_MAX}
+              onChange={(min, max) => onChange({ ...filters, bathsMin: min, bathsMax: max })}
+            />
+          </FilterChip>
+        </div>
+
+        {/* Sqft - muted when broad search */}
+        <div className={mutedChipClass} onClick={isBroadSearch ? handleMutedChipClick : undefined}>
+          <FilterChip label={formatTolerance(filters.sqftPlusMinus, '±', 'sqft')}>
+            <NumberEditor
+              label="Sqft tolerance"
+              value={filters.sqftPlusMinus || 0}
+              onChange={(value) => onChange({ ...filters, sqftPlusMinus: value })}
+              prefix="±"
+            />
+          </FilterChip>
+        </div>
+
+        {/* Months - always active, even in broad search */}
+        <FilterChip label={formatMonths(filters.monthsClosed)}>
+          <NumberEditor
+            label="Sold within"
+            value={filters.monthsClosed || 0}
+            onChange={(value) => onChange({ ...filters, monthsClosed: value })}
+            suffix="months"
+          />
+        </FilterChip>
+
+        {/* Broad search toggle - only show when NOT in broad search */}
+        {!isBroadSearch && !showMore && (
+          <button
+            type="button"
+            onClick={() => onChange({ ...filters, ignoreParametersExceptMonthsClosed: true })}
+            className="rounded-full px-3 py-1 text-sm text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+          >
+            broad
+          </button>
+        )}
+
+        {/* More toggle */}
+        {!showMore && !isBroadSearch && (
+          <button
+            type="button"
+            onClick={() => setShowMore(true)}
+            className={`rounded-full px-3 py-1 text-sm transition-colors ${
+              hasMoreFilters
+                ? 'bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400'
+                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+            }`}
+          >
+            + more
+          </button>
+        )}
+
+        {/* Reset */}
+        {onReset && (
+          <button
+            type="button"
+            onClick={onReset}
+            className="rounded-full px-3 py-1 text-sm text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+          >
+            reset
+          </button>
+        )}
+      </div>
+
+      {/* More filters row - hidden during broad search */}
+      {showMore && !isBroadSearch && (
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Year */}
+          <FilterChip label={formatTolerance(filters.yearBuiltPlusMinus, '±', 'year')}>
+            <NumberEditor
+              label="Year tolerance"
+              value={filters.yearBuiltPlusMinus || 0}
+              onChange={(value) => onChange({ ...filters, yearBuiltPlusMinus: value })}
+              prefix="±"
+              suffix="years"
+            />
+          </FilterChip>
+
+          {/* Garage */}
+          <FilterChip label={formatRange(filters.garageMin || 0, filters.garageMax || GARAGE_MAX, 'garage', GARAGE_MAX)}>
+            <RangeEditor
+              label="Garage"
+              min={filters.garageMin || 0}
+              max={filters.garageMax || GARAGE_MAX}
+              rangeMax={GARAGE_MAX}
+              onChange={(min, max) => onChange({ ...filters, garageMin: min, garageMax: max })}
+            />
+          </FilterChip>
+
+          {/* Zip */}
+          {zips.length > 0 && (
+            <FilterChip label={filters.confineToZip || 'any zip'}>
+              <SelectEditor
+                label="Zip"
+                value={filters.confineToZip || ''}
+                options={zips}
+                onChange={(value) => onChange({ ...filters, confineToZip: value })}
+              />
+            </FilterChip>
+          )}
+
+          {/* County */}
+          {counties.length > 0 && (
+            <FilterChip label={filters.confineToCounty || 'any county'}>
+              <SelectEditor
+                label="County"
+                value={filters.confineToCounty || ''}
+                options={counties}
+                onChange={(value) => onChange({ ...filters, confineToCounty: value })}
+              />
+            </FilterChip>
+          )}
+
+          {/* Broad search toggle in more section */}
+          <button
+            type="button"
+            onClick={() => onChange({ ...filters, ignoreParametersExceptMonthsClosed: true })}
+            className="rounded-full px-3 py-1 text-sm text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+          >
+            broad
+          </button>
+
+          {/* Less toggle */}
+          <button
+            type="button"
+            onClick={() => setShowMore(false)}
+            className="rounded-full px-3 py-1 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+          >
+            − less
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
