@@ -48,8 +48,6 @@ export default function RentCompsSection({
   const isSyncingFromServer = useRef(false);
   const hasInitializedSearchTerm = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
-  // Capture original inputs from server for reset functionality
-  const originalInputs = useRef<Partial<RentCompInputs>>(rentCompGroup?.rentCompInputs || {});
 
   const updateRentComps = useUpdateRentComps();
   const toggleInclusion = useToggleRentCompInclusion();
@@ -153,7 +151,9 @@ export default function RentCompsSection({
   const includedComps = rentComps.filter((c) => c.include);
 
   const handleResetFilters = () => {
-    setFilters(originalInputs.current);
+    // Use backend-provided initial values, fall back to current if not available
+    const initialInputs = rentCompGroup?.initialRentCompInputs || rentCompGroup?.rentCompInputs || {};
+    setFilters(initialInputs);
   };
 
   const toggleMap = () => {

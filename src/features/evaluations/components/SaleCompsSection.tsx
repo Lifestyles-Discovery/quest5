@@ -48,8 +48,6 @@ export default function SaleCompsSection({
   const isSyncingFromServer = useRef(false);
   const hasInitializedSearchTerm = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
-  // Capture original inputs from server for reset functionality
-  const originalInputs = useRef<Partial<SaleCompInputs>>(saleCompGroup?.saleCompInputs || {});
 
   const updateSaleComps = useUpdateSaleComps();
   const toggleInclusion = useToggleSaleCompInclusion();
@@ -162,7 +160,9 @@ export default function SaleCompsSection({
   const includedComps = saleComps.filter((c) => c.include);
 
   const handleResetFilters = () => {
-    setFilters(originalInputs.current);
+    // Use backend-provided initial values, fall back to current if not available
+    const initialInputs = saleCompGroup?.initialSaleCompInputs || saleCompGroup?.saleCompInputs || {};
+    setFilters(initialInputs);
   };
 
   const toggleMap = () => {

@@ -69,6 +69,7 @@ export interface CompTrend {
  */
 export interface SaleCompGroup {
   saleCompInputs: SaleCompInputs;
+  initialSaleCompInputs?: SaleCompInputs; // Immutable - set once on evaluation creation
   saleComps: SaleComp[];
   calculatedValue: number;
   averageSalePrice: number;
@@ -133,6 +134,7 @@ export interface RentComp {
  */
 export interface RentCompGroup {
   rentCompInputs: RentCompInputs;
+  initialRentCompInputs?: RentCompInputs; // Immutable - set once on evaluation creation
   rentComps: RentComp[];
   calculatedValue: number;
   averageRentPrice: number;
