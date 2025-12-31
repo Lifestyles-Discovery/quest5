@@ -180,6 +180,7 @@ export const evaluationsService = {
 
   /**
    * Update calculator values
+   * Note: Header names must match Quest4 API format with prefixes (deal*, conv*, etc.)
    */
   async updateCalculator(
     propertyId: string,
@@ -190,72 +191,72 @@ export const evaluationsService = {
   ): Promise<Evaluation> {
     const headers: Record<string, string> = {};
 
-    // Deal term inputs
+    // Deal term inputs - API expects "deal" prefix
     if (dealTermInputs) {
       if (dealTermInputs.estimatedMarketValue !== undefined)
-        headers.estimatedMarketValue = String(dealTermInputs.estimatedMarketValue);
+        headers.dealEstimatedMarketValue = String(dealTermInputs.estimatedMarketValue);
       if (dealTermInputs.estimatedAppraisedValue !== undefined)
-        headers.estimatedAppraisedValue = String(dealTermInputs.estimatedAppraisedValue);
+        headers.dealEstimatedAppraisedValue = String(dealTermInputs.estimatedAppraisedValue);
       if (dealTermInputs.purchasePrice !== undefined)
-        headers.purchasePrice = String(dealTermInputs.purchasePrice);
+        headers.dealPurchasePrice = String(dealTermInputs.purchasePrice);
       if (dealTermInputs.sellerContribution !== undefined)
-        headers.sellerContribution = String(dealTermInputs.sellerContribution);
+        headers.dealSellerContribution = String(dealTermInputs.sellerContribution);
       if (dealTermInputs.survey !== undefined)
-        headers.survey = String(dealTermInputs.survey);
+        headers.dealSurvey = String(dealTermInputs.survey);
       if (dealTermInputs.appraisal !== undefined)
-        headers.appraisal = String(dealTermInputs.appraisal);
+        headers.dealAppraisal = String(dealTermInputs.appraisal);
       if (dealTermInputs.inspection !== undefined)
-        headers.inspection = String(dealTermInputs.inspection);
+        headers.dealInspection = String(dealTermInputs.inspection);
       if (dealTermInputs.repairsMakeReady !== undefined)
-        headers.repairsMakeReady = String(dealTermInputs.repairsMakeReady);
+        headers.dealRepairsMakeReady = String(dealTermInputs.repairsMakeReady);
       if (dealTermInputs.hoaAnnual !== undefined)
-        headers.hoaAnnual = String(dealTermInputs.hoaAnnual);
+        headers.dealHoaAnnual = String(dealTermInputs.hoaAnnual);
       if (dealTermInputs.propertyTaxAnnual !== undefined)
-        headers.propertyTaxAnnual = String(dealTermInputs.propertyTaxAnnual);
+        headers.dealPropertyTaxAnnual = String(dealTermInputs.propertyTaxAnnual);
       if (dealTermInputs.propertyInsuranceAnnual !== undefined)
-        headers.propertyInsuranceAnnual = String(dealTermInputs.propertyInsuranceAnnual);
+        headers.dealPropertyInsuranceAnnual = String(dealTermInputs.propertyInsuranceAnnual);
       if (dealTermInputs.miscellaneousMonthly !== undefined)
-        headers.miscellaneousMonthly = String(dealTermInputs.miscellaneousMonthly);
+        headers.dealMiscellaneousMonthly = String(dealTermInputs.miscellaneousMonthly);
       if (dealTermInputs.rent !== undefined)
-        headers.rent = String(dealTermInputs.rent);
+        headers.dealRent = String(dealTermInputs.rent);
       if (dealTermInputs.maxRefiCashback !== undefined)
-        headers.maxRefiCashback = String(dealTermInputs.maxRefiCashback);
+        headers.dealMaxRefiCashback = String(dealTermInputs.maxRefiCashback);
     }
 
-    // Conventional inputs
+    // Conventional inputs - API expects "conv" prefix
     if (conventionalInputs) {
       if (conventionalInputs.show !== undefined)
-        headers.conventionalShow = String(conventionalInputs.show);
+        headers.convShow = String(conventionalInputs.show);
       if (conventionalInputs.downPaymentPercent !== undefined)
-        headers.downPaymentPercent = String(conventionalInputs.downPaymentPercent);
+        headers.convDownpaymentPercent = String(conventionalInputs.downPaymentPercent);
       if (conventionalInputs.loanTermInYears !== undefined)
-        headers.loanTermInYears = String(conventionalInputs.loanTermInYears);
+        headers.convLoanTermInYears = String(conventionalInputs.loanTermInYears);
       if (conventionalInputs.interestRatePercent !== undefined)
-        headers.interestRatePercent = String(conventionalInputs.interestRatePercent);
+        headers.convInterestRatePercent = String(conventionalInputs.interestRatePercent);
       if (conventionalInputs.lenderAndTitleFees !== undefined)
-        headers.lenderAndTitleFees = String(conventionalInputs.lenderAndTitleFees);
+        headers.convLenderAndTitleFees = String(conventionalInputs.lenderAndTitleFees);
       if (conventionalInputs.monthsTaxAndInsurance !== undefined)
-        headers.monthsTaxAndInsurance = String(conventionalInputs.monthsTaxAndInsurance);
+        headers.convMonthsTaxAndInsurance = String(conventionalInputs.monthsTaxAndInsurance);
       if (conventionalInputs.mortgageInsuranceAnnual !== undefined)
-        headers.mortgageInsuranceAnnual = String(conventionalInputs.mortgageInsuranceAnnual);
+        headers.convMortgageInsuranceAnnual = String(conventionalInputs.mortgageInsuranceAnnual);
     }
 
-    // Hard money inputs
+    // Hard money inputs - API expects specific naming
     if (hardMoneyInputs) {
       if (hardMoneyInputs.show !== undefined)
-        headers.hardMoneyShow = String(hardMoneyInputs.show);
+        headers.hardShow = String(hardMoneyInputs.show);
       if (hardMoneyInputs.hardLoanToValuePercent !== undefined)
-        headers.hardLoanToValuePercent = String(hardMoneyInputs.hardLoanToValuePercent);
+        headers.hardMoneyLoanToValuePercent = String(hardMoneyInputs.hardLoanToValuePercent);
       if (hardMoneyInputs.hardLenderAndTitleFees !== undefined)
-        headers.hardLenderAndTitleFees = String(hardMoneyInputs.hardLenderAndTitleFees);
+        headers.hardMoneyLenderAndTitleFees = String(hardMoneyInputs.hardLenderAndTitleFees);
       if (hardMoneyInputs.hardInterestRate !== undefined)
-        headers.hardInterestRate = String(hardMoneyInputs.hardInterestRate);
+        headers.hardMoneyInterestRatePercent = String(hardMoneyInputs.hardInterestRate);
       if (hardMoneyInputs.hardMonthsToRefinance !== undefined)
-        headers.hardMonthsToRefinance = String(hardMoneyInputs.hardMonthsToRefinance);
+        headers.hardMoneyMonthsToRefinance = String(hardMoneyInputs.hardMonthsToRefinance);
       if (hardMoneyInputs.hardRollInLenderFees !== undefined)
-        headers.hardRollInLenderFees = String(hardMoneyInputs.hardRollInLenderFees);
+        headers.hardMoneyRollInLenderFees = String(hardMoneyInputs.hardRollInLenderFees);
       if (hardMoneyInputs.hardWeeksUntilLeased !== undefined)
-        headers.hardWeeksUntilLeased = String(hardMoneyInputs.hardWeeksUntilLeased);
+        headers.hardMoneyWeeksUntilLeased = String(hardMoneyInputs.hardWeeksUntilLeased);
       if (hardMoneyInputs.refinanceLoanToValuePercent !== undefined)
         headers.refinanceLoanToValuePercent = String(hardMoneyInputs.refinanceLoanToValuePercent);
       if (hardMoneyInputs.refinanceLoanTermInYears !== undefined)

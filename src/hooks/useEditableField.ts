@@ -25,7 +25,7 @@ interface UseEditableFieldReturn {
   /** Handle keyboard events (Enter to save, Escape to cancel) */
   handleKeyDown: (e: React.KeyboardEvent) => void;
   /** Ref to attach to the input element for auto-focus */
-  inputRef: React.RefObject<HTMLInputElement>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
   /** Whether a save is currently pending */
   isSaving: boolean;
   /** Whether the field was just saved (for showing feedback) */
@@ -46,19 +46,20 @@ export function useEditableField({
   const [justSaved, setJustSaved] = useState(false);
   const [hasError, setHasError] = useState(false);
 
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const originalValueRef = useRef(String(value));
-  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
-  const feedbackTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
-  const errorTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const feedbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const errorTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Sync input value when external value changes (and not editing)
+  // Sync input value when external value changes (and not editing or saving)
+  // Skip sync while saving to avoid flicker - wait for API response to update external value
   useEffect(() => {
-    if (!isEditing) {
+    if (!isEditing && !isSaving) {
       setInputValue(String(value));
       originalValueRef.current = String(value);
     }
-  }, [value, isEditing]);
+  }, [value, isEditing, isSaving]);
 
   // Auto-focus and select text when entering edit mode
   useEffect(() => {
