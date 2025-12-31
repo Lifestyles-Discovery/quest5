@@ -169,9 +169,10 @@ interface NumberEditorProps {
   onChange: (value: number) => void;
   suffix?: string;
   prefix?: string;
+  step?: number;
 }
 
-export function NumberEditor({ label, value, onChange, suffix, prefix }: NumberEditorProps) {
+export function NumberEditor({ label, value, onChange, suffix, prefix, step }: NumberEditorProps) {
   return (
     <div className="flex items-center gap-2">
       <span className="text-xs font-medium text-gray-500 dark:text-gray-400">{label}</span>
@@ -181,6 +182,7 @@ export function NumberEditor({ label, value, onChange, suffix, prefix }: NumberE
         value={value || ''}
         onChange={(e) => onChange(Number(e.target.value))}
         onFocus={(e) => e.target.select()}
+        step={step}
         className="w-20 rounded border border-gray-300 bg-white px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
       />
       {suffix && <span className="text-sm text-gray-600 dark:text-gray-400">{suffix}</span>}

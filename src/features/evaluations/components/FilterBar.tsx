@@ -18,8 +18,12 @@ const BATHS_MAX = 5;
 const GARAGE_MAX = 4;
 
 // Format helpers for chip labels
-function formatLocation(searchTerm?: string): string {
-  return searchTerm || 'any location';
+function formatLocation(searchTerm?: string, searchType?: string): string {
+  if (!searchTerm) return 'any location';
+  if (searchType?.toLowerCase() === 'radius') {
+    return `${searchTerm} miles`;
+  }
+  return searchTerm;
 }
 
 function formatRange(min: number, max: number, unit: string, rangeMax: number): string {
@@ -93,7 +97,7 @@ export default function FilterBar({
       {/* Main filter chips */}
       <div className="flex flex-wrap items-center gap-2">
         {/* Location - always active, even in broad search */}
-        <FilterChip label={formatLocation(filters.searchTerm)}>
+        <FilterChip label={formatLocation(filters.searchTerm, filters.searchType)}>
           <LocationEditor
             searchType={filters.searchType || 'subdivision'}
             searchTerm={filters.searchTerm || ''}
@@ -137,6 +141,7 @@ export default function FilterBar({
               value={filters.sqftPlusMinus || 0}
               onChange={(value) => onChange({ ...filters, sqftPlusMinus: value })}
               prefix="±"
+              step={100}
             />
           </FilterChip>
         </div>
