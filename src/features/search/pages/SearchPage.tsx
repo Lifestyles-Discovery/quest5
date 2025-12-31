@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { useFprSearchMutation, useCreatePropertyFromSearch } from '@/hooks/api/useSearch';
 import PageMeta from '@components/common/PageMeta';
+import PageBreadcrumb from '@components/common/PageBreadCrumb';
 import SearchForm from '../components/SearchForm';
 import MarketSummary from '../components/MarketSummary';
 import PropertyList from '../components/PropertyList';
@@ -96,6 +97,7 @@ export default function SearchPage() {
         title="Search | Quest"
         description="Find investment properties ranked by Feature-to-Price Ratio"
       />
+      <PageBreadcrumb pageTitle="Search" />
       <div className="space-y-6">
         {/* Page Header */}
       <div>
