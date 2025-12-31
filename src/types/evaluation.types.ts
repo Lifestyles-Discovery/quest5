@@ -21,8 +21,8 @@ export interface SaleCompInputs {
   garageMax: number;
   yearBuiltPlusMinus: number;
   monthsClosed: number;
-  confineToCounty: boolean;
-  confineToZip: boolean;
+  confineToCounty: string;
+  confineToZip: string;
   ignoreParametersExceptMonthsClosed: boolean;
 }
 
@@ -74,6 +74,8 @@ export interface SaleCompGroup {
   averageSalePrice: number;
   averagePricePerSqft: number;
   trends: CompTrend[];
+  counties: string[];
+  zips: string[];
 }
 
 // ============================================================================
@@ -95,8 +97,8 @@ export interface RentCompInputs {
   garageMax: number;
   yearBuiltPlusMinus: number;
   monthsClosed: number;
-  confineToCounty: boolean;
-  confineToZip: boolean;
+  confineToCounty: string;
+  confineToZip: string;
   ignoreParametersExceptMonthsClosed: boolean;
 }
 
@@ -136,6 +138,8 @@ export interface RentCompGroup {
   averageRentPrice: number;
   averagePricePerSqft: number;
   trends: CompTrend[];
+  counties: string[];
+  zips: string[];
 }
 
 // ============================================================================
@@ -243,8 +247,8 @@ export interface Calculator {
  * Available search types for finding comps
  */
 export interface SearchType {
-  name: string;
-  description: string;
+  type: string;
+  defaultSearchTerm: string;
 }
 
 /**
@@ -409,8 +413,8 @@ export const DEFAULT_SALE_COMP_INPUTS: SaleCompInputs = {
   garageMax: 10,
   yearBuiltPlusMinus: 10,
   monthsClosed: 6,
-  confineToCounty: false,
-  confineToZip: false,
+  confineToCounty: '',
+  confineToZip: '',
   ignoreParametersExceptMonthsClosed: false,
 };
 
@@ -429,8 +433,8 @@ export const DEFAULT_RENT_COMP_INPUTS: RentCompInputs = {
   garageMax: 10,
   yearBuiltPlusMinus: 10,
   monthsClosed: 6,
-  confineToCounty: false,
-  confineToZip: false,
+  confineToCounty: '',
+  confineToZip: '',
   ignoreParametersExceptMonthsClosed: false,
 };
 

@@ -57,8 +57,8 @@ export default function SaleCompsSection({
   // Filter to only show Subdivision and Radius search types
   const filteredSearchTypes = useMemo(() => {
     const allowedTypes = ['subdivision', 'radius'];
-    return searchTypes.filter((type) =>
-      type.name && allowedTypes.includes(type.name.toLowerCase())
+    return searchTypes.filter((st) =>
+      st.type && allowedTypes.includes(st.type.toLowerCase())
     );
   }, [searchTypes]);
 
@@ -218,9 +218,9 @@ export default function SaleCompsSection({
               onChange={(e) => setFilters({ ...filters, searchType: e.target.value })}
               className="mt-1 block w-full rounded border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             >
-              {filteredSearchTypes.map((type) => (
-                <option key={type.name} value={type.name}>
-                  {type.description}
+              {filteredSearchTypes.map((st) => (
+                <option key={st.type} value={st.type}>
+                  {st.type}
                 </option>
               ))}
             </select>
