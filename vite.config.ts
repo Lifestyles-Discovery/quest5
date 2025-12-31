@@ -5,6 +5,17 @@ import { fileURLToPath, URL } from "node:url";
 
 // https://vite.dev/config/
 export default defineConfig({
+  server: {
+    port: 8080,
+    proxy: {
+      // Proxy API requests to local Liberator server
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '/v1'),
+      },
+    },
+  },
   plugins: [
     react(),
     svgr({

@@ -116,7 +116,7 @@ export interface RentComp {
   sqft: number;
   subdivision: string;
   market: string;
-  rentPrice: number;
+  priceSold: number; // Rent amount (API uses priceSold for rent comps)
   daysOnMarket: number;
   photoURLs: string[];
   include: boolean;

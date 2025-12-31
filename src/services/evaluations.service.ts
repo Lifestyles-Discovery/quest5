@@ -68,12 +68,14 @@ export const evaluationsService = {
   async updateSaleComps(
     propertyId: string,
     evaluationId: string,
-    inputs: Partial<SaleCompInputs>
+    inputs: Partial<SaleCompInputs>,
+    signal?: AbortSignal
   ): Promise<Evaluation> {
     const response = await apiClient.put<Evaluation>(
       ENDPOINTS.evaluations.updateSaleComps(propertyId, evaluationId),
       {},
       {
+        signal,
         headers: {
           searchType: inputs.searchType ?? '',
           searchTerm: inputs.searchTerm ?? '',
@@ -111,7 +113,7 @@ export const evaluationsService = {
       {},
       {
         headers: {
-          include: String(include),
+          include: include, // Pass boolean directly like Quest4
         },
       }
     );
@@ -124,12 +126,14 @@ export const evaluationsService = {
   async updateRentComps(
     propertyId: string,
     evaluationId: string,
-    inputs: Partial<RentCompInputs>
+    inputs: Partial<RentCompInputs>,
+    signal?: AbortSignal
   ): Promise<Evaluation> {
     const response = await apiClient.put<Evaluation>(
       ENDPOINTS.evaluations.updateRentComps(propertyId, evaluationId),
       {},
       {
+        signal,
         headers: {
           searchType: inputs.searchType ?? '',
           searchTerm: inputs.searchTerm ?? '',
@@ -167,7 +171,7 @@ export const evaluationsService = {
       {},
       {
         headers: {
-          include: String(include),
+          include: include, // Pass boolean directly like Quest4
         },
       }
     );

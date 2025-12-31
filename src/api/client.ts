@@ -4,10 +4,11 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 const API_URLS = {
   production: 'https://h59rfx3wm9.execute-api.us-east-1.amazonaws.com/prod/v1',
   test: 'https://jayon7xbeb.execute-api.us-east-1.amazonaws.com/test/v1',
-  dev: 'https://localhost:5001/v1',
+  local: 'http://localhost:5000/v1',
 } as const;
 
-// Use production by default, can be overridden via environment variable
+// Use production by default, can be overridden via VITE_API_URL environment variable
+// To use local: set VITE_API_URL=http://localhost:5000/v1 in .env.development
 const baseURL = import.meta.env.VITE_API_URL || API_URLS.production;
 
 /**

@@ -86,6 +86,28 @@ export default function PropertyList({
   return (
     <>
       <div className="divide-y divide-gray-200 rounded-lg border border-gray-200 bg-white dark:divide-gray-700 dark:border-gray-700 dark:bg-gray-800">
+        {/* Header Row - Desktop */}
+        <div className="hidden items-center gap-3 bg-gray-50 px-3 py-2 text-xs font-medium uppercase tracking-wide text-gray-500 dark:bg-gray-800/50 dark:text-gray-400 sm:gap-4 sm:px-4 lg:flex">
+          <div className="w-6" />
+          <div className="w-16" />
+          <div className="min-w-0 flex-1">Property</div>
+          {/* Stats header - matches nested flex structure below */}
+          <div className="flex items-center gap-4">
+            <div className="w-20 text-right">Price</div>
+            <div className="w-12 text-center">Year</div>
+            <div className="group relative w-10 cursor-help text-right">
+              <span className="border-b border-dotted border-gray-400">FPR</span>
+              <div className="pointer-events-none absolute right-0 top-6 z-10 w-64 rounded-lg bg-gray-900 p-3 text-left text-xs font-normal normal-case tracking-normal text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+                <p className="font-medium">Feature-to-Price Ratio</p>
+                <p className="mt-1 text-gray-300">
+                  Compares property features (beds, baths, sqft, year) to price. Higher = better value relative to this market. 1.0 is average.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="w-[88px]" />
+        </div>
+
         {properties.map((property) => {
           const isCurrentlyEvaluating = isEvaluating === property.id;
           const hasPhotos = (property.photoUrls?.length > 0) || property.photoUrl;

@@ -43,9 +43,9 @@ export const ENDPOINTS = {
     updateNotes: (propertyId: string, evaluationId: string) =>
       `properties/${propertyId}/evaluations/${evaluationId}/notes`,
     includeSaleComp: (propertyId: string, evaluationId: string, saleCompId: string) =>
-      `properties/${propertyId}/evaluations/${evaluationId}/salecomps/${saleCompId}/include`,
+      `properties/${propertyId}/evaluations/${evaluationId}/salecomps/${saleCompId}`,
     includeRentComp: (propertyId: string, evaluationId: string, rentCompId: string) =>
-      `properties/${propertyId}/evaluations/${evaluationId}/rentcomps/${rentCompId}/include`,
+      `properties/${propertyId}/evaluations/${evaluationId}/rentcomps/${rentCompId}`,
     getSearchTypes: (propertyId: string, evaluationId: string) =>
       `properties/${propertyId}/evaluations/${evaluationId}/searchTypes`,
     updateAttributes: (propertyId: string, evaluationId: string) =>
