@@ -218,6 +218,7 @@ export function EditableField({
       ) : (
         <div
           onClick={startEditing}
+          onFocus={startEditing}
           className={`
             mt-1 flex cursor-pointer items-center rounded px-1 -mx-1
             font-semibold text-gray-900 dark:text-white
@@ -228,12 +229,6 @@ export function EditableField({
           `}
           role="button"
           tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              startEditing();
-            }
-          }}
         >
           <span className={`flex-1 ${hasError ? 'text-red-600 dark:text-red-400' : ''}`}>
             {getDisplayValue()}
