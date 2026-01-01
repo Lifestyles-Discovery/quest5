@@ -222,7 +222,11 @@ export interface Calculator {
   conventionalAnnualCashFlow: number;
   conventionalReturnOnCapitalGainPercent: number;
   conventionalCashOnCashReturnPercent: number;
-  conventionalCashToClose: number;
+  conventionalDownpayment: number;
+  conventionalClosingCosts: number;
+  conventionalPrepaidExpenses: number;
+  conventionalRepairsMakeReady: number;
+  conventionalCashOutOfPocketTotal: number;
   conventionalLoanAmount: number;
 
   // Calculated - Hard Money
@@ -238,7 +242,13 @@ export interface Calculator {
   hardLoanAmount: number;
   hardRefiLoanAmount: number;
   hardRefiNotePaymentMonthly: number;
-  hardRefiTotalCashflowMonthly: number;
+  hardMonthlyRent: number;
+  hardPropertyTaxMonthly: number;
+  hardPropertyInsuranceMonthly: number;
+  hardMortgageInsuranceMonthly: number;
+  hardHoaMonthly: number;
+  hardMiscellaneousMonthly: number;
+  hardTotalCashflowMonthly: number;
 }
 
 // ============================================================================

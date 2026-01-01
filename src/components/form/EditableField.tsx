@@ -44,6 +44,8 @@ interface EditableFieldProps {
   className?: string;
   /** Debounce delay in ms (default: 0) */
   debounceMs?: number;
+  /** Helper text displayed below the value */
+  hint?: string;
 }
 
 /**
@@ -64,6 +66,7 @@ export function EditableField({
   size = 'md',
   className = '',
   debounceMs = 0,
+  hint,
 }: EditableFieldProps) {
   // Determine input type based on format
   // Currency uses 'text' to allow $ and comma formatting while typing
@@ -264,6 +267,9 @@ export function EditableField({
             </svg>
           )}
         </div>
+      )}
+      {hint && (
+        <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">{hint}</p>
       )}
     </div>
   );

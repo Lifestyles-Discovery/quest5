@@ -120,7 +120,7 @@ export default function DealScorecard({
               <div className={`p-6 ${!showConventional ? 'opacity-40' : ''}`}>
                 {showConventional ? (
                   <DetailsColumn
-                    cashNeeded={calculator.conventionalCashToClose}
+                    cashNeeded={calculator.conventionalCashOutOfPocketTotal}
                     monthlyCashflow={calculator.conventionalTotalCashflowMonthly}
                   />
                 ) : (
@@ -135,7 +135,7 @@ export default function DealScorecard({
                 {showHardMoney ? (
                   <DetailsColumn
                     cashNeeded={calculator.hardCashOutOfPocketTotal}
-                    monthlyCashflow={calculator.hardRefiTotalCashflowMonthly}
+                    monthlyCashflow={calculator.hardTotalCashflowMonthly}
                   />
                 ) : (
                   <div className="h-20 flex items-center justify-center">
