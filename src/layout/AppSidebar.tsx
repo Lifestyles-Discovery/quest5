@@ -7,16 +7,11 @@ import {
   ChevronDownIcon,
   GridIcon,
   HorizontaLDots,
-  ListIcon,
   PageIcon,
   PlugInIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import { useSession } from "@/hooks/api/useAuth";
-import SidebarWidget from "./SidebarWidget";
-
-// Check if we're in development mode
-const isDev = import.meta.env.DEV;
 
 type NavItem = {
   name: string;
@@ -36,20 +31,6 @@ const navItems: NavItem[] = [
     icon: <BoxCubeIcon />,
     name: "Deals",
     path: "/deals",
-  },
-];
-
-// Development reference items (hidden in production)
-const devItems: NavItem[] = [
-  {
-    name: "Reference",
-    icon: <ListIcon />,
-    subItems: [
-      { name: "Form Elements", path: "/ref/form-elements" },
-      { name: "Form Layout", path: "/ref/form-layout" },
-      { name: "Basic Tables", path: "/ref/basic-tables" },
-      { name: "Data Tables", path: "/ref/data-tables" },
-    ],
   },
 ];
 
@@ -82,11 +63,8 @@ const AppSidebar: React.FC = () => {
     return items;
   }, [session?.rights?.admin]);
 
-  // Only show dev items in development mode
-  const othersItems = useMemo(() => (isDev ? devItems : []), []);
-
   const [openSubmenu, setOpenSubmenu] = useState<{
-    type: "main" | "support" | "others";
+    type: "main" | "support";
     index: number;
   } | null>(null);
   const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
@@ -102,19 +80,14 @@ const AppSidebar: React.FC = () => {
 
   useEffect(() => {
     let submenuMatched = false;
-    ["main", "support", "others"].forEach((menuType) => {
-      const items =
-        menuType === "main"
-          ? navItems
-          : menuType === "support"
-          ? supportItems
-          : othersItems;
+    ["main", "support"].forEach((menuType) => {
+      const items = menuType === "main" ? navItems : supportItems;
       items.forEach((nav, index) => {
         if (nav.subItems) {
           nav.subItems.forEach((subItem) => {
             if (isActive(subItem.path)) {
               setOpenSubmenu({
-                type: menuType as "main" | "support" | "others",
+                type: menuType as "main" | "support",
                 index,
               });
               submenuMatched = true;
@@ -143,7 +116,7 @@ const AppSidebar: React.FC = () => {
 
   const handleSubmenuToggle = (
     index: number,
-    menuType: "main" | "support" | "others"
+    menuType: "main" | "support"
   ) => {
     setOpenSubmenu((prevOpenSubmenu) => {
       if (
@@ -159,7 +132,7 @@ const AppSidebar: React.FC = () => {
 
   const renderMenuItems = (
     items: NavItem[],
-    menuType: "main" | "support" | "others"
+    menuType: "main" | "support"
   ) => (
     <ul className="flex flex-col gap-4">
       {items.map((nav, index) => (
@@ -357,27 +330,8 @@ const AppSidebar: React.FC = () => {
               </h2>
               {renderMenuItems(supportItems, "support")}
             </div>
-            {othersItems.length > 0 && (
-              <div className="">
-                <h2
-                  className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                    !isExpanded && !isHovered
-                      ? "lg:justify-center"
-                      : "justify-start"
-                  }`}
-                >
-                  {isExpanded || isHovered || isMobileOpen ? (
-                    "Dev"
-                  ) : (
-                    <HorizontaLDots />
-                  )}
-                </h2>
-                {renderMenuItems(othersItems, "others")}
-              </div>
-            )}
           </div>
         </nav>
-        {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}
       </div>
     </aside>
   );
