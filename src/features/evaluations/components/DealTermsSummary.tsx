@@ -18,7 +18,10 @@ export default function DealTermsSummary({
     <div className="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
       {/* Primary: The 4 numbers that define the deal */}
       <div className="p-6">
-        <div className="space-y-4">
+        <h3 className="mb-4 text-sm font-medium text-gray-500 dark:text-gray-400">
+          The Deal
+        </h3>
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <EditableField
             label="Purchase Price"
             value={dealTerms.purchasePrice}
