@@ -6,10 +6,11 @@ import Label from '@components/form/Label';
 import Button from '@components/ui/button/Button';
 import Alert from '@components/ui/alert/Alert';
 import AddressAutocomplete from '@components/form/AddressAutocomplete';
+import type { AddressData } from '@components/form/AddressAutocomplete';
 import { useCreatePropertyByAddress } from '@hooks/api/useProperties';
 import { useCreateEvaluation } from '@hooks/api/useEvaluations';
 import { useCreatePropertyFromSearch } from '@hooks/api/useSearch';
-import { useMlsMarkets, useStates } from '@hooks/api/useAdmin';
+import { useMlsMarkets } from '@hooks/api/useAdmin';
 import { useAuth } from '@context/AuthContext';
 
 interface NewPropertyModalProps {
@@ -26,12 +27,7 @@ export function NewPropertyModal({ isOpen, onClose }: NewPropertyModalProps) {
   const [error, setError] = useState<string | null>(null);
 
   // Form state for address method
-  const [address, setAddress] = useState('');
-  const [city, setCity] = useState('');
-  const [state, setState] = useState('');
-  const [zip, setZip] = useState('');
-  const [latitude, setLatitude] = useState<number | undefined>();
-  const [longitude, setLongitude] = useState<number | undefined>();
+  const [selectedAddress, setSelectedAddress] = useState<AddressData | null>(null);
 
   // Form state for MLS method
   const [mlsMarket, setMlsMarket] = useState(user?.preferences?.mlsMarket || '');
@@ -39,7 +35,6 @@ export function NewPropertyModal({ isOpen, onClose }: NewPropertyModalProps) {
 
   // Queries for dropdowns
   const { data: mlsMarkets } = useMlsMarkets();
-  const { data: states } = useStates();
 
   // Mutations
   const createByAddress = useCreatePropertyByAddress();
@@ -52,12 +47,7 @@ export function NewPropertyModal({ isOpen, onClose }: NewPropertyModalProps) {
     createPropertyFromSearch.isPending;
 
   const resetForm = () => {
-    setAddress('');
-    setCity('');
-    setState('');
-    setZip('');
-    setLatitude(undefined);
-    setLongitude(undefined);
+    setSelectedAddress(null);
     setMlsNumber('');
     setError(null);
   };
@@ -70,10 +60,12 @@ export function NewPropertyModal({ isOpen, onClose }: NewPropertyModalProps) {
   const handleCreateByAddress = () => {
     setError(null);
 
-    if (!address || !city || !state || !zip) {
-      setError('Please fill in all address fields');
+    if (!selectedAddress) {
+      setError('Please select an address from the suggestions');
       return;
     }
+
+    const { address, city, state, zip, latitude, longitude } = selectedAddress;
 
     // Create property, then auto-create evaluation and navigate to it
     createByAddress.mutate(
@@ -174,54 +166,8 @@ export function NewPropertyModal({ isOpen, onClose }: NewPropertyModalProps) {
             <AddressAutocomplete
               placeholder="Start typing an address..."
               disabled={isPending}
-              onSelect={(data) => {
-                setAddress(data.address);
-                setCity(data.city);
-                setState(data.state);
-                setZip(data.zip);
-                setLatitude(data.latitude);
-                setLongitude(data.longitude);
-              }}
+              onSelect={setSelectedAddress}
             />
-          </div>
-
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <Label>City</Label>
-              <Input
-                type="text"
-                placeholder="City"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                disabled={isPending}
-              />
-            </div>
-            <div>
-              <Label>State</Label>
-              <select
-                value={state}
-                onChange={(e) => setState(e.target.value)}
-                disabled={isPending}
-                className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90"
-              >
-                <option value="">Select state</option>
-                {states?.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <Label>ZIP Code</Label>
-              <Input
-                type="text"
-                placeholder="12345"
-                value={zip}
-                onChange={(e) => setZip(e.target.value)}
-                disabled={isPending}
-              />
-            </div>
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
