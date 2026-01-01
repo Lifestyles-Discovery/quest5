@@ -26,8 +26,16 @@ export function NewPropertyModal({ isOpen, onClose }: NewPropertyModalProps) {
   const [method, setMethod] = useState<CreateMethod>('address');
   const [error, setError] = useState<string | null>(null);
 
-  // Form state for address method
-  const [selectedAddress, setSelectedAddress] = useState<AddressData | null>(null);
+  // Form state for address method - individual fields for editing
+  const [addressFields, setAddressFields] = useState({
+    address: '',
+    city: '',
+    state: '',
+    zip: '',
+    latitude: 0,
+    longitude: 0,
+  });
+  const [hasSelectedAddress, setHasSelectedAddress] = useState(false);
 
   // Form state for MLS method
   const [mlsMarket, setMlsMarket] = useState(user?.preferences?.mlsMarket || '');
@@ -47,9 +55,15 @@ export function NewPropertyModal({ isOpen, onClose }: NewPropertyModalProps) {
     createPropertyFromSearch.isPending;
 
   const resetForm = () => {
-    setSelectedAddress(null);
+    setAddressFields({ address: '', city: '', state: '', zip: '', latitude: 0, longitude: 0 });
+    setHasSelectedAddress(false);
     setMlsNumber('');
     setError(null);
+  };
+
+  const handleAddressSelect = (data: AddressData) => {
+    setAddressFields(data);
+    setHasSelectedAddress(true);
   };
 
   const handleClose = () => {
@@ -60,12 +74,12 @@ export function NewPropertyModal({ isOpen, onClose }: NewPropertyModalProps) {
   const handleCreateByAddress = () => {
     setError(null);
 
-    if (!selectedAddress) {
-      setError('Please select an address from the suggestions');
+    const { address, city, state, zip, latitude, longitude } = addressFields;
+
+    if (!address || !city || !state || !zip) {
+      setError('Please fill in all address fields');
       return;
     }
-
-    const { address, city, state, zip, latitude, longitude } = selectedAddress;
 
     // Create property, then auto-create evaluation and navigate to it
     createByAddress.mutate(
@@ -162,19 +176,88 @@ export function NewPropertyModal({ isOpen, onClose }: NewPropertyModalProps) {
       {method === 'address' && (
         <div className="space-y-4">
           <div>
-            <Label>Address</Label>
+            <Label>Address Search</Label>
             <AddressAutocomplete
               placeholder="Start typing an address..."
               disabled={isPending}
-              onSelect={setSelectedAddress}
+              onSelect={handleAddressSelect}
             />
           </div>
+
+          {hasSelectedAddress && (
+            <>
+              <div>
+                <Label>Street Address</Label>
+                <Input
+                  type="text"
+                  value={addressFields.address}
+                  onChange={(e) =>
+                    setAddressFields((prev) => ({ ...prev, address: e.target.value }))
+                  }
+                  disabled={isPending}
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <Label>City</Label>
+                  <Input
+                    type="text"
+                    value={addressFields.city}
+                    onChange={(e) =>
+                      setAddressFields((prev) => ({ ...prev, city: e.target.value }))
+                    }
+                    disabled={isPending}
+                  />
+                </div>
+                <div>
+                  <Label>State</Label>
+                  <select
+                    value={addressFields.state}
+                    onChange={(e) =>
+                      setAddressFields((prev) => ({ ...prev, state: e.target.value }))
+                    }
+                    disabled={isPending}
+                    className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
+                  >
+                    <option value="">State</option>
+                    {[
+                      'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL',
+                      'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME',
+                      'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH',
+                      'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI',
+                      'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY',
+                    ].map((st) => (
+                      <option key={st} value={st}>
+                        {st}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <Label>Zip</Label>
+                  <Input
+                    type="text"
+                    value={addressFields.zip}
+                    onChange={(e) =>
+                      setAddressFields((prev) => ({ ...prev, zip: e.target.value }))
+                    }
+                    disabled={isPending}
+                  />
+                </div>
+              </div>
+            </>
+          )}
 
           <div className="flex justify-end gap-3 pt-4">
             <Button variant="outline" size="sm" onClick={handleClose} disabled={isPending}>
               Cancel
             </Button>
-            <Button size="sm" onClick={handleCreateByAddress} disabled={isPending}>
+            <Button
+              size="sm"
+              onClick={handleCreateByAddress}
+              disabled={isPending || !hasSelectedAddress}
+            >
               {isPending ? 'Creating...' : 'Create Deal'}
             </Button>
           </div>
