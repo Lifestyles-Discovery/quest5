@@ -5,6 +5,7 @@ import Input from '@components/form/input/InputField';
 import Label from '@components/form/Label';
 import Button from '@components/ui/button/Button';
 import Alert from '@components/ui/alert/Alert';
+import AddressAutocomplete from '@components/form/AddressAutocomplete';
 import { useCreatePropertyByAddress } from '@hooks/api/useProperties';
 import { useCreateEvaluation } from '@hooks/api/useEvaluations';
 import { useCreatePropertyFromSearch } from '@hooks/api/useSearch';
@@ -29,6 +30,8 @@ export function NewPropertyModal({ isOpen, onClose }: NewPropertyModalProps) {
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
   const [zip, setZip] = useState('');
+  const [latitude, setLatitude] = useState<number | undefined>();
+  const [longitude, setLongitude] = useState<number | undefined>();
 
   // Form state for MLS method
   const [mlsMarket, setMlsMarket] = useState(user?.preferences?.mlsMarket || '');
@@ -53,6 +56,8 @@ export function NewPropertyModal({ isOpen, onClose }: NewPropertyModalProps) {
     setCity('');
     setState('');
     setZip('');
+    setLatitude(undefined);
+    setLongitude(undefined);
     setMlsNumber('');
     setError(null);
   };
@@ -72,7 +77,7 @@ export function NewPropertyModal({ isOpen, onClose }: NewPropertyModalProps) {
 
     // Create property, then auto-create evaluation and navigate to it
     createByAddress.mutate(
-      { address, city, state, zip },
+      { address, city, state, zip, latitude, longitude },
       {
         onSuccess: (property) => {
           // Auto-create first evaluation
@@ -165,13 +170,18 @@ export function NewPropertyModal({ isOpen, onClose }: NewPropertyModalProps) {
       {method === 'address' && (
         <div className="space-y-4">
           <div>
-            <Label>Street Address</Label>
-            <Input
-              type="text"
-              placeholder="123 Main St"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
+            <Label>Address</Label>
+            <AddressAutocomplete
+              placeholder="Start typing an address..."
               disabled={isPending}
+              onSelect={(data) => {
+                setAddress(data.address);
+                setCity(data.city);
+                setState(data.state);
+                setZip(data.zip);
+                setLatitude(data.latitude);
+                setLongitude(data.longitude);
+              }}
             />
           </div>
 
