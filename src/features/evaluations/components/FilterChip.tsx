@@ -52,7 +52,7 @@ export default function FilterChip({ label, children, onClose }: FilterChipProps
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={`
-          rounded-full px-3 py-1 text-sm transition-colors
+          rounded-full px-4 py-2 text-sm transition-colors
           ${isOpen
             ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
             : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
