@@ -42,6 +42,7 @@ import { PropertiesPage, PropertyDetailPage } from "./features/properties";
 import { SearchPage } from "./features/search";
 import { SettingsPage } from "./features/settings";
 import { AdminPage } from "./features/admin";
+import SharedEvaluationPage from "./features/evaluations/pages/SharedEvaluationPage";
 
 // Demo pages kept for reference during development
 import FormElements from "./pages/Forms/FormElements";
@@ -93,6 +94,10 @@ export default function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/reactivate" element={<Reactivate />} />
+
+        {/* Public Sharing Routes (no auth required) */}
+        <Route path="/share/:propertyId/:evaluationId/:guid" element={<SharedEvaluationPage />} />
+        <Route path="/share/:propertyId/:evaluationId/:guid/:editKey" element={<SharedEvaluationPage />} />
 
         {/* Error Pages */}
         <Route path="/maintenance" element={<Maintenance />} />

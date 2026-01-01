@@ -8,6 +8,8 @@ import {
 } from '@/hooks/api/useEvaluations';
 import type { Property } from '@app-types/property.types';
 import type { Evaluation } from '@app-types/evaluation.types';
+import ShareModal from './ShareModal';
+import EmailModal from './EmailModal';
 
 interface EvaluationHeaderProps {
   propertyId: string;
@@ -25,6 +27,7 @@ export default function EvaluationHeader({
   const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
 
   const copyEvaluation = useCopyEvaluation();
@@ -141,6 +144,16 @@ export default function EvaluationHeader({
             </button>
 
             <button
+              onClick={() => setShowEmailModal(true)}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Email
+            </button>
+
+            <button
               onClick={() => setShowDeleteConfirm(true)}
               className="inline-flex items-center gap-2 rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:border-red-600 dark:bg-gray-700 dark:text-red-400 dark:hover:bg-red-900/20"
             >
@@ -183,42 +196,20 @@ export default function EvaluationHeader({
       )}
 
       {/* Share Modal */}
-      {showShareModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Share Evaluation
-            </h3>
-            <p className="mt-2 text-gray-600 dark:text-gray-300">
-              Copy this link to share the evaluation:
-            </p>
-            <div className="mt-4 flex gap-2">
-              <input
-                type="text"
-                readOnly
-                value={shareUrl}
-                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              />
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(shareUrl);
-                }}
-                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
-              >
-                Copy
-              </button>
-            </div>
-            <div className="mt-6 flex justify-end">
-              <button
-                onClick={() => setShowShareModal(false)}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        shareUrl={shareUrl}
+      />
+
+      {/* Email Modal */}
+      <EmailModal
+        isOpen={showEmailModal}
+        onClose={() => setShowEmailModal(false)}
+        propertyId={propertyId}
+        evaluationId={evaluationId}
+        propertyAddress={property?.address}
+      />
     </>
   );
 }
