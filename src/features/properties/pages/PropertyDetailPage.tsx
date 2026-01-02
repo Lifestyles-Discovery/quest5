@@ -150,12 +150,24 @@ export default function PropertyDetailPage() {
   };
 
   const handleExportPdf = () => {
-    if (!currentEvaluationId) return;
+    if (!currentEvaluationId || !property) return;
+    const date = new Date().toISOString().split('T')[0];
+    const cleanAddress = property.address
+      ? property.address.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()
+      : 'evaluation';
+    const filename = `${cleanAddress}-${date}.pdf`;
+
     exportPdf.mutate(
-      { propertyId: id!, evaluationId: currentEvaluationId },
       {
-        onSuccess: ({ url }) => {
-          window.open(url, '_blank');
+        elementId: 'evaluation-content',
+        filename,
+        title: property.address,
+        subtitle: `${property.city}, ${property.state} ${property.zip}`,
+      },
+      {
+        onError: (error) => {
+          console.error('PDF export failed:', error);
+          alert(`PDF export failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
         },
       }
     );

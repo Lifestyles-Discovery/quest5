@@ -175,7 +175,7 @@ export default function EvaluationDetailPage() {
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
-      <nav className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+      <nav className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 print:hidden">
         <Link to="/deals" className="hover:text-primary">
           Deals
         </Link>
@@ -195,51 +195,54 @@ export default function EvaluationDetailPage() {
         evaluation={evaluation}
       />
 
-      {/* Property Attributes (editable) */}
-      <PropertyAttributes
-        propertyId={propertyId!}
-        evaluationId={evaluationId!}
-        evaluation={evaluation}
-      />
-
-      {/* Comps sections */}
-      <div className="space-y-6">
-        {/* Sale Comps */}
-        <SaleCompsSection
+      {/* PDF Export Content Container */}
+      <div id="evaluation-content" className="space-y-6">
+        {/* Property Attributes (editable) */}
+        <PropertyAttributes
           propertyId={propertyId!}
           evaluationId={evaluationId!}
           evaluation={evaluation}
-          searchTypes={searchTypes || []}
-          subjectLatitude={property?.latitude}
-          subjectLongitude={property?.longitude}
-          subjectAddress={property?.address}
         />
 
-        {/* Rent Comps */}
-        <RentCompsSection
+        {/* Comps sections */}
+        <div className="space-y-6">
+          {/* Sale Comps */}
+          <SaleCompsSection
+            propertyId={propertyId!}
+            evaluationId={evaluationId!}
+            evaluation={evaluation}
+            searchTypes={searchTypes || []}
+            subjectLatitude={property?.latitude}
+            subjectLongitude={property?.longitude}
+            subjectAddress={property?.address}
+          />
+
+          {/* Rent Comps */}
+          <RentCompsSection
+            propertyId={propertyId!}
+            evaluationId={evaluationId!}
+            evaluation={evaluation}
+            searchTypes={searchTypes || []}
+            subjectLatitude={property?.latitude}
+            subjectLongitude={property?.longitude}
+            subjectAddress={property?.address}
+          />
+        </div>
+
+        {/* Calculator */}
+        <CalculatorSection
           propertyId={propertyId!}
           evaluationId={evaluationId!}
           evaluation={evaluation}
-          searchTypes={searchTypes || []}
-          subjectLatitude={property?.latitude}
-          subjectLongitude={property?.longitude}
-          subjectAddress={property?.address}
+        />
+
+        {/* Notes */}
+        <EvaluationNotes
+          propertyId={propertyId!}
+          evaluationId={evaluationId!}
+          notes={evaluation.notes || ''}
         />
       </div>
-
-      {/* Calculator */}
-      <CalculatorSection
-        propertyId={propertyId!}
-        evaluationId={evaluationId!}
-        evaluation={evaluation}
-      />
-
-      {/* Notes */}
-      <EvaluationNotes
-        propertyId={propertyId!}
-        evaluationId={evaluationId!}
-        notes={evaluation.notes || ''}
-      />
     </div>
   );
 }

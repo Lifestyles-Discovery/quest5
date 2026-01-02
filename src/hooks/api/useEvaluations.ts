@@ -503,29 +503,23 @@ export function useUpdateAttributes() {
 }
 
 /**
- * Hook to generate and download PDF
+ * Hook to generate and download PDF (client-side)
  */
 export function useExportPdf() {
   return useMutation({
     mutationFn: async ({
-      propertyId,
-      evaluationId,
+      elementId,
+      filename,
+      title,
+      subtitle,
     }: {
-      propertyId: string;
-      evaluationId: string;
+      elementId: string;
+      filename: string;
+      title?: string;
+      subtitle?: string;
     }) => {
-      // First create the PDF
-      const { sessionKey } = await evaluationsService.createPdf(
-        propertyId,
-        evaluationId
-      );
-      // Then get the download URL
-      const { url } = await evaluationsService.getPdfUrl(
-        propertyId,
-        evaluationId,
-        sessionKey
-      );
-      return { url };
+      const { generatePdf } = await import('@/utils/pdf-export');
+      await generatePdf(elementId, { filename, title, subtitle });
     },
   });
 }

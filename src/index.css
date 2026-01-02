@@ -870,3 +870,110 @@ span.flatpickr-weekday,
 .dark .pac-icon {
   filter: invert(0.7) !important;
 }
+
+/* PDF Export / Print Styles */
+.printing {
+  /* Force light mode for PDF */
+  color-scheme: light !important;
+}
+
+.printing,
+.printing * {
+  /* Override oklch colors with rgb equivalents for html2canvas compatibility */
+  /* html2canvas doesn't support oklch() color function */
+  --tw-bg-opacity: 1 !important;
+
+  /* Force standard colors - override any oklch values */
+  color: #344054 !important;
+  background-color: #ffffff !important;
+  border-color: #e4e7ec !important;
+}
+
+/* Preserve specific element colors */
+.printing h1,
+.printing h2,
+.printing h3,
+.printing .text-gray-900 {
+  color: #101828 !important;
+}
+
+.printing .text-gray-500,
+.printing .text-gray-600 {
+  color: #667085 !important;
+}
+
+.printing .text-green-600,
+.printing .text-success-600 {
+  color: #039855 !important;
+}
+
+.printing .text-red-600,
+.printing .text-error-600 {
+  color: #d92d20 !important;
+}
+
+.printing .bg-gray-50 {
+  background-color: #f9fafb !important;
+}
+
+.printing .bg-gray-100 {
+  background-color: #f2f4f7 !important;
+}
+
+.printing .border-gray-200 {
+  border-color: #e4e7ec !important;
+}
+
+.printing .bg-white {
+  background-color: #ffffff !important;
+}
+
+/* Hide interactive elements during PDF export */
+.printing button,
+.printing [role="button"],
+.printing input,
+.printing select,
+.printing textarea,
+.printing .leaflet-control-container,
+.printing [data-hide-in-pdf="true"] {
+  display: none !important;
+}
+
+/* Force white backgrounds for PDF */
+.printing .dark\:bg-gray-800,
+.printing .dark\:bg-gray-900,
+.printing .dark\:bg-gray-700 {
+  background-color: #ffffff !important;
+}
+
+/* Force dark text for PDF */
+.printing .dark\:text-white,
+.printing .dark\:text-gray-200,
+.printing .dark\:text-gray-300,
+.printing .dark\:text-gray-400 {
+  color: #344054 !important;
+}
+
+/* Force light borders for PDF */
+.printing .dark\:border-gray-700,
+.printing .dark\:border-gray-800 {
+  border-color: #e4e7ec !important;
+}
+
+/* Ensure images are visible */
+.printing img {
+  display: block !important;
+  max-width: 100% !important;
+}
+
+/* Standard print media styles */
+@media print {
+  .print\:hidden {
+    display: none !important;
+  }
+
+  body {
+    background-color: #ffffff !important;
+    color: #101828 !important;
+  }
+}

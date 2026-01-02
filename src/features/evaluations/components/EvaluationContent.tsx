@@ -45,7 +45,7 @@ export default function EvaluationContent({
   });
 
   return (
-    <div className="space-y-6">
+    <div id="evaluation-content" className="space-y-6">
       {/* Property Attributes (editable) */}
       <PropertyAttributes
         propertyId={propertyId}
