@@ -54,6 +54,7 @@ export interface UserPreferences {
   hardRefiLoanTermInYears: number;
   hardRefiInterestRate: number;
   hardRefiLenderFeesPercentListPrice: number;
+  hardRefiMonthsTaxEscrow: number;
 }
 
 /**

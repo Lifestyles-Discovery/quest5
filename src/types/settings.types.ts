@@ -61,4 +61,5 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   hardRefiLoanTermInYears: 30,
   hardRefiInterestRate: 7,
   hardRefiLenderFeesPercentListPrice: 3,
+  hardRefiMonthsTaxEscrow: 0,
 };

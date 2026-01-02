@@ -73,6 +73,8 @@ export const SETTINGS_HELP = {
   hardRefiInterestRate: 'Suggested: 7%. The interest rate for the refinance loan. Adjust based on current market rates.',
   hardRefiLenderFeesPercentListPrice:
     'Suggested: 3%. Refinance financing cost as a percentage of the purchase price.',
+  hardRefiMonthsTaxEscrow:
+    'Suggested: 0. Months of principal and interest added to closing costs for the refinance if you escrow. Set to 0 if you don\'t escrow.',
 } as const;
 
 export type SettingKey = keyof typeof SETTINGS_HELP;

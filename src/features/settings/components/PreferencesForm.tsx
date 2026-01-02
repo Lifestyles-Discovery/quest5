@@ -1,7 +1,4 @@
-import { useState, useEffect } from 'react';
-import Input from '@components/form/input/InputField';
-import CurrencyInput from '@components/form/input/CurrencyInput';
-import Label from '@components/form/Label';
+import { useState, useCallback } from 'react';
 import Button from '@components/ui/button/Button';
 import Alert from '@components/ui/alert/Alert';
 import { useUpdatePreferences, useResetPreferences } from '@hooks/api/useSettings';
@@ -10,82 +7,64 @@ import { useAuth } from '@context/AuthContext';
 import type { UserPreferences } from '@app-types/auth.types';
 import { DEFAULT_PREFERENCES } from '@app-types/settings.types';
 import { SettingHelp } from './SettingHelp';
-import Checkbox from '@components/form/input/Checkbox';
+import Label from '@components/form/Label';
+import AutoSaveInput from '@components/form/input/AutoSaveInput';
+import AutoSaveCurrencyInput from '@components/form/input/AutoSaveCurrencyInput';
+import AutoSaveSelect from '@components/form/input/AutoSaveSelect';
+import AutoSaveCheckbox from '@components/form/input/AutoSaveCheckbox';
 
 export function PreferencesForm() {
   const { user } = useAuth();
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
-
-  // Form state
-  const [preferences, setPreferences] = useState<UserPreferences>(DEFAULT_PREFERENCES);
+  const [resetError, setResetError] = useState<string | null>(null);
+  const [resetSuccess, setResetSuccess] = useState(false);
 
   const updatePreferences = useUpdatePreferences();
   const resetPreferences = useResetPreferences();
   const { data: mlsMarkets } = useMlsMarkets();
   const { data: states } = useStates();
 
-  // Initialize with user preferences
-  useEffect(() => {
-    if (user?.preferences) {
-      setPreferences({ ...DEFAULT_PREFERENCES, ...user.preferences });
-    }
-  }, [user]);
-
-  const handleChange = (field: keyof UserPreferences, value: string | number | boolean) => {
-    setPreferences((prev) => ({ ...prev, [field]: value }));
+  // Get preferences with defaults
+  const preferences: UserPreferences = {
+    ...DEFAULT_PREFERENCES,
+    ...user?.preferences,
   };
 
-  const handleNumberChange = (field: keyof UserPreferences, value: string) => {
-    const num = parseFloat(value);
-    if (!isNaN(num)) {
-      handleChange(field, num);
-    }
-  };
-
-  const handleCurrencyChange = (field: keyof UserPreferences, value: number) => {
-    handleChange(field, value);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(false);
-
-    updatePreferences.mutate(
-      { userId: user!.id, preferences },
-      {
-        onSuccess: () => setSuccess(true),
-        onError: () => setError('Failed to update preferences'),
-      }
-    );
-  };
+  // Save a single field - backend now supports partial updates with nullable types
+  const saveField = useCallback(
+    async <K extends keyof UserPreferences>(field: K, value: UserPreferences[K]) => {
+      await updatePreferences.mutateAsync({
+        userId: user!.id,
+        preferences: { [field]: value },
+      });
+    },
+    [updatePreferences, user]
+  );
 
   const handleReset = () => {
-    setError(null);
-    setSuccess(false);
+    setResetError(null);
+    setResetSuccess(false);
 
     resetPreferences.mutate(
       { userId: user!.id },
       {
         onSuccess: () => {
-          setPreferences(DEFAULT_PREFERENCES);
-          setSuccess(true);
+          setResetSuccess(true);
           setShowResetConfirm(false);
+          setTimeout(() => setResetSuccess(false), 3000);
         },
-        onError: () => setError('Failed to reset preferences'),
+        onError: () => setResetError('Failed to reset preferences'),
       }
     );
   };
 
-  const isPending = updatePreferences.isPending || resetPreferences.isPending;
+  const isResetting = resetPreferences.isPending;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
-      {error && <Alert variant="error" title="Error" message={error} />}
-      {success && (
-        <Alert variant="success" title="Success" message="Preferences saved" />
+    <div className="space-y-8">
+      {resetError && <Alert variant="error" title="Error" message={resetError} />}
+      {resetSuccess && (
+        <Alert variant="success" title="Success" message="Preferences reset to defaults" />
       )}
 
       {/* Location Defaults */}
@@ -96,11 +75,10 @@ export function PreferencesForm() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <Label>MLS Market</Label>
-            <select
+            <AutoSaveSelect
               value={preferences.mlsMarket}
-              onChange={(e) => handleChange('mlsMarket', e.target.value)}
-              disabled={isPending}
-              className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90"
+              onSave={(v) => saveField('mlsMarket', v)}
+              disabled={isResetting}
             >
               <option value="">Select market</option>
               {mlsMarkets?.map((m) => (
@@ -108,22 +86,21 @@ export function PreferencesForm() {
                   {m.acronym} - {m.description}
                 </option>
               ))}
-            </select>
+            </AutoSaveSelect>
             <SettingHelp settingKey="mlsMarket" />
           </div>
           <div>
             <Label>State</Label>
-            <select
+            <AutoSaveSelect
               value={preferences.state}
-              onChange={(e) => handleChange('state', e.target.value)}
-              disabled={isPending}
-              className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90"
+              onSave={(v) => saveField('state', v)}
+              disabled={isResetting}
             >
               <option value="">Select state</option>
               {states?.map((s) => (
                 <option key={s} value={s}>{s}</option>
               ))}
-            </select>
+            </AutoSaveSelect>
             <SettingHelp settingKey="state" />
           </div>
         </div>
@@ -137,72 +114,72 @@ export function PreferencesForm() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div>
             <Label>Sale Comps Sqft +/-</Label>
-            <Input
+            <AutoSaveInput
               type="number"
               value={preferences.evaluationSalePlusMinusSqft}
-              onChange={(e) => handleNumberChange('evaluationSalePlusMinusSqft', e.target.value)}
-              disabled={isPending}
+              onSave={(v) => saveField('evaluationSalePlusMinusSqft', v as number)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="evaluationSalePlusMinusSqft" />
           </div>
           <div>
             <Label>Sale Comps Year Built +/-</Label>
-            <Input
+            <AutoSaveInput
               type="number"
               value={preferences.evaluationSalePlusMinusYearBuilt}
-              onChange={(e) => handleNumberChange('evaluationSalePlusMinusYearBuilt', e.target.value)}
-              disabled={isPending}
+              onSave={(v) => saveField('evaluationSalePlusMinusYearBuilt', v as number)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="evaluationSalePlusMinusYearBuilt" />
           </div>
           <div>
             <Label>Sale Comps Months Closed</Label>
-            <Input
+            <AutoSaveInput
               type="number"
               value={preferences.evaluationSaleMonthsClosed}
-              onChange={(e) => handleNumberChange('evaluationSaleMonthsClosed', e.target.value)}
-              disabled={isPending}
+              onSave={(v) => saveField('evaluationSaleMonthsClosed', v as number)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="evaluationSaleMonthsClosed" />
           </div>
           <div>
             <Label>Rent Comps Sqft +/-</Label>
-            <Input
+            <AutoSaveInput
               type="number"
               value={preferences.evaluationRentPlusMinusSqft}
-              onChange={(e) => handleNumberChange('evaluationRentPlusMinusSqft', e.target.value)}
-              disabled={isPending}
+              onSave={(v) => saveField('evaluationRentPlusMinusSqft', v as number)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="evaluationRentPlusMinusSqft" />
           </div>
           <div>
             <Label>Rent Comps Year Built +/-</Label>
-            <Input
+            <AutoSaveInput
               type="number"
               value={preferences.evaluationRentPlusMinusYearBuilt}
-              onChange={(e) => handleNumberChange('evaluationRentPlusMinusYearBuilt', e.target.value)}
-              disabled={isPending}
+              onSave={(v) => saveField('evaluationRentPlusMinusYearBuilt', v as number)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="evaluationRentPlusMinusYearBuilt" />
           </div>
           <div>
             <Label>Rent Comps Months Closed</Label>
-            <Input
+            <AutoSaveInput
               type="number"
               value={preferences.evaluationRentMonthsClosed}
-              onChange={(e) => handleNumberChange('evaluationRentMonthsClosed', e.target.value)}
-              disabled={isPending}
+              onSave={(v) => saveField('evaluationRentMonthsClosed', v as number)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="evaluationRentMonthsClosed" />
           </div>
           <div>
             <Label>Search Radius (miles)</Label>
-            <Input
+            <AutoSaveInput
               type="number"
               step={0.1}
               value={preferences.evaluationRadius}
-              onChange={(e) => handleNumberChange('evaluationRadius', e.target.value)}
-              disabled={isPending}
+              onSave={(v) => saveField('evaluationRadius', v as number)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="evaluationRadius" />
           </div>
@@ -217,68 +194,68 @@ export function PreferencesForm() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div>
             <Label>Survey</Label>
-            <CurrencyInput
+            <AutoSaveCurrencyInput
               value={preferences.dealSurvey}
-              onChange={(value) => handleCurrencyChange('dealSurvey', value)}
-              disabled={isPending}
+              onSave={(v) => saveField('dealSurvey', v)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="dealSurvey" />
           </div>
           <div>
             <Label>Appraisal</Label>
-            <CurrencyInput
+            <AutoSaveCurrencyInput
               value={preferences.dealAppraisal}
-              onChange={(value) => handleCurrencyChange('dealAppraisal', value)}
-              disabled={isPending}
+              onSave={(v) => saveField('dealAppraisal', v)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="dealAppraisal" />
           </div>
           <div>
             <Label>Inspection</Label>
-            <CurrencyInput
+            <AutoSaveCurrencyInput
               value={preferences.dealInspection}
-              onChange={(value) => handleCurrencyChange('dealInspection', value)}
-              disabled={isPending}
+              onSave={(v) => saveField('dealInspection', v)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="dealInspection" />
           </div>
           <div>
             <Label>Property Insurance (% of Value)</Label>
-            <Input
+            <AutoSaveInput
               type="number"
               step={0.1}
               value={preferences.dealPropertyInsurancePercentListPrice}
-              onChange={(e) => handleNumberChange('dealPropertyInsurancePercentListPrice', e.target.value)}
-              disabled={isPending}
+              onSave={(v) => saveField('dealPropertyInsurancePercentListPrice', v as number)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="dealPropertyInsurancePercentListPrice" />
           </div>
           <div>
             <Label>Property Tax (% of Value)</Label>
-            <Input
+            <AutoSaveInput
               type="number"
               step={0.1}
               value={preferences.dealPropertyTaxPercentListPrice}
-              onChange={(e) => handleNumberChange('dealPropertyTaxPercentListPrice', e.target.value)}
-              disabled={isPending}
+              onSave={(v) => saveField('dealPropertyTaxPercentListPrice', v as number)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="dealPropertyTaxPercentListPrice" />
           </div>
           <div>
             <Label>Default Repairs</Label>
-            <CurrencyInput
+            <AutoSaveCurrencyInput
               value={preferences.dealRepairs}
-              onChange={(value) => handleCurrencyChange('dealRepairs', value)}
-              disabled={isPending}
+              onSave={(v) => saveField('dealRepairs', v)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="dealRepairs" />
           </div>
           <div>
             <Label>Max Refi Cashback</Label>
-            <CurrencyInput
+            <AutoSaveCurrencyInput
               value={preferences.dealMaxRefiCashback}
-              onChange={(value) => handleCurrencyChange('dealMaxRefiCashback', value)}
-              disabled={isPending}
+              onSave={(v) => saveField('dealMaxRefiCashback', v)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="dealMaxRefiCashback" />
           </div>
@@ -293,54 +270,54 @@ export function PreferencesForm() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div>
             <Label>Down Payment (%)</Label>
-            <Input
+            <AutoSaveInput
               type="number"
               step={0.1}
               value={preferences.conventionalDownPayment}
-              onChange={(e) => handleNumberChange('conventionalDownPayment', e.target.value)}
-              disabled={isPending}
+              onSave={(v) => saveField('conventionalDownPayment', v as number)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="conventionalDownPayment" />
           </div>
           <div>
             <Label>Interest Rate (%)</Label>
-            <Input
+            <AutoSaveInput
               type="number"
               step={0.1}
               value={preferences.conventionalInterestRate}
-              onChange={(e) => handleNumberChange('conventionalInterestRate', e.target.value)}
-              disabled={isPending}
+              onSave={(v) => saveField('conventionalInterestRate', v as number)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="conventionalInterestRate" />
           </div>
           <div>
             <Label>Lender Fees (%)</Label>
-            <Input
+            <AutoSaveInput
               type="number"
               step={0.1}
               value={preferences.conventionalLenderFeesPercentOfListPrice}
-              onChange={(e) => handleNumberChange('conventionalLenderFeesPercentOfListPrice', e.target.value)}
-              disabled={isPending}
+              onSave={(v) => saveField('conventionalLenderFeesPercentOfListPrice', v as number)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="conventionalLenderFeesPercentOfListPrice" />
           </div>
           <div>
             <Label>Months Escrow</Label>
-            <Input
+            <AutoSaveInput
               type="number"
               value={preferences.conventionalMonthsTaxEscrow}
-              onChange={(e) => handleNumberChange('conventionalMonthsTaxEscrow', e.target.value)}
-              disabled={isPending}
+              onSave={(v) => saveField('conventionalMonthsTaxEscrow', v as number)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="conventionalMonthsTaxEscrow" />
           </div>
           <div>
             <Label>Loan Term (years)</Label>
-            <Input
+            <AutoSaveInput
               type="number"
               value={preferences.conventionalLoanTermInYears}
-              onChange={(e) => handleNumberChange('conventionalLoanTermInYears', e.target.value)}
-              disabled={isPending}
+              onSave={(v) => saveField('conventionalLoanTermInYears', v as number)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="conventionalLoanTermInYears" />
           </div>
@@ -355,64 +332,64 @@ export function PreferencesForm() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div>
             <Label>Loan to Value (%)</Label>
-            <Input
+            <AutoSaveInput
               type="number"
               step={0.1}
               value={preferences.hardLoanToValuePercent}
-              onChange={(e) => handleNumberChange('hardLoanToValuePercent', e.target.value)}
-              disabled={isPending}
+              onSave={(v) => saveField('hardLoanToValuePercent', v as number)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="hardLoanToValuePercent" />
           </div>
           <div>
             <Label>Lender Fees (%)</Label>
-            <Input
+            <AutoSaveInput
               type="number"
               step={0.1}
               value={preferences.hardLenderFeesPercentOfListPrice}
-              onChange={(e) => handleNumberChange('hardLenderFeesPercentOfListPrice', e.target.value)}
-              disabled={isPending}
+              onSave={(v) => saveField('hardLenderFeesPercentOfListPrice', v as number)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="hardLenderFeesPercentOfListPrice" />
           </div>
           <div>
             <Label>Interest Rate (%)</Label>
-            <Input
+            <AutoSaveInput
               type="number"
               step={0.1}
               value={preferences.hardInterestRate}
-              onChange={(e) => handleNumberChange('hardInterestRate', e.target.value)}
-              disabled={isPending}
+              onSave={(v) => saveField('hardInterestRate', v as number)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="hardInterestRate" />
           </div>
           <div>
             <Label>Months Until Refi</Label>
-            <Input
+            <AutoSaveInput
               type="number"
               value={preferences.hardMonthsUntilRefi}
-              onChange={(e) => handleNumberChange('hardMonthsUntilRefi', e.target.value)}
-              disabled={isPending}
+              onSave={(v) => saveField('hardMonthsUntilRefi', v as number)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="hardMonthsUntilRefi" />
           </div>
           <div>
             <Label>Weeks Until Leased</Label>
-            <Input
+            <AutoSaveInput
               type="number"
               value={preferences.hardWeeksUntilLeased}
-              onChange={(e) => handleNumberChange('hardWeeksUntilLeased', e.target.value)}
-              disabled={isPending}
+              onSave={(v) => saveField('hardWeeksUntilLeased', v as number)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="hardWeeksUntilLeased" />
           </div>
           <div>
             <div className="pt-6">
-              <Checkbox
+              <AutoSaveCheckbox
                 label="Roll In Lender Fees"
                 checked={preferences.hardRollInLenderFees}
-                onChange={(checked) => handleChange('hardRollInLenderFees', checked)}
-                disabled={isPending}
+                onSave={(v) => saveField('hardRollInLenderFees', v)}
+                disabled={isResetting}
               />
             </div>
             <SettingHelp settingKey="hardRollInLenderFees" />
@@ -425,94 +402,99 @@ export function PreferencesForm() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div>
             <Label>Refi Loan to Value (%)</Label>
-            <Input
+            <AutoSaveInput
               type="number"
               step={0.1}
               value={preferences.hardRefiLoanToValue}
-              onChange={(e) => handleNumberChange('hardRefiLoanToValue', e.target.value)}
-              disabled={isPending}
+              onSave={(v) => saveField('hardRefiLoanToValue', v as number)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="hardRefiLoanToValue" />
           </div>
           <div>
             <Label>Refi Loan Term (years)</Label>
-            <Input
+            <AutoSaveInput
               type="number"
               value={preferences.hardRefiLoanTermInYears}
-              onChange={(e) => handleNumberChange('hardRefiLoanTermInYears', e.target.value)}
-              disabled={isPending}
+              onSave={(v) => saveField('hardRefiLoanTermInYears', v as number)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="hardRefiLoanTermInYears" />
           </div>
           <div>
             <Label>Refi Interest Rate (%)</Label>
-            <Input
+            <AutoSaveInput
               type="number"
               step={0.1}
               value={preferences.hardRefiInterestRate}
-              onChange={(e) => handleNumberChange('hardRefiInterestRate', e.target.value)}
-              disabled={isPending}
+              onSave={(v) => saveField('hardRefiInterestRate', v as number)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="hardRefiInterestRate" />
           </div>
           <div>
             <Label>Refi Lender Fees (%)</Label>
-            <Input
+            <AutoSaveInput
               type="number"
               step={0.1}
               value={preferences.hardRefiLenderFeesPercentListPrice}
-              onChange={(e) => handleNumberChange('hardRefiLenderFeesPercentListPrice', e.target.value)}
-              disabled={isPending}
+              onSave={(v) => saveField('hardRefiLenderFeesPercentListPrice', v as number)}
+              disabled={isResetting}
             />
             <SettingHelp settingKey="hardRefiLenderFeesPercentListPrice" />
+          </div>
+          <div>
+            <Label>Refi Months Escrow</Label>
+            <AutoSaveInput
+              type="number"
+              value={preferences.hardRefiMonthsTaxEscrow}
+              onSave={(v) => saveField('hardRefiMonthsTaxEscrow', v as number)}
+              disabled={isResetting}
+            />
+            <SettingHelp settingKey="hardRefiMonthsTaxEscrow" />
           </div>
         </div>
       </section>
 
-      {/* Actions */}
-      <div className="flex flex-col gap-4 border-t border-gray-200 pt-6 dark:border-gray-700 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          {showResetConfirm ? (
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                Reset all preferences?
-              </span>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleReset}
-                  disabled={isPending}
-                >
-                  Yes, Reset
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowResetConfirm(false)}
-                  disabled={isPending}
-                >
-                  Cancel
-                </Button>
-              </div>
+      {/* Reset to Defaults */}
+      <div className="border-t border-gray-200 pt-6 dark:border-gray-700">
+        {showResetConfirm ? (
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              Reset all preferences to defaults?
+            </span>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleReset}
+                disabled={isResetting}
+              >
+                Yes, Reset
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowResetConfirm(false)}
+                disabled={isResetting}
+              >
+                Cancel
+              </Button>
             </div>
-          ) : (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setShowResetConfirm(true)}
-              disabled={isPending}
-            >
-              Reset to Defaults
-            </Button>
-          )}
-        </div>
-        <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
-          {isPending ? 'Saving...' : 'Save Preferences'}
-        </Button>
+          </div>
+        ) : (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setShowResetConfirm(true)}
+            disabled={isResetting}
+          >
+            Reset to Defaults
+          </Button>
+        )}
       </div>
-    </form>
+    </div>
   );
 }

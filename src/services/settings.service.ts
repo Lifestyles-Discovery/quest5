@@ -21,15 +21,24 @@ export const settingsService = {
   },
 
   /**
-   * Update user preferences
+   * Update user preferences (partial update supported)
+   * Note: Backend expects preferences as HTTP headers, not body
    */
   async updatePreferences(
     userId: string,
     preferences: Partial<UserPreferences>
   ): Promise<UserPreferences> {
+    // Build headers object - backend uses camelCase header names
+    const headers: Record<string, string> = {};
+    for (const [key, value] of Object.entries(preferences)) {
+      if (value !== undefined && value !== null) {
+        headers[key] = String(value);
+      }
+    }
     const response = await apiClient.put<UserPreferences>(
       ENDPOINTS.users.updatePreferences(userId),
-      preferences
+      {}, // empty body
+      { headers }
     );
     return response.data;
   },
