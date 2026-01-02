@@ -6,7 +6,6 @@ import Alert from '@components/ui/alert/Alert';
 import Button from '@components/ui/button/Button';
 import { useProperty, useUpdatePropertyStage } from '@hooks/api/useProperties';
 import {
-  useCreateEvaluation,
   useDeleteEvaluation,
   useExportPdf,
   useShareEvaluation,
@@ -104,7 +103,6 @@ export default function PropertyDetailPage() {
   // Hooks
   const { data: property, isLoading: propertyLoading, error: propertyError } = useProperty(id!);
   const updateStage = useUpdatePropertyStage();
-  const createEvaluation = useCreateEvaluation();
   const deleteEvaluation = useDeleteEvaluation();
   const exportPdf = useExportPdf();
   const shareEvaluation = useShareEvaluation();
@@ -130,26 +128,9 @@ export default function PropertyDetailPage() {
       return eval_;
     },
     enabled: !!id && !!currentEvaluationId,
-    // Use cached data from createEvaluation/mutations without refetching
+    // Use cached data without refetching too frequently
     staleTime: 30000, // Consider fresh for 30 seconds
   });
-
-  // Auto-create evaluation if property has none
-  useEffect(() => {
-    if (
-      property &&
-      property.evaluations?.length === 0 &&
-      !createEvaluation.isPending &&
-      !createEvaluation.isSuccess
-    ) {
-      createEvaluation.mutate(property.id, {
-        onSuccess: (newEval) => {
-          navigate(`/deals/${property.id}/scenario/${newEval.id}`, { replace: true });
-        },
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [property, createEvaluation.isPending, createEvaluation.isSuccess]);
 
   // Update URL to include scenarioId if not present but evaluation exists
   useEffect(() => {
@@ -220,7 +201,7 @@ export default function PropertyDetailPage() {
   };
 
   // Loading state
-  if (propertyLoading || createEvaluation.isPending) {
+  if (propertyLoading) {
     return <PropertyDetailSkeleton />;
   }
 
