@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import type { SaleCompInputs, RentCompInputs, SearchType } from '@app-types/evaluation.types';
 import FilterChip, { RangeEditor, NumberEditor, SelectEditor, LocationEditor } from './FilterChip';
 
@@ -66,17 +65,9 @@ export default function FilterBar({
   onReset,
   subdivision,
 }: FilterBarProps) {
-  const [showMore, setShowMore] = useState(false);
   const isBroadSearch = filters.ignoreParametersExceptMonthsClosed || false;
   // Use first available search type as default (handles case where only Radius is available)
   const defaultSearchType = searchTypes[0]?.type || 'subdivision';
-
-  const hasMoreFilters =
-    (filters.garageMin !== undefined && filters.garageMin > 0) ||
-    (filters.garageMax !== undefined && filters.garageMax < 10) ||
-    filters.confineToZip ||
-    filters.confineToCounty ||
-    filters.yearBuiltPlusMinus;
 
   // When broad search is on, clicking a muted chip turns it off and activates that filter
   const handleMutedChipClick = () => {
@@ -179,29 +170,68 @@ export default function FilterBar({
           />
         </FilterChip>
 
+        {/* Year - muted when broad search */}
+        <div className={mutedChipClass} onClick={isBroadSearch ? handleMutedChipClick : undefined}>
+          <FilterChip label={formatTolerance(filters.yearBuiltPlusMinus, '±', 'year')}>
+            <NumberEditor
+              label="Year tolerance"
+              value={filters.yearBuiltPlusMinus || 0}
+              onChange={(value) => onChange({ ...filters, yearBuiltPlusMinus: value })}
+              prefix="±"
+              suffix="years"
+            />
+          </FilterChip>
+        </div>
+
+        {/* Garage - muted when broad search */}
+        <div className={mutedChipClass} onClick={isBroadSearch ? handleMutedChipClick : undefined}>
+          <FilterChip label={formatRange(filters.garageMin || 0, filters.garageMax || GARAGE_MAX, 'garage', GARAGE_MAX)}>
+            <RangeEditor
+              label="Garage"
+              min={filters.garageMin || 0}
+              max={filters.garageMax || GARAGE_MAX}
+              rangeMax={GARAGE_MAX}
+              onChange={(min, max) => onChange({ ...filters, garageMin: min, garageMax: max })}
+            />
+          </FilterChip>
+        </div>
+
+        {/* Zip - muted when broad search */}
+        {zips.length > 0 && (
+          <div className={mutedChipClass} onClick={isBroadSearch ? handleMutedChipClick : undefined}>
+            <FilterChip label={filters.confineToZip || 'any zip'}>
+              <SelectEditor
+                label="Zip"
+                value={filters.confineToZip || ''}
+                options={zips}
+                onChange={(value) => onChange({ ...filters, confineToZip: value })}
+              />
+            </FilterChip>
+          </div>
+        )}
+
+        {/* County - muted when broad search */}
+        {counties.length > 0 && (
+          <div className={mutedChipClass} onClick={isBroadSearch ? handleMutedChipClick : undefined}>
+            <FilterChip label={filters.confineToCounty || 'any county'}>
+              <SelectEditor
+                label="County"
+                value={filters.confineToCounty || ''}
+                options={counties}
+                onChange={(value) => onChange({ ...filters, confineToCounty: value })}
+              />
+            </FilterChip>
+          </div>
+        )}
+
         {/* Broad search toggle - only show when NOT in broad search */}
-        {!isBroadSearch && !showMore && (
+        {!isBroadSearch && (
           <button
             type="button"
             onClick={() => onChange({ ...filters, ignoreParametersExceptMonthsClosed: true })}
             className="rounded-full px-3 py-1 text-sm text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
           >
             broad
-          </button>
-        )}
-
-        {/* More toggle */}
-        {!showMore && !isBroadSearch && (
-          <button
-            type="button"
-            onClick={() => setShowMore(true)}
-            className={`rounded-full px-3 py-1 text-sm transition-colors ${
-              hasMoreFilters
-                ? 'bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400'
-                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-            }`}
-          >
-            + more
           </button>
         )}
 
@@ -216,75 +246,6 @@ export default function FilterBar({
           </button>
         )}
       </div>
-
-      {/* More filters row - hidden during broad search */}
-      {showMore && !isBroadSearch && (
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Year */}
-          <FilterChip label={formatTolerance(filters.yearBuiltPlusMinus, '±', 'year')}>
-            <NumberEditor
-              label="Year tolerance"
-              value={filters.yearBuiltPlusMinus || 0}
-              onChange={(value) => onChange({ ...filters, yearBuiltPlusMinus: value })}
-              prefix="±"
-              suffix="years"
-            />
-          </FilterChip>
-
-          {/* Garage */}
-          <FilterChip label={formatRange(filters.garageMin || 0, filters.garageMax || GARAGE_MAX, 'garage', GARAGE_MAX)}>
-            <RangeEditor
-              label="Garage"
-              min={filters.garageMin || 0}
-              max={filters.garageMax || GARAGE_MAX}
-              rangeMax={GARAGE_MAX}
-              onChange={(min, max) => onChange({ ...filters, garageMin: min, garageMax: max })}
-            />
-          </FilterChip>
-
-          {/* Zip */}
-          {zips.length > 0 && (
-            <FilterChip label={filters.confineToZip || 'any zip'}>
-              <SelectEditor
-                label="Zip"
-                value={filters.confineToZip || ''}
-                options={zips}
-                onChange={(value) => onChange({ ...filters, confineToZip: value })}
-              />
-            </FilterChip>
-          )}
-
-          {/* County */}
-          {counties.length > 0 && (
-            <FilterChip label={filters.confineToCounty || 'any county'}>
-              <SelectEditor
-                label="County"
-                value={filters.confineToCounty || ''}
-                options={counties}
-                onChange={(value) => onChange({ ...filters, confineToCounty: value })}
-              />
-            </FilterChip>
-          )}
-
-          {/* Broad search toggle in more section */}
-          <button
-            type="button"
-            onClick={() => onChange({ ...filters, ignoreParametersExceptMonthsClosed: true })}
-            className="rounded-full px-3 py-1 text-sm text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
-          >
-            broad
-          </button>
-
-          {/* Less toggle */}
-          <button
-            type="button"
-            onClick={() => setShowMore(false)}
-            className="rounded-full px-3 py-1 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-          >
-            − less
-          </button>
-        </div>
-      )}
     </div>
   );
 }
