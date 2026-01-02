@@ -1,4 +1,5 @@
-import { useCopyEvaluation } from '@hooks/api/useEvaluations';
+import { useState, useRef, useEffect } from 'react';
+import { useCopyEvaluation, useUpdateAttributes } from '@hooks/api/useEvaluations';
 import type { Property } from '@app-types/property.types';
 
 interface ScenarioHistoryProps {
@@ -23,8 +24,9 @@ function formatDate(dateString: string | null | undefined): string {
  *
  * - Collapsed by default
  * - "New Scenario" copies current evaluation for what-if analysis
- * - Lists previous evaluations with date and key metrics
- * - Click to switch to a different scenario
+ * - Lists previous evaluations with name (or date) and key metrics
+ * - Click name/date to rename inline
+ * - Click row to switch to that scenario
  */
 export function ScenarioHistory({
   property,
@@ -32,6 +34,18 @@ export function ScenarioHistory({
   onScenarioSelect,
 }: ScenarioHistoryProps) {
   const copyEvaluation = useCopyEvaluation();
+  const updateAttributes = useUpdateAttributes();
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Focus input when entering edit mode
+  useEffect(() => {
+    if (editingId && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [editingId]);
 
   const handleNewScenario = () => {
     copyEvaluation.mutate(
@@ -42,6 +56,37 @@ export function ScenarioHistory({
         },
       }
     );
+  };
+
+  const startEditing = (evaluationId: string, currentName: string | undefined) => {
+    setEditingId(evaluationId);
+    setEditValue(currentName || '');
+  };
+
+  const saveEdit = (evaluationId: string) => {
+    const trimmedName = editValue.trim();
+    updateAttributes.mutate({
+      propertyId: property.id,
+      evaluationId,
+      attributes: { name: trimmedName },
+    });
+    setEditingId(null);
+    setEditValue('');
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditValue('');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent, evaluationId: string) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      saveEdit(evaluationId);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      cancelEdit();
+    }
   };
 
   const otherEvaluations = property.evaluations?.filter(
@@ -115,21 +160,45 @@ export function ScenarioHistory({
       <div className="border-t border-gray-200 p-4 dark:border-gray-800">
         <div className="space-y-2">
           {otherEvaluations.map((evaluation) => (
-            <button
+            <div
               key={evaluation.id}
-              onClick={() => onScenarioSelect(evaluation.id)}
-              className="flex w-full items-center justify-between rounded-lg border border-gray-200 p-3 text-left transition-colors hover:border-brand-300 hover:bg-gray-50 dark:border-gray-700 dark:hover:border-brand-600 dark:hover:bg-gray-800"
+              className="flex w-full items-center justify-between rounded-lg border border-gray-200 p-3 transition-colors hover:border-brand-300 hover:bg-gray-50 dark:border-gray-700 dark:hover:border-brand-600 dark:hover:bg-gray-800"
             >
-              <div>
-                <p className="text-sm font-medium text-gray-800 dark:text-white">
-                  {evaluation.beds} bed / {evaluation.baths} bath /{' '}
-                  {evaluation.sqft?.toLocaleString()} sqft
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {formatDate(evaluation.created)}
-                </p>
+              <div className="flex-1 min-w-0">
+                {editingId === evaluation.id ? (
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    onBlur={() => saveEdit(evaluation.id)}
+                    onKeyDown={(e) => handleKeyDown(e, evaluation.id)}
+                    placeholder={formatDate(evaluation.created)}
+                    className="w-full rounded border border-brand-300 bg-white px-2 py-1 text-sm font-medium text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-brand-600 dark:bg-gray-800 dark:text-white"
+                  />
+                ) : (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      startEditing(evaluation.id, evaluation.name);
+                    }}
+                    className="text-left group/name"
+                  >
+                    <p className="text-sm font-medium text-gray-800 dark:text-white group-hover/name:text-brand-600 dark:group-hover/name:text-brand-400">
+                      {evaluation.name || formatDate(evaluation.created)}
+                    </p>
+                    {evaluation.name && (
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {formatDate(evaluation.created)}
+                      </p>
+                    )}
+                  </button>
+                )}
               </div>
-              <div className="flex items-center gap-2">
+              <button
+                onClick={() => onScenarioSelect(evaluation.id)}
+                className="flex items-center gap-2 pl-3"
+              >
                 {evaluation.listPrice && (
                   <span className="text-sm font-medium text-gray-800 dark:text-white">
                     ${evaluation.listPrice.toLocaleString()}
@@ -148,8 +217,8 @@ export function ScenarioHistory({
                     d="M9 5l7 7-7 7"
                   />
                 </svg>
-              </div>
-            </button>
+              </button>
+            </div>
           ))}
         </div>
       </div>

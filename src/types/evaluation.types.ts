@@ -298,6 +298,9 @@ export interface Evaluation {
   // Notes (HTML content)
   notes: string;
 
+  // Optional scenario name
+  name?: string;
+
   // Comp groups
   saleCompGroup: SaleCompGroup;
   rentCompGroup: RentCompGroup;
@@ -313,6 +316,7 @@ export interface EvaluationSummary {
   id: string;
   created: string;
   notes: string;
+  name?: string;
   beds: number;
   baths: number;
   sqft: number;

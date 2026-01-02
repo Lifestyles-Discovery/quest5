@@ -462,6 +462,7 @@ export function useUpdateAttributes() {
         mlsMarket?: string;
         taxesAnnual?: number;
         hoaAnnual?: number;
+        name?: string;
       };
     }) =>
       evaluationsService.updateAttributes(propertyId, evaluationId, attributes),
@@ -498,6 +499,10 @@ export function useUpdateAttributes() {
         evaluationsKeys.detail(propertyId, evaluationId),
         updatedEvaluation
       );
+      // Also invalidate property to update evaluations list (for ScenarioHistory)
+      queryClient.invalidateQueries({
+        queryKey: propertiesKeys.detail(propertyId),
+      });
     },
   });
 }

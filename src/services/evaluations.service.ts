@@ -318,6 +318,7 @@ export const evaluationsService = {
       mlsMarket?: string;
       taxesAnnual?: number;
       hoaAnnual?: number;
+      name?: string;
     }
   ): Promise<Evaluation> {
     const headers: Record<string, string> = {};
@@ -334,6 +335,7 @@ export const evaluationsService = {
     if (attributes.mlsMarket !== undefined) headers.mlsMarket = attributes.mlsMarket;
     if (attributes.taxesAnnual !== undefined) headers.taxesAnnual = String(attributes.taxesAnnual);
     if (attributes.hoaAnnual !== undefined) headers.hoaAnnual = String(attributes.hoaAnnual);
+    if (attributes.name !== undefined) headers.name = attributes.name;
 
     const response = await apiClient.put<Evaluation>(
       ENDPOINTS.evaluations.updateAttributes(propertyId, evaluationId),

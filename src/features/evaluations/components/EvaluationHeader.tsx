@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import {
   useCopyEvaluation,
   useDeleteEvaluation,
   useExportPdf,
   useShareEvaluation,
+  useUpdateAttributes,
 } from '@/hooks/api/useEvaluations';
 import type { Property } from '@app-types/property.types';
 import type { Evaluation } from '@app-types/evaluation.types';
@@ -34,6 +35,50 @@ export default function EvaluationHeader({
   const deleteEvaluation = useDeleteEvaluation();
   const exportPdf = useExportPdf();
   const shareEvaluation = useShareEvaluation();
+  const updateAttributes = useUpdateAttributes();
+
+  // Inline name editing state
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editNameValue, setEditNameValue] = useState('');
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
+  // Focus input when entering edit mode
+  useEffect(() => {
+    if (isEditingName && nameInputRef.current) {
+      nameInputRef.current.focus();
+      nameInputRef.current.select();
+    }
+  }, [isEditingName]);
+
+  const startEditingName = () => {
+    setEditNameValue(evaluation.name || '');
+    setIsEditingName(true);
+  };
+
+  const saveName = () => {
+    const trimmedName = editNameValue.trim();
+    updateAttributes.mutate({
+      propertyId,
+      evaluationId,
+      attributes: { name: trimmedName },
+    });
+    setIsEditingName(false);
+  };
+
+  const cancelEditName = () => {
+    setIsEditingName(false);
+    setEditNameValue('');
+  };
+
+  const handleNameKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      saveName();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      cancelEditName();
+    }
+  };
 
   const handleCopy = () => {
     copyEvaluation.mutate(
@@ -117,6 +162,41 @@ export default function EvaluationHeader({
                 {property.city}, {property.state} {property.zip}
               </p>
             )}
+            {/* Editable Scenario Name */}
+            <div className="mt-2">
+              {isEditingName ? (
+                <input
+                  ref={nameInputRef}
+                  type="text"
+                  value={editNameValue}
+                  onChange={(e) => setEditNameValue(e.target.value)}
+                  onBlur={saveName}
+                  onKeyDown={handleNameKeyDown}
+                  placeholder="Name this scenario..."
+                  className="w-full max-w-xs rounded border border-brand-300 bg-white px-2 py-1 text-sm font-medium text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-brand-600 dark:bg-gray-700 dark:text-white"
+                />
+              ) : (
+                <button
+                  onClick={startEditingName}
+                  className="group flex items-center gap-1 text-sm"
+                >
+                  <span className={evaluation.name
+                    ? "font-medium text-gray-700 dark:text-gray-300"
+                    : "text-gray-400 dark:text-gray-500 italic"
+                  }>
+                    {evaluation.name || "Name this scenario..."}
+                  </span>
+                  <svg
+                    className="h-3 w-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+                </button>
+              )}
+            </div>
             <p className="mt-1 text-sm text-gray-400 dark:text-gray-500">
               Created: {formatDate(evaluation.created)}
             </p>
