@@ -122,6 +122,8 @@ export default function EvaluationDetailPage() {
   });
 
   // Fetch evaluation
+  // The Liberator API returns full evaluation objects (with saleCompGroup, rentCompGroup,
+  // calculator) in the property.evaluations array.
   const {
     data: evaluation,
     isLoading,
@@ -129,17 +131,15 @@ export default function EvaluationDetailPage() {
   } = useQuery({
     queryKey: evaluationsKeys.detail(propertyId!, evaluationId!),
     queryFn: async () => {
-      // The evaluation is embedded in the property response
       const prop = await propertiesService.getProperty(propertyId!);
       const eval_ = prop.evaluations?.find((e) => e.id === evaluationId);
       if (!eval_) {
         throw new Error('Evaluation not found');
       }
-      // For full evaluation data, we need to trigger a comp search or get cached data
-      // The full evaluation with comps comes from the update endpoints
-      return eval_ as unknown;
+      return eval_;
     },
     enabled: !!propertyId && !!evaluationId,
+    staleTime: 30000, // Consider fresh for 30 seconds
   });
 
   // Fetch search types for comp filters
@@ -172,9 +172,6 @@ export default function EvaluationDetailPage() {
     );
   }
 
-  // Type assertion for now - will be properly typed when we have full data
-  const eval_ = evaluation as any;
-
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
@@ -195,14 +192,14 @@ export default function EvaluationDetailPage() {
         propertyId={propertyId!}
         evaluationId={evaluationId!}
         property={property}
-        evaluation={eval_}
+        evaluation={evaluation}
       />
 
       {/* Property Attributes (editable) */}
       <PropertyAttributes
         propertyId={propertyId!}
         evaluationId={evaluationId!}
-        evaluation={eval_}
+        evaluation={evaluation}
       />
 
       {/* Comps sections */}
@@ -211,7 +208,7 @@ export default function EvaluationDetailPage() {
         <SaleCompsSection
           propertyId={propertyId!}
           evaluationId={evaluationId!}
-          evaluation={eval_}
+          evaluation={evaluation}
           searchTypes={searchTypes || []}
           subjectLatitude={property?.latitude}
           subjectLongitude={property?.longitude}
@@ -222,7 +219,7 @@ export default function EvaluationDetailPage() {
         <RentCompsSection
           propertyId={propertyId!}
           evaluationId={evaluationId!}
-          evaluation={eval_}
+          evaluation={evaluation}
           searchTypes={searchTypes || []}
           subjectLatitude={property?.latitude}
           subjectLongitude={property?.longitude}
@@ -234,14 +231,14 @@ export default function EvaluationDetailPage() {
       <CalculatorSection
         propertyId={propertyId!}
         evaluationId={evaluationId!}
-        evaluation={eval_}
+        evaluation={evaluation}
       />
 
       {/* Notes */}
       <EvaluationNotes
         propertyId={propertyId!}
         evaluationId={evaluationId!}
-        notes={eval_.notes || ''}
+        notes={evaluation.notes || ''}
       />
     </div>
   );

@@ -1,3 +1,12 @@
+import type { Evaluation } from './evaluation.types';
+
+/**
+ * Property evaluation (nested in property)
+ * Note: The Liberator API returns full evaluation objects (including saleCompGroup,
+ * rentCompGroup, and calculator) in the property.evaluations array, not just summaries.
+ */
+export type PropertyEvaluation = Evaluation;
+
 /**
  * Property stage in the investment workflow
  */
@@ -111,23 +120,6 @@ export interface Property extends PropertySummary {
   notes: PropertyNote[];
   documents: PropertyDocument[];
   listings: PropertyListing[];
-}
-
-/**
- * Property evaluation summary (nested in property)
- */
-export interface PropertyEvaluation {
-  id: string;
-  created: string;
-  notes: string;
-  beds: number;
-  baths: number;
-  sqft: number;
-  yearBuilt: number;
-  garage: number;
-  listPrice: number;
-  taxesAnnual: number;
-  hoaAnnual: number;
 }
 
 /**

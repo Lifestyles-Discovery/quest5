@@ -14,7 +14,6 @@ import {
 } from '@hooks/api/useEvaluations';
 import { propertiesService } from '@services/properties.service';
 import { PROPERTY_STAGES, type PropertyStage } from '@app-types/property.types';
-import type { Evaluation } from '@app-types/evaluation.types';
 import EvaluationContent from '@/features/evaluations/components/EvaluationContent';
 import { ScenarioHistory } from '../components/ScenarioHistory';
 import { Skeleton } from '@components/ui/skeleton/Skeleton';
@@ -114,6 +113,8 @@ export default function PropertyDetailPage() {
   const currentEvaluationId = scenarioId || property?.evaluations?.[0]?.id;
 
   // Fetch full evaluation data when we have an evaluation ID
+  // The Liberator API returns full evaluation objects (with saleCompGroup, rentCompGroup,
+  // calculator) in the property.evaluations array, so we can use that data directly.
   const {
     data: evaluation,
     isLoading: evaluationLoading,
@@ -121,17 +122,16 @@ export default function PropertyDetailPage() {
   } = useQuery({
     queryKey: evaluationsKeys.detail(id!, currentEvaluationId!),
     queryFn: async () => {
-      // The evaluation summary is in the property, but we need full data
-      // This fetches the full evaluation with comp groups and calculator
       const prop = await propertiesService.getProperty(id!);
-      const evalSummary = prop.evaluations?.find((e) => e.id === currentEvaluationId);
-      if (!evalSummary) {
+      const eval_ = prop.evaluations?.find((e) => e.id === currentEvaluationId);
+      if (!eval_) {
         throw new Error('Evaluation not found');
       }
-      // For now, return what we have - the sub-components will fetch what they need
-      return evalSummary as unknown as Evaluation;
+      return eval_;
     },
     enabled: !!id && !!currentEvaluationId,
+    // Use cached data from createEvaluation/mutations without refetching
+    staleTime: 30000, // Consider fresh for 30 seconds
   });
 
   // Auto-create evaluation if property has none
