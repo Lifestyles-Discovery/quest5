@@ -6,13 +6,26 @@ import type { DealTermInputs } from '@app-types/evaluation.types';
 interface DealTermsSummaryProps {
   dealTerms: DealTermInputs;
   onChange: (field: keyof DealTermInputs, value: number) => void;
+  saleCompValue?: number;
+  rentCompValue?: number;
 }
 
 export default function DealTermsSummary({
   dealTerms,
   onChange,
+  saleCompValue,
+  rentCompValue,
 }: DealTermsSummaryProps) {
   const [showMore, setShowMore] = useState(false);
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
+  };
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
@@ -33,14 +46,14 @@ export default function DealTermsSummary({
             value={dealTerms.estimatedMarketValue}
             format="currency"
             onSave={(v) => onChange('estimatedMarketValue', v as number)}
-            hint="From your sale comps"
+            hint={saleCompValue ? `From sale comps: ${formatCurrency(saleCompValue)}` : 'From your sale comps'}
           />
           <EditableField
             label="Monthly Rent"
             value={dealTerms.rent}
             format="currency"
             onSave={(v) => onChange('rent', v as number)}
-            hint="From your rent comps"
+            hint={rentCompValue ? `From rent comps: ${formatCurrency(rentCompValue)}/mo` : 'From your rent comps'}
           />
           <EditableField
             label="Repairs"

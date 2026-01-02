@@ -79,6 +79,8 @@ export default function CalculatorSection({
       <DealTermsSummary
         dealTerms={calculator.dealTermInputs}
         onChange={handleDealTermChange}
+        saleCompValue={evaluation.saleCompGroup?.calculatedValue}
+        rentCompValue={evaluation.rentCompGroup?.calculatedValue}
       />
 
       {/* Results - The payoff, right after your inputs */}
