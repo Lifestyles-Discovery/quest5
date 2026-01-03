@@ -13,11 +13,12 @@ export default function PhotoThumbnail({
   className = '',
 }: PhotoThumbnailProps) {
   const [showGallery, setShowGallery] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const sizeClasses = size === 'sm' ? 'h-10 w-10' : 'h-16 w-16';
 
-  // No photos = show placeholder
-  if (!photos || photos.length === 0) {
+  // No photos or image error = show placeholder
+  if (!photos || photos.length === 0 || imageError) {
     return (
       <div className={`${sizeClasses} flex items-center justify-center rounded bg-gray-100 dark:bg-gray-800 ${className}`}>
         <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -42,6 +43,7 @@ export default function PhotoThumbnail({
           src={photos[0]}
           alt=""
           className="h-full w-full object-cover"
+          onError={() => setImageError(true)}
         />
         {photos.length > 1 && (
           <div className="absolute bottom-0 right-0 rounded-tl bg-black/70 px-1 text-[10px] text-white">
