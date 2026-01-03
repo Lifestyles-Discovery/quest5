@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { formatCurrency, formatPercent } from '@/utils/formatters';
 import { ChevronDownIcon } from '@/icons';
 import type { Calculator } from '@app-types/evaluation.types';
+import CalculationBreakdownModal from './CalculationBreakdownModal';
 
 interface DealScorecardProps {
   calculator: Calculator;
@@ -15,6 +16,7 @@ export default function DealScorecard({
   onToggleHardMoney,
 }: DealScorecardProps) {
   const [showDetails, setShowDetails] = useState(false);
+  const [showBreakdown, setShowBreakdown] = useState(false);
   const { conventionalInputs, hardMoneyInputs } = calculator;
 
   const showConventional = conventionalInputs.show;
@@ -77,7 +79,7 @@ export default function DealScorecard({
         <div className={`p-6 ${!showHardMoney ? 'opacity-40' : ''}`}>
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-              Hard Money / BRRRR
+              Hard Money + Refi
             </h3>
             <ToggleButton
               checked={showHardMoney}
@@ -113,40 +115,57 @@ export default function DealScorecard({
             {showDetails ? 'Hide Details' : 'Show Details'}
           </button>
 
-          {/* Expanded Details */}
-          {showDetails && (
-            <div className="grid grid-cols-1 divide-y divide-gray-200 border-t border-gray-200 bg-gray-50 dark:divide-gray-700 dark:border-gray-700 dark:bg-gray-900/50 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
-              {/* Conventional Details */}
-              <div className={`p-6 ${!showConventional ? 'opacity-40' : ''}`}>
-                {showConventional ? (
-                  <DetailsColumn
-                    cashNeeded={calculator.conventionalCashOutOfPocketTotal}
-                    monthlyCashflow={calculator.conventionalTotalCashflowMonthly}
-                  />
-                ) : (
-                  <div className="h-20 flex items-center justify-center">
-                    <span className="text-sm text-gray-400 dark:text-gray-500">—</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Hard Money Details */}
-              <div className={`p-6 ${!showHardMoney ? 'opacity-40' : ''}`}>
-                {showHardMoney ? (
-                  <DetailsColumn
-                    cashNeeded={calculator.hardCashOutOfPocketTotal}
-                    monthlyCashflow={calculator.hardTotalCashflowMonthly}
-                  />
-                ) : (
-                  <div className="h-20 flex items-center justify-center">
-                    <span className="text-sm text-gray-400 dark:text-gray-500">—</span>
-                  </div>
-                )}
-              </div>
+          {/* Expanded Details - always rendered for PDF export, hidden when collapsed */}
+          <div
+            className={`grid grid-cols-1 divide-y divide-gray-200 border-t border-gray-200 bg-gray-50 dark:divide-gray-700 dark:border-gray-700 dark:bg-gray-900/50 sm:grid-cols-2 sm:divide-x sm:divide-y-0 ${showDetails ? '' : 'hidden'}`}
+            data-expandable-content="true"
+          >
+            {/* Conventional Details */}
+            <div className={`p-6 ${!showConventional ? 'opacity-40' : ''}`}>
+              {showConventional ? (
+                <DetailsColumn
+                  cashNeeded={calculator.conventionalCashOutOfPocketTotal}
+                  monthlyCashflow={calculator.conventionalTotalCashflowMonthly}
+                />
+              ) : (
+                <div className="h-20 flex items-center justify-center">
+                  <span className="text-sm text-gray-400 dark:text-gray-500">—</span>
+                </div>
+              )}
             </div>
-          )}
+
+            {/* Hard Money Details */}
+            <div className={`p-6 ${!showHardMoney ? 'opacity-40' : ''}`}>
+              {showHardMoney ? (
+                <DetailsColumn
+                  cashNeeded={calculator.hardCashOutOfPocketTotal}
+                  monthlyCashflow={calculator.hardTotalCashflowMonthly}
+                />
+              ) : (
+                <div className="h-20 flex items-center justify-center">
+                  <span className="text-sm text-gray-400 dark:text-gray-500">—</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* How are these calculated link */}
+          <button
+            onClick={() => setShowBreakdown(true)}
+            className="flex w-full items-center justify-center border-t border-gray-200 py-3 text-sm text-gray-400 hover:text-gray-600 hover:underline dark:border-gray-700 dark:text-gray-500 dark:hover:text-gray-300"
+            data-hide-in-pdf="true"
+          >
+            How are these calculated?
+          </button>
         </>
       )}
+
+      {/* Calculation Breakdown Modal */}
+      <CalculationBreakdownModal
+        isOpen={showBreakdown}
+        onClose={() => setShowBreakdown(false)}
+        calculator={calculator}
+      />
     </div>
   );
 }
