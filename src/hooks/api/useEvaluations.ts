@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
 import { evaluationsService } from '@services/evaluations.service';
 import { apiClient } from '@/api/client';
 import { propertiesKeys } from './useProperties';
@@ -557,10 +558,35 @@ export function useExportPdf() {
       }
 
       // Production: Use backend Restpack API
-      const response = await apiClient.get(
-        `properties/${propertyId}/evaluations/${evaluationId}/pdf`,
-        { responseType: 'blob' }
-      );
+      // Send the frontend origin so the backend knows which domain to use for Restpack
+      const frontendOrigin = window.location.origin;
+
+      let response;
+      try {
+        response = await apiClient.get(
+          `properties/${propertyId}/evaluations/${evaluationId}/pdf`,
+          {
+            responseType: 'blob',
+            headers: {
+              'X-Frontend-Origin': frontendOrigin
+            }
+          }
+        );
+      } catch (error) {
+        // Try to extract error details from the response
+        if (axios.isAxiosError(error) && error.response) {
+          const errorData = error.response.data;
+          // If it's a blob, convert to text
+          if (errorData instanceof Blob) {
+            const text = await errorData.text();
+            console.error('PDF API error response:', text);
+            throw new Error(`PDF generation failed: ${text}`);
+          }
+          console.error('PDF API error:', errorData);
+          throw new Error(`PDF generation failed: ${JSON.stringify(errorData)}`);
+        }
+        throw error;
+      }
 
       // Check if we got a valid PDF response
       const contentType = response.headers['content-type'];
