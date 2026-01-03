@@ -43,8 +43,8 @@ export default function SignInForm() {
           if (axiosError.response?.status === 404) {
             setError("Your email or password were entered incorrectly");
           } else if (axiosError.response?.status === 403) {
-            // Subscription expired - redirect to reactivate
-            navigate("/reactivate");
+            // Subscription inactive - redirect to blocked page with billing portal access
+            navigate("/subscription-blocked");
           } else {
             setError("An unexpected error occurred. Please try again.");
           }

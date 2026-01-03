@@ -111,4 +111,23 @@ export const subscriptionService = {
       headers: { email },
     });
   },
+
+  /**
+   * Get billing portal URL for users with inactive subscriptions
+   * Allows users to access billing portal without being fully authenticated
+   * Uses Liberator API (not Authenticator) since it needs to return Chargify URL
+   */
+  async getBillingPortalUrl(email: string, password: string): Promise<string> {
+    const response = await apiClient.post<{ url: string }>(
+      'users/billingPortalUrl',
+      {},
+      {
+        headers: {
+          email,
+          password,
+        },
+      }
+    );
+    return response.data.url;
+  },
 };

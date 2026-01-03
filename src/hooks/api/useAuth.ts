@@ -132,6 +132,17 @@ export function useForgotPassword() {
 }
 
 /**
+ * Hook to get billing portal URL for inactive subscription users
+ * Allows users to access billing portal without full authentication
+ */
+export function useGetBillingPortalUrl() {
+  return useMutation({
+    mutationFn: ({ email, password }: { email: string; password: string }) =>
+      subscriptionService.getBillingPortalUrl(email, password),
+  });
+}
+
+/**
  * Hook to log out - clears session and cache
  */
 export function useLogout() {

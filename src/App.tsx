@@ -31,6 +31,7 @@ import SignIn from "./pages/AuthPages/SignIn";
 import SignUp from "./pages/AuthPages/SignUp";
 import ResetPassword from "./pages/AuthPages/ResetPassword";
 import Reactivate from "./pages/AuthPages/Reactivate";
+import SubscriptionBlocked from "./pages/AuthPages/SubscriptionBlocked";
 
 // Error Pages
 import NotFound from "./pages/OtherPage/NotFound";
@@ -95,6 +96,7 @@ export default function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/reactivate" element={<Reactivate />} />
+        <Route path="/subscription-blocked" element={<SubscriptionBlocked />} />
 
         {/* Public Sharing Routes (no auth required) */}
         <Route path="/share/:propertyId/:evaluationId/:guid" element={<SharedEvaluationPage />} />
