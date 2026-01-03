@@ -98,6 +98,15 @@ export default function PrintEvaluationPage() {
       {/* Main content */}
       <div className="mx-auto max-w-[1100px] space-y-6 p-6">
 
+        {/* Property Header */}
+        <header className="border-b border-gray-200 pb-4">
+          <h1 className="text-2xl font-bold text-gray-900">{property.address}</h1>
+          <p className="text-gray-600">{property.city}, {property.state} {property.zip}</p>
+          {evaluation.name && (
+            <p className="mt-1 text-sm font-medium text-gray-500">{evaluation.name}</p>
+          )}
+        </header>
+
         {/* Property Attributes */}
         <section className="rounded-lg border border-gray-200 bg-white p-5">
           <h2 className="mb-4 text-lg font-semibold">Property Attributes</h2>
@@ -426,7 +435,10 @@ export default function PrintEvaluationPage() {
         {evaluation.notes && (
           <section className="rounded-lg border border-gray-200 bg-white p-5">
             <h2 className="mb-2 text-lg font-semibold">Notes</h2>
-            <p className="whitespace-pre-wrap text-sm text-gray-700">{evaluation.notes}</p>
+            <div
+              className="prose prose-sm max-w-none text-gray-700"
+              dangerouslySetInnerHTML={{ __html: evaluation.notes }}
+            />
           </section>
         )}
       </div>
