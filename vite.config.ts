@@ -16,6 +16,24 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    // Main bundle is ~650KB but gzips to ~160KB which is acceptable
+    chunkSizeWarningLimit: 700,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Core React vendor chunk
+          'vendor-react': ['react', 'react-dom', 'react-router'],
+          // Data fetching
+          'vendor-query': ['@tanstack/react-query', 'axios'],
+          // Maps library
+          'vendor-maps': ['leaflet', 'react-leaflet'],
+          // Other UI libraries
+          'vendor-ui': ['swiper', 'flatpickr', 'simplebar-react', 'react-dropzone'],
+        },
+      },
+    },
+  },
   plugins: [
     react(),
     svgr({
