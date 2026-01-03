@@ -77,98 +77,100 @@ export default function DealTermsSummary({
           <span>Costs & adjustments</span>
         </button>
 
-        {showMore && (
-          <div className="border-t border-gray-100 bg-gray-50 px-6 py-5 dark:border-gray-700 dark:bg-gray-900/50">
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-              {/* Property-specific (change every deal) */}
-              <EditableField
-                label="Property Tax"
-                value={dealTerms.propertyTaxAnnual}
-                format="currency"
-                suffix="/yr"
-                onSave={(v) => onChange('propertyTaxAnnual', v as number)}
-                size="sm"
-                hint="From county records or listing"
-              />
-              <EditableField
-                label="Insurance"
-                value={dealTerms.propertyInsuranceAnnual}
-                format="currency"
-                suffix="/yr"
-                onSave={(v) => onChange('propertyInsuranceAnnual', v as number)}
-                size="sm"
-                hint="~0.5% of value annually"
-              />
-              <EditableField
-                label="HOA"
-                value={dealTerms.hoaAnnual}
-                format="currency"
-                suffix="/yr"
-                onSave={(v) => onChange('hoaAnnual', v as number)}
-                size="sm"
-                hint="From listing, $0 if none"
-              />
+        {/* Expanded content - always rendered for PDF export, hidden when collapsed */}
+        <div
+          className={`border-t border-gray-100 bg-gray-50 px-6 py-5 dark:border-gray-700 dark:bg-gray-900/50 ${showMore ? '' : 'hidden'}`}
+          data-expandable-content="true"
+        >
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+            {/* Property-specific (change every deal) */}
+            <EditableField
+              label="Property Tax"
+              value={dealTerms.propertyTaxAnnual}
+              format="currency"
+              suffix="/yr"
+              onSave={(v) => onChange('propertyTaxAnnual', v as number)}
+              size="sm"
+              hint="From county records or listing"
+            />
+            <EditableField
+              label="Insurance"
+              value={dealTerms.propertyInsuranceAnnual}
+              format="currency"
+              suffix="/yr"
+              onSave={(v) => onChange('propertyInsuranceAnnual', v as number)}
+              size="sm"
+              hint="~0.5% of value annually"
+            />
+            <EditableField
+              label="HOA"
+              value={dealTerms.hoaAnnual}
+              format="currency"
+              suffix="/yr"
+              onSave={(v) => onChange('hoaAnnual', v as number)}
+              size="sm"
+              hint="From listing, $0 if none"
+            />
 
-              {/* Deal-specific (change sometimes) */}
-              <EditableField
-                label="Seller Credit"
-                value={dealTerms.sellerContribution}
-                format="currency"
-                onSave={(v) => onChange('sellerContribution', v as number)}
-                size="sm"
-                hint="Negotiated closing cost credit"
-              />
-              <EditableField
-                label="Hard Appraised Value"
-                value={dealTerms.estimatedAppraisedValue}
-                format="currency"
-                onSave={(v) => onChange('estimatedAppraisedValue', v as number)}
-                size="sm"
-                hint="For hard money. Use Market Value if unknown"
-              />
-              <EditableField
-                label="Max Refi Cashback"
-                value={dealTerms.maxRefiCashback}
-                format="currency"
-                onSave={(v) => onChange('maxRefiCashback', v as number)}
-                size="sm"
-                hint="Limits cash-out on refinance"
-              />
+            {/* Deal-specific (change sometimes) */}
+            <EditableField
+              label="Seller Credit"
+              value={dealTerms.sellerContribution}
+              format="currency"
+              onSave={(v) => onChange('sellerContribution', v as number)}
+              size="sm"
+              hint="Negotiated closing cost credit"
+            />
+            <EditableField
+              label="Hard Appraised Value"
+              value={dealTerms.estimatedAppraisedValue}
+              format="currency"
+              onSave={(v) => onChange('estimatedAppraisedValue', v as number)}
+              size="sm"
+              hint="For hard money. Use Market Value if unknown"
+            />
+            <EditableField
+              label="Max Refi Cashback"
+              value={dealTerms.maxRefiCashback}
+              format="currency"
+              onSave={(v) => onChange('maxRefiCashback', v as number)}
+              size="sm"
+              hint="Limits cash-out on refinance"
+            />
 
-              {/* Investor defaults (rarely change) */}
-              <EditableField
-                label="Misc Monthly"
-                value={dealTerms.miscellaneousMonthly}
-                format="currency"
-                suffix="/mo"
-                onSave={(v) => onChange('miscellaneousMonthly', v as number)}
-                size="sm"
-                hint="Maintenance, lawn, reserves"
-              />
-              <EditableField
-                label="Survey"
-                value={dealTerms.survey}
-                format="currency"
-                onSave={(v) => onChange('survey', v as number)}
-                size="sm"
-              />
-              <EditableField
-                label="Appraisal"
-                value={dealTerms.appraisal}
-                format="currency"
-                onSave={(v) => onChange('appraisal', v as number)}
-                size="sm"
-              />
-              <EditableField
-                label="Inspection"
-                value={dealTerms.inspection}
-                format="currency"
-                onSave={(v) => onChange('inspection', v as number)}
-                size="sm"
-              />
-            </div>
+            {/* Investor defaults (rarely change) */}
+            <EditableField
+              label="Misc Monthly"
+              value={dealTerms.miscellaneousMonthly}
+              format="currency"
+              suffix="/mo"
+              onSave={(v) => onChange('miscellaneousMonthly', v as number)}
+              size="sm"
+              hint="Maintenance, lawn, reserves"
+            />
+            <EditableField
+              label="Survey"
+              value={dealTerms.survey}
+              format="currency"
+              onSave={(v) => onChange('survey', v as number)}
+              size="sm"
+            />
+            <EditableField
+              label="Appraisal"
+              value={dealTerms.appraisal}
+              format="currency"
+              onSave={(v) => onChange('appraisal', v as number)}
+              size="sm"
+            />
+            <EditableField
+              label="Inspection"
+              value={dealTerms.inspection}
+              format="currency"
+              onSave={(v) => onChange('inspection', v as number)}
+              size="sm"
+            />
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

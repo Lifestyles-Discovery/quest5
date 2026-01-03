@@ -93,6 +93,7 @@ export default function EvaluationNotes({
       </div>
 
       <div className="p-4">
+        {/* Interactive textarea - hidden during PDF export */}
         <textarea
           value={notes}
           onChange={handleChange}
@@ -100,7 +101,14 @@ export default function EvaluationNotes({
           rows={6}
           className="block w-full resize-none rounded-lg border border-gray-300 p-3 text-sm focus:border-primary focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
         />
-        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+        {/* Static content for PDF export - only visible when printing */}
+        <div
+          className="hidden whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300"
+          data-print-content="true"
+        >
+          {notes || 'No notes added.'}
+        </div>
+        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400" data-hide-in-pdf="true">
           Notes are automatically saved as you type.
         </p>
       </div>

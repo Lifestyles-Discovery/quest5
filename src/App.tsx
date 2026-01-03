@@ -43,6 +43,7 @@ import { SearchPage } from "./features/search";
 import { SettingsPage } from "./features/settings";
 import { AdminPage } from "./features/admin";
 import SharedEvaluationPage from "./features/evaluations/pages/SharedEvaluationPage";
+import PrintEvaluationPage from "./features/evaluations/pages/PrintEvaluationPage";
 
 // Demo pages kept for reference during development
 import FormElements from "./pages/Forms/FormElements";
@@ -98,6 +99,9 @@ export default function App() {
         {/* Public Sharing Routes (no auth required) */}
         <Route path="/share/:propertyId/:evaluationId/:guid" element={<SharedEvaluationPage />} />
         <Route path="/share/:propertyId/:evaluationId/:guid/:editKey" element={<SharedEvaluationPage />} />
+
+        {/* Print Route for Restpack PDF generation (session key auth) */}
+        <Route path="/properties/:propertyId/evaluations/:evaluationId/sessions/:sessionKey" element={<PrintEvaluationPage />} />
 
         {/* Error Pages */}
         <Route path="/maintenance" element={<Maintenance />} />

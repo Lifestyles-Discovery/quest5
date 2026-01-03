@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { evaluationsService } from '@services/evaluations.service';
+import { apiClient } from '@/api/client';
 import { propertiesKeys } from './useProperties';
 import type {
   Evaluation,
@@ -508,23 +509,44 @@ export function useUpdateAttributes() {
 }
 
 /**
- * Hook to generate and download PDF (client-side)
+ * Hook to generate and download PDF via backend (Restpack)
  */
 export function useExportPdf() {
   return useMutation({
     mutationFn: async ({
-      elementId,
-      filename,
-      title,
-      subtitle,
+      propertyId,
+      evaluationId,
     }: {
-      elementId: string;
-      filename: string;
-      title?: string;
-      subtitle?: string;
+      propertyId: string;
+      evaluationId: string;
     }) => {
-      const { generatePdf } = await import('@/utils/pdf-export');
-      await generatePdf(elementId, { filename, title, subtitle });
+      // Call backend API which uses Restpack to generate PDF
+      const response = await apiClient.get(
+        `properties/${propertyId}/evaluations/${evaluationId}/pdf`,
+        { responseType: 'blob' }
+      );
+
+      // Create download link
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+
+      // Extract filename from Content-Disposition header or use default
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = 'evaluation.pdf';
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (match && match[1]) {
+          filename = match[1].replace(/['"]/g, '');
+        }
+      }
+
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
     },
   });
 }

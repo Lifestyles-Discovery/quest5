@@ -103,21 +103,8 @@ export default function EvaluationHeader({
   };
 
   const handleExportPdf = () => {
-    const date = new Date().toISOString().split('T')[0];
-    const cleanAddress = property?.address
-      ? property.address.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()
-      : 'evaluation';
-    const filename = `${cleanAddress}-${date}.pdf`;
-
     exportPdf.mutate(
-      {
-        elementId: 'evaluation-content',
-        filename,
-        title: property?.address,
-        subtitle: property
-          ? `${property.city}, ${property.state} ${property.zip}`
-          : undefined,
-      },
+      { propertyId, evaluationId },
       {
         onError: (error) => {
           console.error('PDF export failed:', error);

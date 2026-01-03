@@ -103,66 +103,67 @@ function ConventionalSection({
         )}
       </button>
 
-      {/* Expanded content */}
-      {isExpanded && (
-        <div className="border-t border-gray-200 p-6 dark:border-gray-700">
-          <div className="space-y-6">
-            {/* Loan Terms */}
-            <div>
-              <h4 className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                Loan Terms
-              </h4>
-              <div className="grid grid-cols-2 gap-4">
-                <EditableField
-                  label="Down Payment"
-                  value={inputs.downPaymentPercent}
-                  format="percent"
-                  onSave={(v) => onChange('downPaymentPercent', v as number)}
-                  size="sm"
-                />
-                <EditableField
-                  label="Interest Rate"
-                  value={inputs.interestRatePercent}
-                  format="percent"
-                  step={0.125}
-                  onSave={(v) => onChange('interestRatePercent', v as number)}
-                  size="sm"
-                />
-                <EditableField
-                  label="Loan Term"
-                  value={inputs.loanTermInYears}
-                  format="number"
-                  suffix=" years"
-                  onSave={(v) => onChange('loanTermInYears', v as number)}
-                  size="sm"
-                />
-                <EditableField
-                  label="Lender Fees"
-                  value={inputs.lenderAndTitleFees}
-                  format="currency"
-                  onSave={(v) => onChange('lenderAndTitleFees', v as number)}
-                  size="sm"
-                />
-                <EditableField
-                  label="Escrow Months"
-                  value={inputs.monthsTaxAndInsurance}
-                  format="number"
-                  onSave={(v) => onChange('monthsTaxAndInsurance', v as number)}
-                  size="sm"
-                />
-                <EditableField
-                  label="Mortgage Insurance"
-                  value={inputs.mortgageInsuranceAnnual}
-                  format="currency"
-                  suffix="/yr"
-                  onSave={(v) => onChange('mortgageInsuranceAnnual', v as number)}
-                  size="sm"
-                />
-              </div>
+      {/* Expanded content - always rendered for PDF export, hidden when collapsed */}
+      <div
+        className={`border-t border-gray-200 p-6 dark:border-gray-700 ${isExpanded ? '' : 'hidden'}`}
+        data-expandable-content="true"
+      >
+        <div className="space-y-6">
+          {/* Loan Terms */}
+          <div>
+            <h4 className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              Loan Terms
+            </h4>
+            <div className="grid grid-cols-2 gap-4">
+              <EditableField
+                label="Down Payment"
+                value={inputs.downPaymentPercent}
+                format="percent"
+                onSave={(v) => onChange('downPaymentPercent', v as number)}
+                size="sm"
+              />
+              <EditableField
+                label="Interest Rate"
+                value={inputs.interestRatePercent}
+                format="percent"
+                step={0.125}
+                onSave={(v) => onChange('interestRatePercent', v as number)}
+                size="sm"
+              />
+              <EditableField
+                label="Loan Term"
+                value={inputs.loanTermInYears}
+                format="number"
+                suffix=" years"
+                onSave={(v) => onChange('loanTermInYears', v as number)}
+                size="sm"
+              />
+              <EditableField
+                label="Lender Fees"
+                value={inputs.lenderAndTitleFees}
+                format="currency"
+                onSave={(v) => onChange('lenderAndTitleFees', v as number)}
+                size="sm"
+              />
+              <EditableField
+                label="Escrow Months"
+                value={inputs.monthsTaxAndInsurance}
+                format="number"
+                onSave={(v) => onChange('monthsTaxAndInsurance', v as number)}
+                size="sm"
+              />
+              <EditableField
+                label="Mortgage Insurance"
+                value={inputs.mortgageInsuranceAnnual}
+                format="currency"
+                suffix="/yr"
+                onSave={(v) => onChange('mortgageInsuranceAnnual', v as number)}
+                size="sm"
+              />
             </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -222,117 +223,126 @@ function HardMoneySection({
         )}
       </button>
 
-      {/* Expanded content */}
-      {isExpanded && (
-        <div className="border-t border-gray-200 p-6 dark:border-gray-700">
-          <div className="space-y-6">
-            {/* Hard Money Loan */}
-            <div>
-              <h4 className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                Hard Money Loan
-              </h4>
-              <div className="grid grid-cols-2 gap-4">
-                <EditableField
-                  label="Loan-to-Value"
-                  value={inputs.hardLoanToValuePercent}
-                  format="percent"
-                  onSave={(v) => onChange('hardLoanToValuePercent', v as number)}
-                  size="sm"
+      {/* Expanded content - always rendered for PDF export, hidden when collapsed */}
+      <div
+        className={`border-t border-gray-200 p-6 dark:border-gray-700 ${isExpanded ? '' : 'hidden'}`}
+        data-expandable-content="true"
+      >
+        <div className="space-y-6">
+          {/* Hard Money Loan */}
+          <div>
+            <h4 className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              Hard Money Loan
+            </h4>
+            <div className="grid grid-cols-2 gap-4">
+              <EditableField
+                label="Loan-to-Value"
+                value={inputs.hardLoanToValuePercent}
+                format="percent"
+                onSave={(v) => onChange('hardLoanToValuePercent', v as number)}
+                size="sm"
+              />
+              <EditableField
+                label="Interest Rate"
+                value={inputs.hardInterestRate}
+                format="percent"
+                onSave={(v) => onChange('hardInterestRate', v as number)}
+                size="sm"
+              />
+              <EditableField
+                label="Lender Fees"
+                value={inputs.hardLenderAndTitleFees}
+                format="currency"
+                onSave={(v) => onChange('hardLenderAndTitleFees', v as number)}
+                size="sm"
+              />
+              <EditableField
+                label="Months to Refi"
+                value={inputs.hardMonthsToRefinance}
+                format="number"
+                onSave={(v) => onChange('hardMonthsToRefinance', v as number)}
+                size="sm"
+              />
+              <EditableField
+                label="Weeks to Lease"
+                value={inputs.hardWeeksUntilLeased}
+                format="number"
+                onSave={(v) => onChange('hardWeeksUntilLeased', v as number)}
+                size="sm"
+              />
+              <div className="pt-5">
+                {/* Interactive checkbox - hidden in PDF */}
+                <Checkbox
+                  label="Roll in Lender Fees"
+                  checked={inputs.hardRollInLenderFees}
+                  onChange={(checked) => onChange('hardRollInLenderFees', checked)}
                 />
-                <EditableField
-                  label="Interest Rate"
-                  value={inputs.hardInterestRate}
-                  format="percent"
-                  onSave={(v) => onChange('hardInterestRate', v as number)}
-                  size="sm"
-                />
-                <EditableField
-                  label="Lender Fees"
-                  value={inputs.hardLenderAndTitleFees}
-                  format="currency"
-                  onSave={(v) => onChange('hardLenderAndTitleFees', v as number)}
-                  size="sm"
-                />
-                <EditableField
-                  label="Months to Refi"
-                  value={inputs.hardMonthsToRefinance}
-                  format="number"
-                  onSave={(v) => onChange('hardMonthsToRefinance', v as number)}
-                  size="sm"
-                />
-                <EditableField
-                  label="Weeks to Lease"
-                  value={inputs.hardWeeksUntilLeased}
-                  format="number"
-                  onSave={(v) => onChange('hardWeeksUntilLeased', v as number)}
-                  size="sm"
-                />
-                <div className="pt-5">
-                  <Checkbox
-                    label="Roll in Lender Fees"
-                    checked={inputs.hardRollInLenderFees}
-                    onChange={(checked) => onChange('hardRollInLenderFees', checked)}
-                  />
+                {/* Print-only text showing checkbox state */}
+                <div className="hidden text-sm" data-print-content="true">
+                  <span className="text-gray-500">Roll in Lender Fees:</span>{' '}
+                  <span className="font-medium text-gray-900">
+                    {inputs.hardRollInLenderFees ? 'Yes' : 'No'}
+                  </span>
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Refinance Loan */}
-            <div>
-              <h4 className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                Refinance Loan
-              </h4>
-              <div className="grid grid-cols-2 gap-4">
-                <EditableField
-                  label="Loan-to-Value"
-                  value={inputs.refinanceLoanToValuePercent}
-                  format="percent"
-                  onSave={(v) => onChange('refinanceLoanToValuePercent', v as number)}
-                  size="sm"
-                />
-                <EditableField
-                  label="Interest Rate"
-                  value={inputs.refinanceInterestRatePercent}
-                  format="percent"
-                  step={0.125}
-                  onSave={(v) => onChange('refinanceInterestRatePercent', v as number)}
-                  size="sm"
-                />
-                <EditableField
-                  label="Loan Term"
-                  value={inputs.refinanceLoanTermInYears}
-                  format="number"
-                  suffix=" years"
-                  onSave={(v) => onChange('refinanceLoanTermInYears', v as number)}
-                  size="sm"
-                />
-                <EditableField
-                  label="Lender Fees"
-                  value={inputs.refinanceLenderAndTitleFees}
-                  format="currency"
-                  onSave={(v) => onChange('refinanceLenderAndTitleFees', v as number)}
-                  size="sm"
-                />
-                <EditableField
-                  label="Escrow Months"
-                  value={inputs.refinanceMonthsTaxAndInsurance}
-                  format="number"
-                  onSave={(v) => onChange('refinanceMonthsTaxAndInsurance', v as number)}
-                  size="sm"
-                />
-                <EditableField
-                  label="Mortgage Insurance"
-                  value={inputs.refinanceMortgageInsuranceAnnual}
-                  format="currency"
-                  suffix="/yr"
-                  onSave={(v) => onChange('refinanceMortgageInsuranceAnnual', v as number)}
-                  size="sm"
-                />
-              </div>
+          {/* Refinance Loan */}
+          <div>
+            <h4 className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              Refinance Loan
+            </h4>
+            <div className="grid grid-cols-2 gap-4">
+              <EditableField
+                label="Loan-to-Value"
+                value={inputs.refinanceLoanToValuePercent}
+                format="percent"
+                onSave={(v) => onChange('refinanceLoanToValuePercent', v as number)}
+                size="sm"
+              />
+              <EditableField
+                label="Interest Rate"
+                value={inputs.refinanceInterestRatePercent}
+                format="percent"
+                step={0.125}
+                onSave={(v) => onChange('refinanceInterestRatePercent', v as number)}
+                size="sm"
+              />
+              <EditableField
+                label="Loan Term"
+                value={inputs.refinanceLoanTermInYears}
+                format="number"
+                suffix=" years"
+                onSave={(v) => onChange('refinanceLoanTermInYears', v as number)}
+                size="sm"
+              />
+              <EditableField
+                label="Lender Fees"
+                value={inputs.refinanceLenderAndTitleFees}
+                format="currency"
+                onSave={(v) => onChange('refinanceLenderAndTitleFees', v as number)}
+                size="sm"
+              />
+              <EditableField
+                label="Escrow Months"
+                value={inputs.refinanceMonthsTaxAndInsurance}
+                format="number"
+                onSave={(v) => onChange('refinanceMonthsTaxAndInsurance', v as number)}
+                size="sm"
+              />
+              <EditableField
+                label="Mortgage Insurance"
+                value={inputs.refinanceMortgageInsuranceAnnual}
+                format="currency"
+                suffix="/yr"
+                onSave={(v) => onChange('refinanceMortgageInsuranceAnnual', v as number)}
+                size="sm"
+              />
             </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
