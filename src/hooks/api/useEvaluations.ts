@@ -509,7 +509,11 @@ export function useUpdateAttributes() {
 }
 
 /**
- * Hook to generate and download PDF via backend (Restpack)
+ * Hook to generate PDF
+ *
+ * Strategy:
+ * - In production (when Quest5 is deployed): Uses backend Restpack API
+ * - In development (localhost): Opens print-optimized page for browser print-to-PDF
  */
 export function useExportPdf() {
   return useMutation({
@@ -520,11 +524,58 @@ export function useExportPdf() {
       propertyId: string;
       evaluationId: string;
     }) => {
-      // Call backend API which uses Restpack to generate PDF
+      // Get session key for the print page
+      const sessionData = sessionStorage.getItem('session');
+      if (!sessionData) {
+        throw new Error('No session found');
+      }
+      const session = JSON.parse(sessionData);
+      const sessionKey = session.sessionKey;
+
+      // Check if we're running locally
+      const isLocalhost = window.location.hostname === 'localhost' ||
+                          window.location.hostname === '127.0.0.1';
+
+      if (isLocalhost) {
+        // Local development: Open print page in new window for browser print-to-PDF
+        const printUrl = `/properties/${propertyId}/evaluations/${evaluationId}/sessions/${sessionKey}`;
+        const printWindow = window.open(printUrl, '_blank');
+
+        if (!printWindow) {
+          throw new Error('Could not open print window. Please allow popups for this site.');
+        }
+
+        // Wait for the page to load, then trigger print
+        printWindow.onload = () => {
+          // Give a moment for styles to apply
+          setTimeout(() => {
+            printWindow.print();
+          }, 500);
+        };
+
+        return;
+      }
+
+      // Production: Use backend Restpack API
       const response = await apiClient.get(
         `properties/${propertyId}/evaluations/${evaluationId}/pdf`,
         { responseType: 'blob' }
       );
+
+      // Check if we got a valid PDF response
+      const contentType = response.headers['content-type'];
+      if (!contentType?.includes('application/pdf')) {
+        const text = await response.data.text();
+        console.error('PDF generation failed. Response:', text);
+        throw new Error('PDF generation failed - unexpected response from server');
+      }
+
+      // Verify the blob starts with PDF magic bytes (%PDF)
+      const arrayBuffer = await response.data.slice(0, 5).arrayBuffer();
+      const header = new TextDecoder().decode(arrayBuffer);
+      if (!header.startsWith('%PDF')) {
+        throw new Error('PDF generation failed - received invalid PDF content');
+      }
 
       // Create download link
       const blob = new Blob([response.data], { type: 'application/pdf' });
