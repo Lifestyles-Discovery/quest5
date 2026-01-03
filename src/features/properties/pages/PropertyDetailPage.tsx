@@ -100,6 +100,7 @@ export default function PropertyDetailPage() {
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [showGallery, setShowGallery] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   // Hooks
   const { data: property, isLoading: propertyLoading, error: propertyError } = useProperty(id!);
@@ -330,7 +331,23 @@ export default function PropertyDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3">
             {/* Photo */}
             <div className="relative h-64 lg:h-auto">
-              {property.photoUrls && property.photoUrls.length > 0 ? (
+              {imageError ? (
+                <div className="flex h-full w-full items-center justify-center bg-gray-100 dark:bg-gray-800">
+                  <svg
+                    className="h-16 w-16 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
+              ) : property.photoUrls && property.photoUrls.length > 0 ? (
                 <button
                   onClick={() => setShowGallery(true)}
                   className="h-full w-full cursor-pointer"
@@ -339,6 +356,7 @@ export default function PropertyDetailPage() {
                     src={primaryPhoto}
                     alt={property.address}
                     className="h-full w-full object-cover hover:opacity-95"
+                    onError={() => setImageError(true)}
                   />
                   {property.photoUrls.length > 1 && (
                     <div className="absolute bottom-2 right-2 rounded bg-black/60 px-2 py-1 text-xs text-white">
@@ -351,6 +369,7 @@ export default function PropertyDetailPage() {
                   src={primaryPhoto}
                   alt={property.address}
                   className="h-full w-full object-cover"
+                  onError={() => setImageError(true)}
                 />
               )}
             </div>
