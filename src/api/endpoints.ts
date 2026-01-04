@@ -57,8 +57,12 @@ export const ENDPOINTS = {
       `properties/${propertyId}/evaluations/${evaluationId}/sessions/${sessionKey}/url`,
     emailEvaluation: (propertyId: string, evaluationId: string) =>
       `properties/${propertyId}/evaluations/${evaluationId}/email`,
+    // Legacy Quest4 endpoint (keep for backward compatibility)
     shareEvaluation: (propertyId: string, evaluationId: string) =>
       `properties/${propertyId}/evaluations/${evaluationId}/share`,
+    // Quest5 sharing endpoints (GET, POST, DELETE)
+    sharing: (propertyId: string, evaluationId: string) =>
+      `properties/${propertyId}/evaluations/${evaluationId}/sharing`,
   },
 
   // Notes

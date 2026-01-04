@@ -8,6 +8,7 @@ import type {
   DealTermInputs,
   ConventionalInputs,
   HardMoneyInputs,
+  ActiveShare,
 } from '@app-types/evaluation.types';
 
 /**
@@ -397,6 +398,7 @@ export const evaluationsService = {
 
   /**
    * Share evaluation (generate shareable link)
+   * @deprecated Use getActiveShare/createShare/revokeShare instead
    */
   async shareEvaluation(
     propertyId: string,
@@ -406,5 +408,58 @@ export const evaluationsService = {
       ENDPOINTS.evaluations.shareEvaluation(propertyId, evaluationId)
     );
     return response.data;
+  },
+
+  // =========================================================================
+  // Quest5 Sharing API (new endpoints for share management)
+  // =========================================================================
+
+  /**
+   * Get active share link for an evaluation (if one exists)
+   * Returns null if no share exists
+   */
+  async getActiveShare(
+    propertyId: string,
+    evaluationId: string
+  ): Promise<ActiveShare | null> {
+    try {
+      const response = await apiClient.get<ActiveShare>(
+        ENDPOINTS.evaluations.sharing(propertyId, evaluationId)
+      );
+      return response.data;
+    } catch (error) {
+      // 404 means no share exists - that's expected, return null
+      if ((error as { response?: { status?: number } })?.response?.status === 404) {
+        return null;
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Create a share link for an evaluation
+   * Idempotent: returns existing share if one already exists
+   */
+  async createShare(
+    propertyId: string,
+    evaluationId: string
+  ): Promise<ActiveShare> {
+    const response = await apiClient.post<ActiveShare>(
+      ENDPOINTS.evaluations.sharing(propertyId, evaluationId)
+    );
+    return response.data;
+  },
+
+  /**
+   * Revoke (delete) the share link for an evaluation
+   * After revocation, existing share URLs will stop working
+   */
+  async revokeShare(
+    propertyId: string,
+    evaluationId: string
+  ): Promise<void> {
+    await apiClient.delete(
+      ENDPOINTS.evaluations.sharing(propertyId, evaluationId)
+    );
   },
 };

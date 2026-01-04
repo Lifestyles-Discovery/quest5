@@ -411,6 +411,21 @@ export interface EmailEvaluationRequest {
 }
 
 // ============================================================================
+// SHARING TYPES
+// ============================================================================
+
+/**
+ * Active share link for an evaluation
+ * Anyone with the link can view the evaluation (no auth required)
+ */
+export interface ActiveShare {
+  shareId: string;
+  shareUrl: string;
+  guid: string;
+  createdAt: string;
+}
+
+// ============================================================================
 // DEFAULT VALUES
 // ============================================================================
 

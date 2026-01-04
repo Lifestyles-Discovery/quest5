@@ -9,6 +9,7 @@ import type {
   DealTermInputs,
   ConventionalInputs,
   HardMoneyInputs,
+  ActiveShare,
 } from '@app-types/evaluation.types';
 import type { Property } from '@app-types/property.types';
 
@@ -21,6 +22,8 @@ export const evaluationsKeys = {
     [...evaluationsKeys.all, propertyId, evaluationId] as const,
   searchTypes: (propertyId: string, evaluationId: string) =>
     [...evaluationsKeys.all, 'searchTypes', propertyId, evaluationId] as const,
+  share: (propertyId: string, evaluationId: string) =>
+    [...evaluationsKeys.all, 'share', propertyId, evaluationId] as const,
 };
 
 /**
@@ -558,6 +561,7 @@ export function useEmailEvaluation() {
 
 /**
  * Hook to share evaluation
+ * @deprecated Use useGetActiveShare, useCreateShare, useRevokeShare instead
  */
 export function useShareEvaluation() {
   return useMutation({
@@ -568,5 +572,71 @@ export function useShareEvaluation() {
       propertyId: string;
       evaluationId: string;
     }) => evaluationsService.shareEvaluation(propertyId, evaluationId),
+  });
+}
+
+// =============================================================================
+// Quest5 Sharing Hooks (new share management API)
+// =============================================================================
+
+/**
+ * Hook to get active share for an evaluation
+ * Returns null if no share exists
+ */
+export function useGetActiveShare(propertyId: string, evaluationId: string) {
+  return useQuery({
+    queryKey: evaluationsKeys.share(propertyId, evaluationId),
+    queryFn: () => evaluationsService.getActiveShare(propertyId, evaluationId),
+    enabled: !!propertyId && !!evaluationId,
+  });
+}
+
+/**
+ * Hook to create a share link for an evaluation
+ * Idempotent: returns existing share if one already exists
+ */
+export function useCreateShare() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      propertyId,
+      evaluationId,
+    }: {
+      propertyId: string;
+      evaluationId: string;
+    }) => evaluationsService.createShare(propertyId, evaluationId),
+    onSuccess: (share, { propertyId, evaluationId }) => {
+      // Update share cache with the new share
+      queryClient.setQueryData<ActiveShare>(
+        evaluationsKeys.share(propertyId, evaluationId),
+        share
+      );
+    },
+  });
+}
+
+/**
+ * Hook to revoke (delete) the share link for an evaluation
+ * After revocation, existing share URLs will stop working
+ */
+export function useRevokeShare() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      propertyId,
+      evaluationId,
+    }: {
+      propertyId: string;
+      evaluationId: string;
+    }) => evaluationsService.revokeShare(propertyId, evaluationId),
+    onSuccess: (_, { propertyId, evaluationId }) => {
+      // Clear share cache - no share exists after revocation
+      queryClient.setQueryData<ActiveShare | null>(
+        evaluationsKeys.share(propertyId, evaluationId),
+        null
+      );
+    },
   });
 }

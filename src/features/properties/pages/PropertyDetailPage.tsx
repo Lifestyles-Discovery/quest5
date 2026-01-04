@@ -8,13 +8,13 @@ import { useProperty, useUpdatePropertyStage } from '@hooks/api/useProperties';
 import {
   useDeleteEvaluation,
   useExportPdf,
-  useShareEvaluation,
   useUpdateAttributes,
   evaluationsKeys,
 } from '@hooks/api/useEvaluations';
 import { propertiesService } from '@services/properties.service';
 import { PROPERTY_STAGES, type PropertyStage } from '@app-types/property.types';
 import EvaluationContent from '@/features/evaluations/components/EvaluationContent';
+import ShareModal from '@/features/evaluations/components/ShareModal';
 import { ScenarioHistory } from '../components/ScenarioHistory';
 import { Skeleton } from '@components/ui/skeleton/Skeleton';
 import PhotoGallery from '@components/common/PhotoGallery';
@@ -98,7 +98,6 @@ export default function PropertyDetailPage() {
   // State for modals
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
-  const [shareUrl, setShareUrl] = useState('');
   const [showGallery, setShowGallery] = useState(false);
   const [imageError, setImageError] = useState(false);
 
@@ -107,7 +106,6 @@ export default function PropertyDetailPage() {
   const updateStage = useUpdatePropertyStage();
   const deleteEvaluation = useDeleteEvaluation();
   const exportPdf = useExportPdf();
-  const shareEvaluation = useShareEvaluation();
   const updateAttributes = useUpdateAttributes();
 
   // Scenario name editing state
@@ -213,18 +211,6 @@ export default function PropertyDetailPage() {
     );
   };
 
-  const handleShare = () => {
-    if (!currentEvaluationId) return;
-    shareEvaluation.mutate(
-      { propertyId: id!, evaluationId: currentEvaluationId },
-      {
-        onSuccess: (data) => {
-          setShareUrl(data.shareUrl);
-          setShowShareModal(true);
-        },
-      }
-    );
-  };
 
   const handleDelete = () => {
     if (!currentEvaluationId || !property) return;
@@ -488,8 +474,8 @@ export default function PropertyDetailPage() {
                 </button>
 
                 <button
-                  onClick={handleShare}
-                  disabled={shareEvaluation.isPending || !currentEvaluationId}
+                  onClick={() => setShowShareModal(true)}
+                  disabled={!currentEvaluationId}
                   className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                 >
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -500,7 +486,7 @@ export default function PropertyDetailPage() {
                       d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
                     />
                   </svg>
-                  {shareEvaluation.isPending ? 'Sharing...' : 'Share'}
+                  Share
                 </button>
 
                 {property.evaluations && property.evaluations.length > 1 && (
@@ -753,41 +739,13 @@ export default function PropertyDetailPage() {
       )}
 
       {/* Share Modal */}
-      {showShareModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Share Evaluation
-            </h3>
-            <p className="mt-2 text-gray-600 dark:text-gray-300">
-              Copy this link to share the evaluation:
-            </p>
-            <div className="mt-4 flex gap-2">
-              <input
-                type="text"
-                readOnly
-                value={shareUrl}
-                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700"
-              />
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(shareUrl);
-                }}
-                className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600"
-              >
-                Copy
-              </button>
-            </div>
-            <div className="mt-6 flex justify-end">
-              <button
-                onClick={() => setShowShareModal(false)}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
+      {currentEvaluationId && (
+        <ShareModal
+          isOpen={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          propertyId={id!}
+          evaluationId={currentEvaluationId}
+        />
       )}
 
       {/* Photo Gallery */}
