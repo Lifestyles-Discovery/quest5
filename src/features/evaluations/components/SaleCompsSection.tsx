@@ -268,6 +268,9 @@ export default function SaleCompsSection({
                   Sqft
                 </th>
                 <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400">
+                  Year
+                </th>
+                <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400">
                   Date
                 </th>
               </tr>
@@ -313,6 +316,9 @@ export default function SaleCompsSection({
                   </td>
                   <td className="px-3 py-2 text-right text-sm text-gray-600 dark:text-gray-300">
                     {comp.sqft.toLocaleString()}
+                  </td>
+                  <td className="px-3 py-2 text-right text-sm text-gray-600 dark:text-gray-300">
+                    {comp.yearBuilt || '-'}
                   </td>
                   <td className="px-3 py-2 text-right text-sm text-gray-500 dark:text-gray-400">
                     {formatDate(comp.dateSold)}
