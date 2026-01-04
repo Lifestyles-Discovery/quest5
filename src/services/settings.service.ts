@@ -11,12 +11,20 @@ export const settingsService = {
    * Update user account information
    */
   async updateAccount(userId: string, data: AccountFormData): Promise<User> {
-    const response = await apiClient.put<User>(ENDPOINTS.users.update(userId), {
+    // Backend expects user data as HTTP headers, not body
+    const headers: Record<string, string> = {
+      email: data.email,
       firstName: data.firstName,
       lastName: data.lastName,
-      email: data.email,
-      ...(data.password ? { password: data.password } : {}),
-    });
+    };
+    if (data.password) {
+      headers.password = data.password;
+    }
+    const response = await apiClient.put<User>(
+      ENDPOINTS.users.update(userId),
+      {}, // empty body
+      { headers }
+    );
     return response.data;
   },
 

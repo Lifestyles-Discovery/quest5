@@ -6,6 +6,7 @@ import Alert from '@components/ui/alert/Alert';
 import { useUpdateAccount } from '@hooks/api/useSettings';
 import { useAuth } from '@context/AuthContext';
 import type { AccountFormData } from '@app-types/settings.types';
+import { EyeIcon, EyeCloseIcon } from '@icons/index';
 
 export function AccountForm() {
   const { user } = useAuth();
@@ -17,6 +18,7 @@ export function AccountForm() {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const updateAccount = useUpdateAccount();
 
@@ -113,13 +115,25 @@ export function AccountForm() {
 
       <div>
         <Label>New Password (leave blank to keep current)</Label>
-        <Input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Enter new password"
-          disabled={updateAccount.isPending}
-        />
+        <div className="relative">
+          <Input
+            type={showPassword ? 'text' : 'password'}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter new password"
+            disabled={updateAccount.isPending}
+          />
+          <span
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
+          >
+            {showPassword ? (
+              <EyeIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
+            ) : (
+              <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
+            )}
+          </span>
+        </div>
       </div>
 
       <div className="flex justify-end">
