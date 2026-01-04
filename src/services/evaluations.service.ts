@@ -81,12 +81,12 @@ export const evaluationsService = {
           searchType: inputs.searchType ?? '',
           searchTerm: inputs.searchTerm ?? '',
           sqftPlusMinus: String(inputs.sqftPlusMinus ?? ''),
-          bedsMin: String(inputs.bedsMin ?? ''),
-          bedsMax: String(inputs.bedsMax ?? ''),
-          bathsMin: String(inputs.bathsMin ?? ''),
-          bathsMax: String(inputs.bathsMax ?? ''),
-          garageMin: String(inputs.garageMin ?? ''),
-          garageMax: String(inputs.garageMax ?? ''),
+          bedsMin: String(inputs.bedsMin ?? 0),  // 0 = any (beds >= 0 is always true)
+          bedsMax: String(inputs.bedsMax ?? 10),  // 10 = any (beds <= 10 includes all)
+          bathsMin: String(inputs.bathsMin ?? 0),  // 0 = any
+          bathsMax: String(inputs.bathsMax ?? 10),  // 10 = any
+          garageMin: String(inputs.garageMin ?? 0),  // 0 = any (garage >= 0 is always true)
+          garageMax: String(inputs.garageMax ?? 10),  // 10 = any (garage <= 10 includes all)
           yearBuiltPlusMinus: String(inputs.yearBuiltPlusMinus ?? ''),
           monthsClosed: String(inputs.monthsClosed ?? ''),
           confineToCounty: String(inputs.confineToCounty ?? false),
@@ -139,12 +139,12 @@ export const evaluationsService = {
           searchType: inputs.searchType ?? '',
           searchTerm: inputs.searchTerm ?? '',
           sqftPlusMinus: String(inputs.sqftPlusMinus ?? ''),
-          bedsMin: String(inputs.bedsMin ?? ''),
-          bedsMax: String(inputs.bedsMax ?? ''),
-          bathsMin: String(inputs.bathsMin ?? ''),
-          bathsMax: String(inputs.bathsMax ?? ''),
-          garageMin: String(inputs.garageMin ?? ''),
-          garageMax: String(inputs.garageMax ?? ''),
+          bedsMin: String(inputs.bedsMin ?? 0),  // 0 = any (beds >= 0 is always true)
+          bedsMax: String(inputs.bedsMax ?? 10),  // 10 = any (beds <= 10 includes all)
+          bathsMin: String(inputs.bathsMin ?? 0),  // 0 = any
+          bathsMax: String(inputs.bathsMax ?? 10),  // 10 = any
+          garageMin: String(inputs.garageMin ?? 0),  // 0 = any (garage >= 0 is always true)
+          garageMax: String(inputs.garageMax ?? 10),  // 10 = any (garage <= 10 includes all)
           yearBuiltPlusMinus: String(inputs.yearBuiltPlusMinus ?? ''),
           monthsClosed: String(inputs.monthsClosed ?? ''),
           confineToCounty: String(inputs.confineToCounty ?? false),

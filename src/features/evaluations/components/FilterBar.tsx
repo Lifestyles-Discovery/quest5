@@ -35,14 +35,15 @@ function formatLocation(searchTerm?: string, searchType?: string): string {
   return searchTerm;
 }
 
-function formatRange(min: number, max: number, unit: string, rangeMax: number): string {
-  const hasMin = min > 0;
-  const hasMax = max < rangeMax;
+function formatRange(min: number | null, max: number | null, unit: string): string {
+  const hasMin = min !== null;
+  const hasMax = max !== null;
 
   if (!hasMin && !hasMax) return `any ${unit}`;
-  if (min === max) return `${min} ${unit}`;
+  if (hasMin && hasMax && min === max) return `${min} ${unit}`;
   if (hasMin && hasMax) return `${min}-${max} ${unit}`;
   if (hasMin) return `${min}+ ${unit}`;
+  if (hasMax) return `0-${max} ${unit}`;
   return `any ${unit}`;
 }
 
@@ -123,26 +124,26 @@ export default function FilterBar({
 
         {/* Beds - muted when broad search */}
         <div className={mutedChipClass} onClick={isBroadSearch ? handleMutedChipClick : undefined}>
-          <FilterChip label={formatRange(filters.bedsMin || 0, filters.bedsMax || BEDS_MAX, 'beds', BEDS_MAX)}>
+          <FilterChip label={formatRange(filters.bedsMin || null, filters.bedsMax != null && filters.bedsMax <= BEDS_MAX ? filters.bedsMax : null, 'beds')}>
             <RangeEditor
               label="Beds"
-              min={filters.bedsMin || 0}
-              max={filters.bedsMax || BEDS_MAX}
+              min={filters.bedsMin || null}
+              max={filters.bedsMax != null && filters.bedsMax <= BEDS_MAX ? filters.bedsMax : null}
               rangeMax={BEDS_MAX}
-              onChange={(min, max) => onChange({ ...filters, bedsMin: min, bedsMax: max })}
+              onChange={(min, max) => onChange({ ...filters, bedsMin: min ?? undefined, bedsMax: max ?? undefined })}
             />
           </FilterChip>
         </div>
 
         {/* Baths - muted when broad search */}
         <div className={mutedChipClass} onClick={isBroadSearch ? handleMutedChipClick : undefined}>
-          <FilterChip label={formatRange(filters.bathsMin || 0, filters.bathsMax || BATHS_MAX, 'baths', BATHS_MAX)}>
+          <FilterChip label={formatRange(filters.bathsMin || null, filters.bathsMax != null && filters.bathsMax <= BATHS_MAX ? filters.bathsMax : null, 'baths')}>
             <RangeEditor
               label="Baths"
-              min={filters.bathsMin || 0}
-              max={filters.bathsMax || BATHS_MAX}
+              min={filters.bathsMin || null}
+              max={filters.bathsMax != null && filters.bathsMax <= BATHS_MAX ? filters.bathsMax : null}
               rangeMax={BATHS_MAX}
-              onChange={(min, max) => onChange({ ...filters, bathsMin: min, bathsMax: max })}
+              onChange={(min, max) => onChange({ ...filters, bathsMin: min ?? undefined, bathsMax: max ?? undefined })}
             />
           </FilterChip>
         </div>
@@ -185,13 +186,13 @@ export default function FilterBar({
 
         {/* Garage - muted when broad search */}
         <div className={mutedChipClass} onClick={isBroadSearch ? handleMutedChipClick : undefined}>
-          <FilterChip label={formatRange(filters.garageMin || 0, filters.garageMax || GARAGE_MAX, 'garage', GARAGE_MAX)}>
+          <FilterChip label={formatRange(filters.garageMin || null, filters.garageMax != null && filters.garageMax <= GARAGE_MAX ? filters.garageMax : null, 'garage')}>
             <RangeEditor
               label="Garage"
-              min={filters.garageMin || 0}
-              max={filters.garageMax || GARAGE_MAX}
+              min={filters.garageMin || null}
+              max={filters.garageMax != null && filters.garageMax <= GARAGE_MAX ? filters.garageMax : null}
               rangeMax={GARAGE_MAX}
-              onChange={(min, max) => onChange({ ...filters, garageMin: min, garageMax: max })}
+              onChange={(min, max) => onChange({ ...filters, garageMin: min ?? undefined, garageMax: max ?? undefined })}
             />
           </FilterChip>
         </div>

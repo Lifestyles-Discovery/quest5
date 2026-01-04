@@ -76,32 +76,33 @@ export default function FilterChip({ label, children, onClose }: FilterChipProps
 }
 
 // Range editor with button groups for beds/baths/garage
+// Uses null to represent "any" (no filter), allowing 0 to be a valid explicit value
 interface RangeEditorProps {
   label: string;
-  min: number;
-  max: number;
+  min: number | null;  // null = "any"
+  max: number | null;  // null = "any"
   rangeMin?: number;
   rangeMax: number;
-  onChange: (min: number, max: number) => void;
+  onChange: (min: number | null, max: number | null) => void;
 }
 
 export function RangeEditor({ label, min, max, rangeMin = 0, rangeMax, onChange }: RangeEditorProps) {
   const options = Array.from({ length: rangeMax - rangeMin + 1 }, (_, i) => rangeMin + i);
 
-  const isAnyMin = min <= rangeMin;
-  const isAnyMax = max >= rangeMax;
+  const isAnyMin = min === null;
+  const isAnyMax = max === null;
 
   const handleMinClick = (value: number | 'any') => {
-    const newMin = value === 'any' ? rangeMin : value;
-    // If new min > current max, adjust max
-    const newMax = newMin > max ? rangeMax : max;
+    const newMin = value === 'any' ? null : value;
+    // If new min > current max (and max is set), adjust max to null
+    const newMax = (newMin !== null && max !== null && newMin > max) ? null : max;
     onChange(newMin, newMax);
   };
 
   const handleMaxClick = (value: number | 'any') => {
-    const newMax = value === 'any' ? rangeMax : value;
-    // If new max < current min, adjust min
-    const newMin = newMax < min ? rangeMin : min;
+    const newMax = value === 'any' ? null : value;
+    // If new max < current min (and min is set), adjust min to null
+    const newMin = (newMax !== null && min !== null && newMax < min) ? null : min;
     onChange(newMin, newMax);
   };
 
