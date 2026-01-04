@@ -192,7 +192,7 @@ export default function SharedEvaluationPage() {
                       <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Price</th>
                       <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">$/SqFt</th>
                       <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">SqFt</th>
-                      <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Bed/Bath</th>
+                      <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Bd/Ba/Gar</th>
                       <th className="pl-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Sold</th>
                     </tr>
                   </thead>
@@ -217,7 +217,7 @@ export default function SharedEvaluationPage() {
                       <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Rent</th>
                       <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">$/SqFt</th>
                       <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">SqFt</th>
-                      <th className="pl-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Bed/Bath</th>
+                      <th className="pl-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Bd/Ba/Gar</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -346,7 +346,7 @@ function SaleCompRow({ comp }: { comp: SaleComp }) {
         {formatNumber(comp.sqft)}
       </td>
       <td className="px-4 py-3 text-center text-sm text-gray-600 dark:text-gray-400">
-        {comp.beds}/{comp.baths}
+        {comp.beds}/{comp.baths}/{comp.garage}
       </td>
       <td className="pl-4 py-3 text-right text-sm text-gray-500 dark:text-gray-500">
         {comp.dateSold ? new Date(comp.dateSold).toLocaleDateString('en-US', { month: 'short', year: '2-digit' }) : '-'}
@@ -369,7 +369,7 @@ function RentCompRow({ comp }: { comp: RentComp }) {
         {formatNumber(comp.sqft)}
       </td>
       <td className="pl-4 py-3 text-center text-sm text-gray-600 dark:text-gray-400">
-        {comp.beds}/{comp.baths}
+        {comp.beds}/{comp.baths}/{comp.garage}
       </td>
     </tr>
   );

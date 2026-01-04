@@ -174,7 +174,7 @@ export default function PrintEvaluationPage() {
                 <th className="pb-2">Subdivision</th>
                 <th className="pb-2 text-right">Sold</th>
                 <th className="pb-2 text-right">$/Sqft</th>
-                <th className="pb-2 text-center">Bed/Bath</th>
+                <th className="pb-2 text-center">Bd/Ba/Gar</th>
                 <th className="pb-2 text-right">Sqft</th>
                 <th className="pb-2 text-right">Date</th>
               </tr>
@@ -190,7 +190,7 @@ export default function PrintEvaluationPage() {
                   <td className="py-2">{comp.subdivision}</td>
                   <td className="py-2 text-right font-medium">{formatCurrency(comp.priceSold)}</td>
                   <td className="py-2 text-right">${Math.round(comp.pricePerSqft)}</td>
-                  <td className="py-2 text-center">{comp.beds}/{comp.baths}</td>
+                  <td className="py-2 text-center">{comp.beds}/{comp.baths}/{comp.garage}</td>
                   <td className="py-2 text-right">{comp.sqft?.toLocaleString()}</td>
                   <td className="py-2 text-right text-gray-500">
                     {comp.dateSold ? new Date(comp.dateSold).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' }) : '-'}
@@ -229,7 +229,7 @@ export default function PrintEvaluationPage() {
                 <th className="pb-2">Subdivision</th>
                 <th className="pb-2 text-right">Rent</th>
                 <th className="pb-2 text-right">$/Sqft</th>
-                <th className="pb-2 text-center">Bed/Bath</th>
+                <th className="pb-2 text-center">Bd/Ba/Gar</th>
                 <th className="pb-2 text-right">Sqft</th>
                 <th className="pb-2 text-right">DOM</th>
               </tr>
@@ -245,7 +245,7 @@ export default function PrintEvaluationPage() {
                   <td className="py-2">{comp.subdivision}</td>
                   <td className="py-2 text-right font-medium">{formatCurrency(comp.priceSold)}</td>
                   <td className="py-2 text-right">${comp.pricePerSqft?.toFixed(2)}</td>
-                  <td className="py-2 text-center">{comp.beds}/{comp.baths}</td>
+                  <td className="py-2 text-center">{comp.beds}/{comp.baths}/{comp.garage}</td>
                   <td className="py-2 text-right">{comp.sqft?.toLocaleString()}</td>
                   <td className="py-2 text-right text-gray-500">{comp.daysOnMarket ?? '-'}</td>
                 </tr>

@@ -152,7 +152,7 @@ export function PDFCompsTable({
               {type === 'rent' ? 'Rent' : 'Sold'}
             </Text>
             <Text style={[tableStyles.tableHeaderCell, tableStyles.colPricePerSqft]}>$/Sqft</Text>
-            <Text style={[tableStyles.tableHeaderCell, tableStyles.colBedBath]}>Bed/Bath</Text>
+            <Text style={[tableStyles.tableHeaderCell, tableStyles.colBedBath]}>Bd/Ba/Gar</Text>
             <Text style={[tableStyles.tableHeaderCell, tableStyles.colSqft]}>Sqft</Text>
             <Text style={[tableStyles.tableHeaderCell, tableStyles.colDate]}>{dateHeader}</Text>
           </View>
@@ -176,7 +176,7 @@ export function PDFCompsTable({
                 ${type === 'rent' ? comp.pricePerSqft?.toFixed(2) : Math.round(comp.pricePerSqft)}
               </Text>
               <Text style={[tableStyles.tableCell, tableStyles.colBedBath]}>
-                {comp.beds}/{comp.baths}
+                {comp.beds}/{comp.baths}/{comp.garage}
               </Text>
               <Text style={[tableStyles.tableCell, tableStyles.colSqft]}>
                 {formatNumber(comp.sqft)}

@@ -262,7 +262,7 @@ export default function SaleCompsSection({
                   $/Sqft
                 </th>
                 <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Bed/Bath
+                  Bd/Ba/Gar
                 </th>
                 <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400">
                   Sqft
@@ -312,7 +312,7 @@ export default function SaleCompsSection({
                     ${Math.round(comp.pricePerSqft)}
                   </td>
                   <td className="px-3 py-2 text-center text-sm text-gray-600 dark:text-gray-300">
-                    {comp.beds}/{comp.baths}
+                    {comp.beds}/{comp.baths}/{comp.garage}
                   </td>
                   <td className="px-3 py-2 text-right text-sm text-gray-600 dark:text-gray-300">
                     {comp.sqft.toLocaleString()}
