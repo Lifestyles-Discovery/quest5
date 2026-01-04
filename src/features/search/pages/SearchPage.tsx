@@ -70,7 +70,7 @@ export default function SearchPage() {
   };
 
   const handleEvaluate = (property: RankedProperty) => {
-    if (!property.mlsMarket || !property.mlsNumber) {
+    if (!property.market || !property.mlsNumber) {
       navigate('/deals');
       return;
     }
@@ -78,7 +78,7 @@ export default function SearchPage() {
     setEvaluatingPropertyId(property.id);
 
     createProperty.mutate(
-      { mlsMarket: property.mlsMarket, mlsNumber: property.mlsNumber },
+      { mlsMarket: property.market, mlsNumber: property.mlsNumber },
       {
         onSuccess: (result) => {
           setEvaluatingPropertyId(null);

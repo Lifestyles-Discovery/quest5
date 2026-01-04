@@ -31,7 +31,7 @@ export interface RankedProperty {
   fpr: number; // Feature-to-Price Ratio
   relativeFpr: number; // FPR compared to zip code average
   mlsNumber?: string;
-  mlsMarket?: string;
+  market?: string;
 }
 
 export interface MarketSummary {
