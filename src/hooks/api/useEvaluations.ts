@@ -1,8 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
 import { evaluationsService } from '@services/evaluations.service';
-import { apiClient } from '@/api/client';
 import { propertiesKeys } from './useProperties';
+import { downloadEvaluationPDF } from '@/features/evaluations/pdf';
 import type {
   Evaluation,
   SaleCompInputs,
@@ -11,6 +10,7 @@ import type {
   ConventionalInputs,
   HardMoneyInputs,
 } from '@app-types/evaluation.types';
+import type { Property } from '@app-types/property.types';
 
 /**
  * Query keys for evaluations
@@ -510,120 +510,20 @@ export function useUpdateAttributes() {
 }
 
 /**
- * Hook to generate PDF
+ * Hook to generate PDF using client-side @react-pdf/renderer
  *
- * Strategy:
- * - In production (when Quest5 is deployed): Uses backend Restpack API
- * - In development (localhost): Opens print-optimized page for browser print-to-PDF
+ * Generates PDFs entirely in the browser - no server calls needed.
  */
 export function useExportPdf() {
   return useMutation({
     mutationFn: async ({
-      propertyId,
-      evaluationId,
+      evaluation,
+      property,
     }: {
-      propertyId: string;
-      evaluationId: string;
+      evaluation: Evaluation;
+      property: Property;
     }) => {
-      // Get session key for the print page
-      const sessionData = sessionStorage.getItem('session');
-      if (!sessionData) {
-        throw new Error('No session found');
-      }
-      const session = JSON.parse(sessionData);
-      const sessionKey = session.sessionKey;
-
-      // Check if we're running locally
-      const isLocalhost = window.location.hostname === 'localhost' ||
-                          window.location.hostname === '127.0.0.1';
-
-      if (isLocalhost) {
-        // Local development: Open print page in new window for browser print-to-PDF
-        const printUrl = `/properties/${propertyId}/evaluations/${evaluationId}/sessions/${sessionKey}`;
-        const printWindow = window.open(printUrl, '_blank');
-
-        if (!printWindow) {
-          throw new Error('Could not open print window. Please allow popups for this site.');
-        }
-
-        // Wait for the page to load, then trigger print
-        printWindow.onload = () => {
-          // Give a moment for styles to apply
-          setTimeout(() => {
-            printWindow.print();
-          }, 500);
-        };
-
-        return;
-      }
-
-      // Production: Use backend Restpack API
-      // Send the frontend origin so the backend knows which domain to use for Restpack
-      const frontendOrigin = window.location.origin;
-
-      let response;
-      try {
-        response = await apiClient.get(
-          `properties/${propertyId}/evaluations/${evaluationId}/pdf`,
-          {
-            responseType: 'blob',
-            headers: {
-              'X-Frontend-Origin': frontendOrigin
-            }
-          }
-        );
-      } catch (error) {
-        // Try to extract error details from the response
-        if (axios.isAxiosError(error) && error.response) {
-          const errorData = error.response.data;
-          // If it's a blob, convert to text
-          if (errorData instanceof Blob) {
-            const text = await errorData.text();
-            console.error('PDF API error response:', text);
-            throw new Error(`PDF generation failed: ${text}`);
-          }
-          console.error('PDF API error:', errorData);
-          throw new Error(`PDF generation failed: ${JSON.stringify(errorData)}`);
-        }
-        throw error;
-      }
-
-      // Check if we got a valid PDF response
-      const contentType = response.headers['content-type'];
-      if (!contentType?.includes('application/pdf')) {
-        const text = await response.data.text();
-        console.error('PDF generation failed. Response:', text);
-        throw new Error('PDF generation failed - unexpected response from server');
-      }
-
-      // Verify the blob starts with PDF magic bytes (%PDF)
-      const arrayBuffer = await response.data.slice(0, 5).arrayBuffer();
-      const header = new TextDecoder().decode(arrayBuffer);
-      if (!header.startsWith('%PDF')) {
-        throw new Error('PDF generation failed - received invalid PDF content');
-      }
-
-      // Create download link
-      const blob = new Blob([response.data], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-
-      // Extract filename from Content-Disposition header or use default
-      const contentDisposition = response.headers['content-disposition'];
-      let filename = 'evaluation.pdf';
-      if (contentDisposition) {
-        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        if (match && match[1]) {
-          filename = match[1].replace(/['"]/g, '');
-        }
-      }
-
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      await downloadEvaluationPDF(evaluation, property);
     },
   });
 }

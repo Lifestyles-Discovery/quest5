@@ -197,10 +197,13 @@ export default function PropertyDetailPage() {
   };
 
   const handleExportPdf = () => {
-    if (!currentEvaluationId || !id) return;
+    if (!evaluation || !property) {
+      alert('Data not loaded. Please try again.');
+      return;
+    }
 
     exportPdf.mutate(
-      { propertyId: id, evaluationId: currentEvaluationId },
+      { evaluation, property },
       {
         onError: (error) => {
           console.error('PDF export failed:', error);

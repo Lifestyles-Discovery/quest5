@@ -103,8 +103,12 @@ export default function EvaluationHeader({
   };
 
   const handleExportPdf = () => {
+    if (!property) {
+      alert('Property data not loaded. Please try again.');
+      return;
+    }
     exportPdf.mutate(
-      { propertyId, evaluationId },
+      { evaluation, property },
       {
         onError: (error) => {
           console.error('PDF export failed:', error);
