@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "predeploy": "npm version patch",
     "deploy": "npm run build && aws s3 sync ./dist s3://quest5-lifestylesquest --delete && aws cloudfront create-invalidation --distribution-id E36JDFN9C0BQ8A --paths '/*'"
   },
   "dependencies": {
