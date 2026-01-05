@@ -38,6 +38,10 @@ import NotFound from "./pages/OtherPage/NotFound";
 import FiveZeroZero from "./pages/OtherPage/FiveZeroZero";
 import Maintenance from "./pages/OtherPage/Maintenance";
 
+// Legal Pages
+import TermsAndConditions from "./pages/Legal/TermsAndConditions";
+import PrivacyPolicy from "./pages/Legal/PrivacyPolicy";
+
 // Quest Features
 import { PropertiesPage, PropertyDetailPage } from "./features/properties";
 import { SearchPage } from "./features/search";
@@ -97,6 +101,10 @@ export default function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/reactivate" element={<Reactivate />} />
         <Route path="/subscription-blocked" element={<SubscriptionBlocked />} />
+
+        {/* Legal Pages (public, no auth required) */}
+        <Route path="/terms" element={<TermsAndConditions />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
 
         {/* Public Sharing Routes (no auth required) */}
         <Route path="/share/:propertyId/:evaluationId/:guid" element={<SharedEvaluationPage />} />
