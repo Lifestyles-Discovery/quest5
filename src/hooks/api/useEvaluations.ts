@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { evaluationsService } from '@services/evaluations.service';
 import { propertiesKeys } from './useProperties';
-import { downloadEvaluationPDF } from '@/features/evaluations/pdf';
 import type {
   Evaluation,
   SaleCompInputs,
@@ -516,6 +515,7 @@ export function useUpdateAttributes() {
  * Hook to generate PDF using client-side @react-pdf/renderer
  *
  * Generates PDFs entirely in the browser - no server calls needed.
+ * Uses dynamic import to avoid loading ~1MB PDF library until needed.
  */
 export function useExportPdf() {
   return useMutation({
@@ -526,6 +526,7 @@ export function useExportPdf() {
       evaluation: Evaluation;
       property: Property;
     }) => {
+      const { downloadEvaluationPDF } = await import('@/features/evaluations/pdf');
       await downloadEvaluationPDF(evaluation, property);
     },
   });

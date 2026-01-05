@@ -24,8 +24,8 @@ export default defineConfig({
     },
   },
   build: {
-    // Main bundle is ~650KB but gzips to ~160KB which is acceptable
-    chunkSizeWarningLimit: 700,
+    // PDF chunk (~1.6MB) is lazy-loaded so doesn't affect initial page load
+    chunkSizeWarningLimit: 1700,
     rollupOptions: {
       output: {
         manualChunks: {
