@@ -152,7 +152,7 @@ export interface PropertyDocument {
   type: string;
   s3Key: string;
   size: number;
-  uploadedUtc: string;
+  createdUtc: string;
 }
 
 /**

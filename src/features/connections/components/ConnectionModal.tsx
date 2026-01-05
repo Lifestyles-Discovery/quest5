@@ -19,12 +19,14 @@ interface ConnectionModalProps {
   isOpen: boolean;
   onClose: () => void;
   connection?: Connection; // If provided, we're editing
+  onCreated?: (connectionId: string) => void; // Called after new connection is created
 }
 
 export function ConnectionModal({
   isOpen,
   onClose,
   connection,
+  onCreated,
 }: ConnectionModalProps) {
   const { user } = useAuth();
   const [error, setError] = useState<string | null>(null);
@@ -100,7 +102,8 @@ export function ConnectionModal({
           data,
         },
         {
-          onSuccess: () => {
+          onSuccess: (connectionId) => {
+            onCreated?.(connectionId);
             handleClose();
           },
           onError: () => {

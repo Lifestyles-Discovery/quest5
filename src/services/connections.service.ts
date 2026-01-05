@@ -4,6 +4,7 @@ import type { Connection, ConnectionFormData } from '@app-types/connection.types
 
 /**
  * Connections service for managing contacts
+ * Note: Liberator API expects parameters via headers, not request body
  */
 export const connectionsService = {
   /**
@@ -18,20 +19,30 @@ export const connectionsService = {
 
   /**
    * Create a new connection
+   * API expects: type, name, phone, email via headers
    */
   async createConnection(
     userId: string,
     data: ConnectionFormData
-  ): Promise<Connection> {
-    const response = await apiClient.post<Connection>(
+  ): Promise<string> {
+    const response = await apiClient.post<string>(
       ENDPOINTS.connections.create(userId),
-      data
+      null, // No body
+      {
+        headers: {
+          type: data.type,
+          name: data.name,
+          phone: data.phone || '',
+          email: data.email || '',
+        },
+      }
     );
-    return response.data;
+    return response.data; // Returns the connection ID
   },
 
   /**
    * Update a connection
+   * API expects: type, name, email, phone, deleted via headers
    */
   async updateConnection(
     userId: string,
@@ -40,7 +51,15 @@ export const connectionsService = {
   ): Promise<Connection> {
     const response = await apiClient.put<Connection>(
       ENDPOINTS.connections.update(userId, connectionId),
-      data
+      null, // No body
+      {
+        headers: {
+          ...(data.type && { type: data.type }),
+          ...(data.name && { name: data.name }),
+          ...(data.email !== undefined && { email: data.email || '' }),
+          ...(data.phone !== undefined && { phone: data.phone || '' }),
+        },
+      }
     );
     return response.data;
   },
@@ -55,7 +74,12 @@ export const connectionsService = {
   ): Promise<Connection> {
     const response = await apiClient.put<Connection>(
       ENDPOINTS.connections.update(userId, connectionId),
-      { deleted }
+      null, // No body
+      {
+        headers: {
+          deleted: String(deleted),
+        },
+      }
     );
     return response.data;
   },

@@ -13,6 +13,7 @@ export interface Note {
 
 export interface NoteFormData {
   theNote: string;
+  stage?: string;
 }
 
 export interface NotesFilter {

@@ -12,6 +12,7 @@ export interface Document {
 
 export interface PresignedUrlResponse {
   url: string;
+  s3Key: string;
   fields?: Record<string, string>;
 }
 

@@ -4,18 +4,28 @@ import Label from '@components/form/Label';
 import Button from '@components/ui/button/Button';
 import Alert from '@components/ui/alert/Alert';
 import { useCreateNote, useUpdateNote } from '@hooks/api/useNotes';
-import type { Note, NoteFormData } from '@app-types/note.types';
+import { PROPERTY_STAGES } from '@app-types/property.types';
+import type { NoteFormData } from '@app-types/note.types';
+
+// Simplified type for the note prop - needs id, content, and stage
+interface EditableNote {
+  id: string;
+  theNote: string;
+  stage: string;
+}
 
 interface NoteModalProps {
   isOpen: boolean;
   onClose: () => void;
   propertyId: string;
-  note?: Note; // If provided, we're editing
+  note?: EditableNote; // If provided, we're editing
+  stage?: string; // Property stage for new notes
 }
 
-export function NoteModal({ isOpen, onClose, propertyId, note }: NoteModalProps) {
+export function NoteModal({ isOpen, onClose, propertyId, note, stage: defaultStage }: NoteModalProps) {
   const [error, setError] = useState<string | null>(null);
   const [theNote, setTheNote] = useState('');
+  const [stage, setStage] = useState('');
 
   // Mutations
   const createNote = useCreateNote();
@@ -24,17 +34,20 @@ export function NoteModal({ isOpen, onClose, propertyId, note }: NoteModalProps)
   const isPending = createNote.isPending || updateNote.isPending;
   const isEditing = !!note;
 
-  // Populate form when editing
+  // Populate form when editing or set default stage for new notes
   useEffect(() => {
     if (note) {
       setTheNote(note.theNote);
+      setStage(note.stage);
     } else {
       resetForm();
+      setStage(defaultStage || 'Finding');
     }
-  }, [note, isOpen]);
+  }, [note, isOpen, defaultStage]);
 
   const resetForm = () => {
     setTheNote('');
+    setStage('');
     setError(null);
   };
 
@@ -47,16 +60,16 @@ export function NoteModal({ isOpen, onClose, propertyId, note }: NoteModalProps)
     setError(null);
 
     if (!theNote.trim()) {
-      setError('Note content is required');
+      setError('Entry content is required');
       return;
     }
 
-    const data: NoteFormData = { theNote: theNote.trim() };
+    const data: NoteFormData = { theNote: theNote.trim(), stage };
 
     if (isEditing && note) {
       updateNote.mutate(
         {
-          propertyId: note.propertyId,
+          propertyId,
           noteId: note.id,
           data,
         },
@@ -65,7 +78,7 @@ export function NoteModal({ isOpen, onClose, propertyId, note }: NoteModalProps)
             handleClose();
           },
           onError: () => {
-            setError('Failed to update note');
+            setError('Failed to update entry');
           },
         }
       );
@@ -74,13 +87,14 @@ export function NoteModal({ isOpen, onClose, propertyId, note }: NoteModalProps)
         {
           propertyId,
           data,
+          stage: data.stage,
         },
         {
           onSuccess: () => {
             handleClose();
           },
           onError: () => {
-            setError('Failed to create note');
+            setError('Failed to create entry');
           },
         }
       );
@@ -91,10 +105,10 @@ export function NoteModal({ isOpen, onClose, propertyId, note }: NoteModalProps)
     <Modal isOpen={isOpen} onClose={handleClose} className="max-w-2xl p-6 sm:p-8">
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
-          {isEditing ? 'Edit Note' : 'New Note'}
+          {isEditing ? 'Edit Activity Entry' : 'New Activity Entry'}
         </h2>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          {isEditing ? 'Update your note' : 'Add a note to this property'}
+          {isEditing ? 'Update this activity log entry' : 'Add an entry to the activity log'}
         </p>
       </div>
 
@@ -106,13 +120,29 @@ export function NoteModal({ isOpen, onClose, propertyId, note }: NoteModalProps)
 
       <div className="space-y-4">
         <div>
-          <Label>Note</Label>
+          <Label>Stage</Label>
+          <select
+            value={stage}
+            onChange={(e) => setStage(e.target.value)}
+            disabled={isPending}
+            className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90"
+          >
+            {PROPERTY_STAGES.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <Label>Entry</Label>
           <textarea
             value={theNote}
             onChange={(e) => setTheNote(e.target.value)}
             disabled={isPending}
             rows={6}
-            placeholder="Enter your note..."
+            placeholder="What happened with this deal?"
             className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-3 text-sm text-gray-800 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90"
           />
         </div>
@@ -130,10 +160,10 @@ export function NoteModal({ isOpen, onClose, propertyId, note }: NoteModalProps)
             {isPending
               ? isEditing
                 ? 'Saving...'
-                : 'Creating...'
+                : 'Adding...'
               : isEditing
                 ? 'Save Changes'
-                : 'Create Note'}
+                : 'Add Entry'}
           </Button>
         </div>
       </div>

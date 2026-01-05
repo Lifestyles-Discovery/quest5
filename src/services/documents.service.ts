@@ -5,10 +5,12 @@ import type { Document, PresignedUrlResponse } from '@app-types/document.types';
 
 /**
  * Documents service for S3 file management
+ * Note: Liberator API expects parameters via headers, not request body
  */
 export const documentsService = {
   /**
    * Get a presigned URL for uploading to S3
+   * API expects: filename, filetype via headers (GET request)
    */
   async getPresignedUrl(
     propertyId: string,
@@ -18,7 +20,10 @@ export const documentsService = {
     const response = await apiClient.get<PresignedUrlResponse>(
       ENDPOINTS.documents.presignedUrl(propertyId),
       {
-        params: { filename, filetype },
+        headers: {
+          filename,
+          filetype,
+        },
       }
     );
     return response.data;
@@ -37,6 +42,7 @@ export const documentsService = {
 
   /**
    * Register a document after S3 upload
+   * API expects: name, type, s3Key, size via headers
    */
   async registerDocument(
     propertyId: string,
@@ -44,26 +50,37 @@ export const documentsService = {
   ): Promise<Document> {
     const response = await apiClient.post<Document>(
       ENDPOINTS.documents.register(propertyId),
-      document
+      null, // No body
+      {
+        headers: {
+          name: document.name,
+          type: document.type,
+          s3Key: document.s3Key,
+          size: String(document.size),
+        },
+      }
     );
     return response.data;
   },
 
   /**
    * Get download URL for a document
+   * API returns the URL string directly
    */
   async getDocumentUrl(
     propertyId: string,
     documentId: string
   ): Promise<{ url: string }> {
-    const response = await apiClient.get<{ url: string }>(
+    const response = await apiClient.get<string>(
       ENDPOINTS.documents.getUrl(propertyId, documentId)
     );
-    return response.data;
+    // API returns just the URL string, wrap it in an object
+    return { url: response.data };
   },
 
   /**
    * Update document name
+   * API expects: name via header
    */
   async updateDocumentName(
     propertyId: string,
@@ -72,7 +89,12 @@ export const documentsService = {
   ): Promise<Document> {
     const response = await apiClient.put<Document>(
       ENDPOINTS.documents.updateName(propertyId, documentId),
-      { name }
+      null, // No body
+      {
+        headers: {
+          name,
+        },
+      }
     );
     return response.data;
   },
@@ -89,14 +111,11 @@ export const documentsService = {
    */
   async uploadFile(propertyId: string, file: File): Promise<Document> {
     // Get presigned URL
-    const { url } = await this.getPresignedUrl(
+    const { url, s3Key } = await this.getPresignedUrl(
       propertyId,
       file.name,
       file.type
     );
-
-    // Extract S3 key from URL
-    const s3Key = new URL(url).pathname.slice(1);
 
     // Upload to S3
     await this.uploadToS3(url, file);

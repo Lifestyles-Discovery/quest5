@@ -4,6 +4,7 @@ import type { Note, NoteFormData } from '@app-types/note.types';
 
 /**
  * Notes service for managing property notes
+ * Note: Liberator API expects parameters via headers, not request body
  */
 export const notesService = {
   /**
@@ -20,17 +21,25 @@ export const notesService = {
 
   /**
    * Create a note for a property
+   * API expects: stage (header), note (header)
    */
-  async createNote(propertyId: string, data: NoteFormData): Promise<Note> {
+  async createNote(propertyId: string, data: NoteFormData, stage: string = 'Finding'): Promise<Note> {
     const response = await apiClient.post<Note>(
       ENDPOINTS.notes.create(propertyId),
-      data
+      null, // No body
+      {
+        headers: {
+          stage,
+          note: data.theNote,
+        },
+      }
     );
     return response.data;
   },
 
   /**
    * Update a note
+   * API expects: stage (header), note (header)
    */
   async updateNote(
     propertyId: string,
@@ -39,7 +48,13 @@ export const notesService = {
   ): Promise<Note> {
     const response = await apiClient.put<Note>(
       ENDPOINTS.notes.update(propertyId, noteId),
-      data
+      null, // No body
+      {
+        headers: {
+          note: data.theNote,
+          ...(data.stage && { stage: data.stage }),
+        },
+      }
     );
     return response.data;
   },

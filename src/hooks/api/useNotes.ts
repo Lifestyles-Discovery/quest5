@@ -31,10 +31,12 @@ export function useCreateNote() {
     mutationFn: ({
       propertyId,
       data,
+      stage,
     }: {
       propertyId: string;
       data: NoteFormData;
-    }) => notesService.createNote(propertyId, data),
+      stage?: string;
+    }) => notesService.createNote(propertyId, data, stage),
     onSuccess: () => {
       // Invalidate all notes queries
       queryClient.invalidateQueries({ queryKey: notesKeys.all });
@@ -62,6 +64,8 @@ export function useUpdateNote() {
     }) => notesService.updateNote(propertyId, noteId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: notesKeys.all });
+      // Also invalidate properties since notes are nested in property data
+      queryClient.invalidateQueries({ queryKey: ['properties'] });
     },
   });
 }
