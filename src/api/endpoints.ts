@@ -111,13 +111,14 @@ export const ENDPOINTS = {
 
   // Admin
   admin: {
-    getAllUsers: 'admin/users',
-    createUser: 'admin/users',
+    getAllUsers: 'users',
+    createUser: 'users',
     getEvaluationUsage: 'admin/evaluationusage',
     getMlsMarkets: 'helpers/mlsMarkets',
     getStates: 'helpers/states',
     getDefaultPreferences: 'admin/preferences',
     updateDashboardSettings: 'admin/dashboard/settings',
+    impersonate: (userId: string) => `admin/impersonate/${userId}`,
   },
 
   // Search

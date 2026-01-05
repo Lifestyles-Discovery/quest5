@@ -43,7 +43,7 @@ const settingsItems: NavItem[] = [
   },
   {
     icon: <PlugInIcon />,
-    name: "Admin",
+    name: "Super Admin",
     path: "/admin",
   },
 ];
@@ -56,9 +56,9 @@ const AppSidebar: React.FC = () => {
   // Filter settings items based on user rights
   const supportItems = useMemo(() => {
     const items = [...settingsItems];
-    // Only show Admin if user has admin rights
+    // Only show Super Admin if user has admin rights
     if (!session?.rights?.admin) {
-      return items.filter((item) => item.name !== "Admin");
+      return items.filter((item) => item.name !== "Super Admin");
     }
     return items;
   }, [session?.rights?.admin]);

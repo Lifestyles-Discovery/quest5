@@ -1,7 +1,6 @@
-import type { UserRights } from './auth.types';
-
 /**
  * Admin user view (includes password for admin display)
+ * Note: API returns flat boolean flags, not nested rights object
  */
 export interface AdminUser {
   id: string;
@@ -9,7 +8,10 @@ export interface AdminUser {
   lastName: string;
   email: string;
   password?: string;
-  rights: UserRights;
+  // Flat boolean flags from API
+  isAdmin: boolean;
+  isAgent: boolean;
+  isSearchFree: boolean;
 }
 
 /**

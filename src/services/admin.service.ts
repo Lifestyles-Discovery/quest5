@@ -7,6 +7,7 @@ import type {
   EvaluationUsage,
   UserRightsUpdate,
 } from '@app-types/admin.types';
+import type { Session } from '@app-types/auth.types';
 
 /**
  * MLS Market definition
@@ -104,6 +105,17 @@ export const adminService = {
   ): Promise<EvaluationUsage> {
     const response = await apiClient.get<EvaluationUsage>(
       `admin/evaluations/usage/${startDate}/${endDate}`
+    );
+    return response.data;
+  },
+
+  /**
+   * Impersonate a user (admin only)
+   * Returns a session for the target user
+   */
+  async impersonateUser(userId: string): Promise<Session> {
+    const response = await apiClient.post<Session>(
+      ENDPOINTS.admin.impersonate(userId)
     );
     return response.data;
   },

@@ -108,3 +108,12 @@ export function useEvaluationUsage(startDate: string, endDate: string) {
     enabled: !!startDate && !!endDate,
   });
 }
+
+/**
+ * Hook to impersonate a user (admin only)
+ */
+export function useImpersonateUser() {
+  return useMutation({
+    mutationFn: (userId: string) => adminService.impersonateUser(userId),
+  });
+}

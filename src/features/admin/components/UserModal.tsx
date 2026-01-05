@@ -5,20 +5,15 @@ import Label from '@components/form/Label';
 import Button from '@components/ui/button/Button';
 import Alert from '@components/ui/alert/Alert';
 import Checkbox from '@components/form/input/Checkbox';
-import {
-  useCreateUser,
-  useUpdateUserFromAdmin,
-  useUpdateUserRights,
-} from '@hooks/api/useAdmin';
-import type { AdminUser, CreateUserFormData, UserRightsUpdate } from '@app-types/admin.types';
+import { useCreateUser } from '@hooks/api/useAdmin';
+import type { CreateUserFormData } from '@app-types/admin.types';
 
 interface UserModalProps {
   isOpen: boolean;
   onClose: () => void;
-  user?: AdminUser; // If provided, we're editing
 }
 
-export function UserModal({ isOpen, onClose, user }: UserModalProps) {
+export function UserModal({ isOpen, onClose }: UserModalProps) {
   const [error, setError] = useState<string | null>(null);
 
   // Form state
@@ -28,31 +23,14 @@ export function UserModal({ isOpen, onClose, user }: UserModalProps) {
   const [password, setPassword] = useState('');
   const [isAgent, setIsAgent] = useState(false);
 
-  // Rights (only for editing)
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isSearchFree, setIsSearchFree] = useState(false);
-
   const createUser = useCreateUser();
-  const updateUser = useUpdateUserFromAdmin();
-  const updateRights = useUpdateUserRights();
 
-  const isPending =
-    createUser.isPending || updateUser.isPending || updateRights.isPending;
-  const isEditing = !!user;
-
-  // Populate form when editing
+  // Reset form when modal opens
   useEffect(() => {
-    if (user) {
-      setFirstName(user.firstName);
-      setLastName(user.lastName);
-      setEmail(user.email);
-      setIsAgent(user.rights?.search ?? false);
-      setIsAdmin(user.rights?.admin ?? false);
-      setIsSearchFree(user.rights?.searchFree ?? false);
-    } else {
+    if (isOpen) {
       resetForm();
     }
-  }, [user, isOpen]);
+  }, [isOpen]);
 
   const resetForm = () => {
     setFirstName('');
@@ -60,8 +38,6 @@ export function UserModal({ isOpen, onClose, user }: UserModalProps) {
     setEmail('');
     setPassword('');
     setIsAgent(false);
-    setIsAdmin(false);
-    setIsSearchFree(false);
     setError(null);
   };
 
@@ -78,58 +54,33 @@ export function UserModal({ isOpen, onClose, user }: UserModalProps) {
       return;
     }
 
-    if (!isEditing && password.length < 4) {
+    if (password.length < 4) {
       setError('Password must be at least 4 characters');
       return;
     }
 
-    if (isEditing && user) {
-      // Update existing user
-      try {
-        await updateUser.mutateAsync({
-          userId: user.id,
-          data: { firstName, lastName, email },
-        });
+    const data: CreateUserFormData = {
+      firstName,
+      lastName,
+      email,
+      password,
+      isAgent,
+    };
 
-        // Update rights
-        const rights: UserRightsUpdate = {
-          admin: isAdmin,
-          search: isAgent, // "search" is the API field for agent capability
-          searchFree: isSearchFree,
-        };
-        await updateRights.mutateAsync({ userId: user.id, rights });
-
-        handleClose();
-      } catch {
-        setError('Failed to update user');
-      }
-    } else {
-      // Create new user
-      const data: CreateUserFormData = {
-        firstName,
-        lastName,
-        email,
-        password,
-        isAgent,
-      };
-
-      createUser.mutate(data, {
-        onSuccess: () => handleClose(),
-        onError: () => setError('Failed to create user'),
-      });
-    }
+    createUser.mutate(data, {
+      onSuccess: () => handleClose(),
+      onError: () => setError('Failed to create user'),
+    });
   };
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} className="max-w-lg p-6 sm:p-8">
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
-          {isEditing ? 'Edit User' : 'New User'}
+          New User
         </h2>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          {isEditing
-            ? 'Update user details and permissions'
-            : 'Create a new employee or agent with a free subscription'}
+          Create a new employee or agent with a free subscription
         </p>
       </div>
 
@@ -147,7 +98,7 @@ export function UserModal({ isOpen, onClose, user }: UserModalProps) {
               type="text"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              disabled={isPending}
+              disabled={createUser.isPending}
             />
           </div>
           <div>
@@ -156,7 +107,7 @@ export function UserModal({ isOpen, onClose, user }: UserModalProps) {
               type="text"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
-              disabled={isPending}
+              disabled={createUser.isPending}
             />
           </div>
         </div>
@@ -167,71 +118,38 @@ export function UserModal({ isOpen, onClose, user }: UserModalProps) {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            disabled={isPending}
+            disabled={createUser.isPending}
           />
         </div>
 
-        {!isEditing && (
-          <div>
-            <Label>Password (min 4 characters)</Label>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={isPending}
-            />
-          </div>
-        )}
-
-        {/* Permissions */}
-        <div className="space-y-3 rounded-lg border border-gray-200 p-4 dark:border-gray-700">
-          <h4 className="font-medium text-gray-800 dark:text-white/90">
-            Permissions
-          </h4>
-
-          {isEditing && (
-            <Checkbox
-              label="Admin"
-              checked={isAdmin}
-              onChange={setIsAdmin}
-              disabled={isPending}
-            />
-          )}
-
-          <Checkbox
-            label="Agent"
-            checked={isAgent}
-            onChange={setIsAgent}
-            disabled={isPending}
+        <div>
+          <Label>Password (min 4 characters)</Label>
+          <Input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={createUser.isPending}
           />
-
-          {isEditing && (
-            <Checkbox
-              label="Free Search"
-              checked={isSearchFree}
-              onChange={setIsSearchFree}
-              disabled={isPending}
-            />
-          )}
         </div>
+
+        <Checkbox
+          label="Agent"
+          checked={isAgent}
+          onChange={setIsAgent}
+          disabled={createUser.isPending}
+        />
 
         <div className="flex justify-end gap-3 pt-4">
           <Button
             variant="outline"
             size="sm"
             onClick={handleClose}
-            disabled={isPending}
+            disabled={createUser.isPending}
           >
             Cancel
           </Button>
-          <Button size="sm" onClick={handleSubmit} disabled={isPending}>
-            {isPending
-              ? isEditing
-                ? 'Saving...'
-                : 'Creating...'
-              : isEditing
-                ? 'Save Changes'
-                : 'Create User'}
+          <Button size="sm" onClick={handleSubmit} disabled={createUser.isPending}>
+            {createUser.isPending ? 'Creating...' : 'Create User'}
           </Button>
         </div>
       </div>

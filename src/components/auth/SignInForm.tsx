@@ -97,6 +97,7 @@ export default function SignInForm() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     disabled={signIn.isPending}
+                    autoFocus
                   />
                 </div>
                 <div>
