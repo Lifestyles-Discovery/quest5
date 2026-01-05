@@ -83,11 +83,13 @@ const AppHeader: React.FC = () => {
           </button>
 
           <Link to="/" className="lg:hidden">
-            <img
-              src="./images/logo/quest-logo-small.png"
-              alt="Quest Logo"
-              className="h-8 object-contain"
-            />
+            <span className="inline-block rounded px-1.5 py-1 dark:bg-white">
+              <img
+                src="./images/logo/quest-logo-small.png"
+                alt="Quest Logo"
+                className="h-8 object-contain"
+              />
+            </span>
           </Link>
 
           <button
