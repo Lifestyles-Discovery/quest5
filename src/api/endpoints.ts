@@ -103,7 +103,7 @@ export const ENDPOINTS = {
   users: {
     update: (userId: string) => `users/${userId}`,
     updatePreferences: (userId: string) => `users/${userId}/preferences`,
-    resetPreferences: (userId: string) => `users/${userId}/preferences/reset`,
+    resetPreferences: (userId: string) => `users/${userId}/preferences/defaults`,
     forgotPassword: (userId: string) => `users/${userId}/password/forgot`,
     getRights: (userId: string) => `users/${userId}/rights`,
     updateRights: (userId: string) => `users/${userId}/rights`,
