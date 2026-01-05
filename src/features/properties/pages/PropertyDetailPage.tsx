@@ -9,6 +9,7 @@ import {
   useDeleteEvaluation,
   useExportPdf,
   useUpdateAttributes,
+  useGetActiveShare,
   evaluationsKeys,
 } from '@hooks/api/useEvaluations';
 import { useDeleteNote } from '@hooks/api/useNotes';
@@ -126,6 +127,12 @@ export default function PropertyDetailPage() {
   const deleteDocument = useDeleteDocument();
   const removeConnection = useRemoveConnectionFromProperty();
 
+  // Determine which evaluation to show (moved up for activeShare hook)
+  const currentEvaluationId = scenarioId || property?.evaluations?.[0]?.id;
+
+  // Check if there's an active share for this evaluation
+  const { data: activeShare } = useGetActiveShare(id!, currentEvaluationId || '');
+
   // Scenario name editing state
   const [isEditingName, setIsEditingName] = useState(false);
   const [editNameValue, setEditNameValue] = useState('');
@@ -138,9 +145,6 @@ export default function PropertyDetailPage() {
       nameInputRef.current.select();
     }
   }, [isEditingName]);
-
-  // Determine which evaluation to show
-  const currentEvaluationId = scenarioId || property?.evaluations?.[0]?.id;
 
   // Fetch full evaluation data when we have an evaluation ID
   // The Liberator API returns full evaluation objects (with saleCompGroup, rentCompGroup,
@@ -459,6 +463,15 @@ export default function PropertyDetailPage() {
                           </svg>
                         </button>
                       )}
+                    </div>
+                  )}
+                  {/* Active Share Indicator */}
+                  {activeShare && (
+                    <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                      <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                      </svg>
+                      Shared
                     </div>
                   )}
                 </div>
