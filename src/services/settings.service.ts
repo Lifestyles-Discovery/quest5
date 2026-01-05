@@ -65,9 +65,9 @@ export const settingsService = {
    * Get Chargify billing portal URL
    */
   async getChargifyUrl(userId: string): Promise<string> {
-    const response = await apiClient.get<{ url: string }>(
+    const response = await apiClient.get<string>(
       `users/${userId}/chargifyUrl`
     );
-    return response.data.url;
+    return response.data;
   },
 };
