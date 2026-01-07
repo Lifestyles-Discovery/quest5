@@ -7,6 +7,43 @@ import FilterBar from './FilterBar';
 import PhotoThumbnail from '@/components/common/PhotoThumbnail';
 import Checkbox from '@/components/form/input/Checkbox';
 
+type RentSortKey = 'street' | 'subdivision' | 'priceSold' | 'pricePerSqft' | 'beds' | 'baths' | 'garage' | 'sqft' | 'yearBuilt';
+type SortOrder = 'asc' | 'desc';
+
+function SortIndicator({ sortKey: currentSortKey, columnKey, sortOrder }: { sortKey: RentSortKey | null; columnKey: RentSortKey; sortOrder: SortOrder }) {
+  const isActive = currentSortKey === columnKey;
+  return (
+    <span className="ml-1 inline-flex flex-col gap-0.5">
+      <svg
+        className={isActive && sortOrder === 'asc' ? 'text-brand-500' : 'text-gray-300 dark:text-gray-600'}
+        width="8"
+        height="5"
+        viewBox="0 0 8 5"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M4.40962 0.585167C4.21057 0.300808 3.78943 0.300807 3.59038 0.585166L1.05071 4.21327C0.81874 4.54466 1.05582 5 1.46033 5H6.53967C6.94418 5 7.18126 4.54466 6.94929 4.21327L4.40962 0.585167Z"
+          fill="currentColor"
+        />
+      </svg>
+      <svg
+        className={isActive && sortOrder === 'desc' ? 'text-brand-500' : 'text-gray-300 dark:text-gray-600'}
+        width="8"
+        height="5"
+        viewBox="0 0 8 5"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M4.40962 4.41483C4.21057 4.69919 3.78943 4.69919 3.59038 4.41483L1.05071 0.786732C0.81874 0.455343 1.05582 0 1.46033 0H6.53967C6.94418 0 7.18126 0.455342 6.94929 0.786731L4.40962 4.41483Z"
+          fill="currentColor"
+        />
+      </svg>
+    </span>
+  );
+}
+
 /**
  * Strips common suffixes from subdivision names for cleaner search
  * e.g., "OAK FOREST SEC 01" → "OAK FOREST"
@@ -46,6 +83,8 @@ export default function RentCompsSection({
   const [showMap, setShowMap] = useState(() => {
     return localStorage.getItem('showRentCompsMap') === 'true';
   });
+  const [sortKey, setSortKey] = useState<RentSortKey | null>(null);
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const isInitialMount = useRef(true);
   const isSyncingFromServer = useRef(false);
   const hasInitializedSearchTerm = useRef(false);
@@ -152,6 +191,30 @@ export default function RentCompsSection({
   const rentComps = rentCompGroup?.rentComps || [];
   const includedComps = rentComps.filter((c) => c.include);
 
+  const handleSort = (key: RentSortKey) => {
+    if (sortKey === key) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortKey(key);
+      setSortOrder('desc');
+    }
+  };
+
+  const sortedComps = useMemo(() => {
+    if (!sortKey) return rentComps;
+    return [...rentComps].sort((a, b) => {
+      if (sortKey === 'street' || sortKey === 'subdivision') {
+        const aVal = (a[sortKey] ?? '').toLowerCase();
+        const bVal = (b[sortKey] ?? '').toLowerCase();
+        const cmp = aVal.localeCompare(bVal);
+        return sortOrder === 'asc' ? cmp : -cmp;
+      }
+      const aVal = a[sortKey] ?? 0;
+      const bVal = b[sortKey] ?? 0;
+      return sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
+    });
+  }, [rentComps, sortKey, sortOrder]);
+
   const handleResetFilters = () => {
     // Use backend-provided initial values, fall back to current if not available
     const initialInputs = rentCompGroup?.initialRentCompInputs || rentCompGroup?.rentCompInputs || {};
@@ -240,26 +303,68 @@ export default function RentCompsSection({
                 <th className="w-12 px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">
                   Photo
                 </th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Address
+                <th
+                  className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 cursor-pointer select-none"
+                  onClick={() => handleSort('street')}
+                >
+                  <span className="inline-flex items-center">
+                    Address
+                    <SortIndicator sortKey={sortKey} columnKey="street" sortOrder={sortOrder} />
+                  </span>
                 </th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Subdivision
+                <th
+                  className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 cursor-pointer select-none"
+                  onClick={() => handleSort('subdivision')}
+                >
+                  <span className="inline-flex items-center">
+                    Subdivision
+                    <SortIndicator sortKey={sortKey} columnKey="subdivision" sortOrder={sortOrder} />
+                  </span>
                 </th>
-                <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Rent
+                <th
+                  className="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 cursor-pointer select-none"
+                  onClick={() => handleSort('priceSold')}
+                >
+                  <span className="inline-flex items-center justify-end">
+                    Rent
+                    <SortIndicator sortKey={sortKey} columnKey="priceSold" sortOrder={sortOrder} />
+                  </span>
                 </th>
-                <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400">
-                  $/Sqft
+                <th
+                  className="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 cursor-pointer select-none"
+                  onClick={() => handleSort('pricePerSqft')}
+                >
+                  <span className="inline-flex items-center justify-end">
+                    $/Sqft
+                    <SortIndicator sortKey={sortKey} columnKey="pricePerSqft" sortOrder={sortOrder} />
+                  </span>
                 </th>
-                <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Bd/Ba/Gar
+                <th
+                  className="px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 cursor-pointer select-none"
+                  onClick={() => handleSort('beds')}
+                >
+                  <span className="inline-flex items-center justify-center">
+                    Bd/Ba/Gar
+                    <SortIndicator sortKey={sortKey} columnKey="beds" sortOrder={sortOrder} />
+                  </span>
                 </th>
-                <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Sqft
+                <th
+                  className="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 cursor-pointer select-none"
+                  onClick={() => handleSort('sqft')}
+                >
+                  <span className="inline-flex items-center justify-end">
+                    Sqft
+                    <SortIndicator sortKey={sortKey} columnKey="sqft" sortOrder={sortOrder} />
+                  </span>
                 </th>
-                <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Year
+                <th
+                  className="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 cursor-pointer select-none"
+                  onClick={() => handleSort('yearBuilt')}
+                >
+                  <span className="inline-flex items-center justify-end">
+                    Year
+                    <SortIndicator sortKey={sortKey} columnKey="yearBuilt" sortOrder={sortOrder} />
+                  </span>
                 </th>
                 <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400">
                   DOM
@@ -267,7 +372,7 @@ export default function RentCompsSection({
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {rentComps.map((comp) => (
+              {sortedComps.map((comp) => (
                 <tr
                   key={comp.id}
                   className={`${

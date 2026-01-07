@@ -39,7 +39,7 @@ interface EditableFieldProps {
   /** Input type override */
   type?: 'number' | 'text';
   /** Size variant */
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   /** Additional class name for container */
   className?: string;
   /** Debounce delay in ms (default: 0) */
@@ -175,6 +175,11 @@ export function EditableField({
       label: 'text-sm',
       value: 'text-lg',
       input: 'px-3 py-2 text-base',
+    },
+    xl: {
+      label: 'text-sm',
+      value: 'text-xl',
+      input: 'px-3 py-2.5 text-lg',
     },
   };
 

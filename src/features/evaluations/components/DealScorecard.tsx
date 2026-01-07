@@ -192,7 +192,7 @@ function GainsColumn({ equityCapture, cashOnCashReturn, annualCashflow, returnOn
       <div>
         <p className="text-xs text-gray-500 dark:text-gray-400">Equity Capture</p>
         <p
-          className={`text-2xl font-bold ${
+          className={`text-lg font-semibold ${
             isPositiveEquity
               ? 'text-green-600 dark:text-green-400'
               : 'text-gray-900 dark:text-white'
@@ -206,14 +206,14 @@ function GainsColumn({ equityCapture, cashOnCashReturn, annualCashflow, returnOn
       <div>
         <p className="text-xs text-gray-500 dark:text-gray-400">Annual Cashflow</p>
         <p
-          className={`text-2xl font-bold ${
+          className={`text-lg font-semibold ${
             isPositiveCashflow
               ? 'text-green-600 dark:text-green-400'
               : 'text-red-600 dark:text-red-400'
           }`}
         >
           {formatCurrency(annualCashflow)}
-          <span className="text-base font-normal text-gray-400">/yr</span>
+          <span className="text-sm font-normal text-gray-400">/yr</span>
         </p>
       </div>
 

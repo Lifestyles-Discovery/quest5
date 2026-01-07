@@ -31,15 +31,16 @@ export default function DealTermsSummary({
     <div className="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
       {/* Primary: The 4 numbers that define the deal */}
       <div className="p-6">
-        <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
           The Deal
-        </h3>
+        </h2>
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <EditableField
             label="Purchase Price"
             value={dealTerms.purchasePrice}
             format="currency"
             onSave={(v) => onChange('purchasePrice', v as number)}
+            size="xl"
           />
           <EditableField
             label="Market Value"
@@ -47,6 +48,7 @@ export default function DealTermsSummary({
             format="currency"
             onSave={(v) => onChange('estimatedMarketValue', v as number)}
             hint={saleCompValue ? `From sale comps: ${formatCurrency(saleCompValue)}` : 'From your sale comps'}
+            size="xl"
           />
           <EditableField
             label="Monthly Rent"
@@ -54,12 +56,14 @@ export default function DealTermsSummary({
             format="currency"
             onSave={(v) => onChange('rent', v as number)}
             hint={rentCompValue ? `From rent comps: ${formatCurrency(rentCompValue)}/mo` : 'From your rent comps'}
+            size="xl"
           />
           <EditableField
             label="Repairs"
             value={dealTerms.repairsMakeReady}
             format="currency"
             onSave={(v) => onChange('repairsMakeReady', v as number)}
+            size="xl"
           />
         </div>
       </div>
