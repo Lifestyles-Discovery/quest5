@@ -228,6 +228,21 @@ export function useToggleSaleCompInclusion() {
       }
     },
     onSuccess: (updatedEvaluation, { propertyId, evaluationId }) => {
+      // Preserve local saleCompInputs to prevent sync effect from resetting filters
+      const current = queryClient.getQueryData<Evaluation>(
+        evaluationsKeys.detail(propertyId, evaluationId)
+      );
+
+      if (current?.saleCompGroup?.saleCompInputs) {
+        updatedEvaluation = {
+          ...updatedEvaluation,
+          saleCompGroup: {
+            ...updatedEvaluation.saleCompGroup,
+            saleCompInputs: current.saleCompGroup.saleCompInputs,
+          },
+        };
+      }
+
       queryClient.setQueryData(
         evaluationsKeys.detail(propertyId, evaluationId),
         updatedEvaluation
@@ -346,6 +361,21 @@ export function useToggleRentCompInclusion() {
       }
     },
     onSuccess: (updatedEvaluation, { propertyId, evaluationId }) => {
+      // Preserve local rentCompInputs to prevent sync effect from resetting filters
+      const current = queryClient.getQueryData<Evaluation>(
+        evaluationsKeys.detail(propertyId, evaluationId)
+      );
+
+      if (current?.rentCompGroup?.rentCompInputs) {
+        updatedEvaluation = {
+          ...updatedEvaluation,
+          rentCompGroup: {
+            ...updatedEvaluation.rentCompGroup,
+            rentCompInputs: current.rentCompGroup.rentCompInputs,
+          },
+        };
+      }
+
       queryClient.setQueryData(
         evaluationsKeys.detail(propertyId, evaluationId),
         updatedEvaluation
