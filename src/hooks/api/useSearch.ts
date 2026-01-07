@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { searchService } from '@services/search.service';
 import { propertiesKeys } from './useProperties';
+import { trackActivity } from '@services/activity.service';
 import type {
   FprSearchParams,
   InvestmentAssessment,
@@ -41,6 +42,9 @@ export function useFprSearch(params: FprSearchParams | null) {
 export function useFprSearchMutation() {
   return useMutation({
     mutationFn: (params: FprSearchParams) => searchService.getFprAnalysis(params),
+    onSuccess: (_, params) => {
+      trackActivity('search', { type: 'fpr', state: params.state, cities: params.cities });
+    },
   });
 }
 
@@ -52,9 +56,10 @@ export function useForSalesSearch() {
 
   return useMutation({
     mutationFn: searchService.getForSales,
-    onSuccess: () => {
+    onSuccess: (_, params) => {
       // Refresh search history after a search
       queryClient.invalidateQueries({ queryKey: searchKeys.history(50) });
+      trackActivity('search', { type: 'forsales', state: params.state });
     },
   });
 }

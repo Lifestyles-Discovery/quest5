@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { propertiesService } from '@services/properties.service';
+import { trackActivity } from '@services/activity.service';
 import type {
   Property,
   PropertySummary,
@@ -50,7 +51,7 @@ export function useCreatePropertyByAddress() {
   return useMutation({
     mutationFn: (request: CreatePropertyByAddressRequest) =>
       propertiesService.createByAddress(request),
-    onSuccess: (newProperty: Property) => {
+    onSuccess: (newProperty: Property, request) => {
       // Invalidate properties list to refetch
       queryClient.invalidateQueries({ queryKey: propertiesKeys.lists() });
       // Pre-populate the detail cache
@@ -58,6 +59,7 @@ export function useCreatePropertyByAddress() {
         propertiesKeys.detail(newProperty.id),
         newProperty
       );
+      trackActivity('create_property', { address: request.address });
     },
   });
 }
@@ -71,7 +73,7 @@ export function useCreatePropertyByMls() {
   return useMutation({
     mutationFn: (request: CreatePropertyByMlsRequest) =>
       propertiesService.createByMls(request),
-    onSuccess: (newProperty: Property) => {
+    onSuccess: (newProperty: Property, request) => {
       // Invalidate properties list to refetch
       queryClient.invalidateQueries({ queryKey: propertiesKeys.lists() });
       // Pre-populate the detail cache
@@ -79,6 +81,7 @@ export function useCreatePropertyByMls() {
         propertiesKeys.detail(newProperty.id),
         newProperty
       );
+      trackActivity('create_property', { mlsNumber: request.mlsNumber });
     },
   });
 }

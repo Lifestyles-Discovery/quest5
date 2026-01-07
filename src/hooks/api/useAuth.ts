@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { authService } from '@services/auth.service';
 import { subscriptionService } from '@services/subscription.service';
 import { storeSession, clearSession, getStoredSession } from '@/api/client';
+import { trackActivity } from '@services/activity.service';
 import type {
   Session,
   SignInCredentials,
@@ -30,6 +31,7 @@ export function useSignIn() {
     onSuccess: (session: Session) => {
       storeSession(session);
       queryClient.setQueryData(authKeys.session, session);
+      trackActivity('login');
     },
   });
 }
@@ -96,6 +98,7 @@ export function useCreateSubscription() {
     onSuccess: (session: Session) => {
       storeSession(session);
       queryClient.setQueryData(authKeys.session, session);
+      trackActivity('signup');
     },
   });
 }

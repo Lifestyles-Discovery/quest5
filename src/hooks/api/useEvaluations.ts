@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { evaluationsService } from '@services/evaluations.service';
 import { propertiesKeys } from './useProperties';
+import { trackActivity } from '@services/activity.service';
 import type {
   Evaluation,
   SaleCompInputs,
@@ -56,6 +57,7 @@ export function useCreateEvaluation() {
         evaluationsKeys.detail(newEvaluation.propertyId, newEvaluation.id),
         newEvaluation
       );
+      trackActivity('create_evaluation', { propertyId: newEvaluation.propertyId });
     },
   });
 }
@@ -101,7 +103,7 @@ export function useCopyEvaluation() {
       propertyId: string;
       evaluationId: string;
     }) => evaluationsService.copyEvaluation(propertyId, evaluationId),
-    onSuccess: (newEvaluation) => {
+    onSuccess: (newEvaluation, { evaluationId }) => {
       // Invalidate property to refresh evaluation list
       queryClient.invalidateQueries({
         queryKey: propertiesKeys.detail(newEvaluation.propertyId),
@@ -111,6 +113,7 @@ export function useCopyEvaluation() {
         evaluationsKeys.detail(newEvaluation.propertyId, newEvaluation.id),
         newEvaluation
       );
+      trackActivity('copy_evaluation', { evaluationId });
     },
   });
 }
@@ -528,6 +531,10 @@ export function useExportPdf() {
     }) => {
       const { downloadEvaluationPDF } = await import('@/features/evaluations/pdf');
       await downloadEvaluationPDF(evaluation, property);
+      return evaluation;
+    },
+    onSuccess: (evaluation) => {
+      trackActivity('export_pdf', { evaluationId: evaluation.id });
     },
   });
 }
@@ -613,6 +620,7 @@ export function useCreateShare() {
         evaluationsKeys.share(propertyId, evaluationId),
         share
       );
+      trackActivity('create_share', { evaluationId });
     },
   });
 }

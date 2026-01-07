@@ -139,4 +139,7 @@ export const ENDPOINTS = {
 
   // Utilities
   version: 'version',
+
+  // Activity tracking (for Quest5 usage analytics)
+  activity: 'activity',
 } as const;
