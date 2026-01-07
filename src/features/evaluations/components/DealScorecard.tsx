@@ -55,10 +55,13 @@ export default function DealScorecard({
             <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
               Conventional
             </h3>
-            <ToggleButton
-              checked={showConventional}
-              onChange={onToggleConventional}
-            />
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-400 dark:text-gray-500">Show</span>
+              <ToggleButton
+                checked={showConventional}
+                onChange={onToggleConventional}
+              />
+            </div>
           </div>
 
           {showConventional ? (
@@ -81,10 +84,13 @@ export default function DealScorecard({
             <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
               Hard Money + Refi
             </h3>
-            <ToggleButton
-              checked={showHardMoney}
-              onChange={onToggleHardMoney}
-            />
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-400 dark:text-gray-500">Show</span>
+              <ToggleButton
+                checked={showHardMoney}
+                onChange={onToggleHardMoney}
+              />
+            </div>
           </div>
 
           {showHardMoney ? (
@@ -297,9 +303,11 @@ function ToggleButton({ label, checked, onChange }: ToggleButtonProps) {
       onClick={() => onChange(!checked)}
       className={`
         relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full
-        border-2 border-transparent transition-colors duration-200 ease-in-out
+        border-2 transition-colors duration-200 ease-in-out
         focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
-        ${checked ? 'bg-primary' : 'bg-gray-200 dark:bg-gray-600'}
+        ${checked
+          ? 'bg-primary border-primary'
+          : 'bg-gray-700 border-gray-800 shadow-md dark:bg-gray-500 dark:border-gray-400'}
       `}
       role="switch"
       aria-checked={checked}
