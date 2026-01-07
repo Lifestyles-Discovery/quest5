@@ -228,6 +228,7 @@ export function EditableField({
           onClick={startEditing}
           onFocus={startEditing}
           className={`
+            group
             mt-1 flex cursor-pointer items-center rounded px-1 -mx-1
             font-semibold text-gray-900 dark:text-white
             hover:bg-gray-100 dark:hover:bg-gray-700/50
@@ -238,7 +239,14 @@ export function EditableField({
           role="button"
           tabIndex={0}
         >
-          <span className={`flex-1 ${hasError ? 'text-red-600 dark:text-red-400' : ''}`}>
+          <span
+            className={`
+              inline-block min-w-12
+              border-b border-dashed border-gray-600 dark:border-gray-600
+              group-hover:border-gray-800 dark:group-hover:border-gray-500
+              ${hasError ? 'text-red-600 dark:text-red-400' : ''}
+            `}
+          >
             {getDisplayValue()}
           </span>
           {justSaved && (
