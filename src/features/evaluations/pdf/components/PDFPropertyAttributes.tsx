@@ -28,7 +28,11 @@ const attrStyles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   item: {
-    width: '20%',
+    width: '16.66%',
+    marginBottom: 10,
+  },
+  itemDouble: {
+    width: '33.33%',
     marginBottom: 10,
   },
   label: {
@@ -41,18 +45,112 @@ const attrStyles = StyleSheet.create({
     fontFamily: 'Helvetica-Bold',
     color: colors.textPrimary,
   },
+  // Listing Info styles
+  listingInfoContainer: {
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  listingInfoTitle: {
+    fontSize: 9,
+    fontFamily: 'Helvetica-Bold',
+    color: colors.textSecondary,
+    marginBottom: 8,
+  },
+  listingInfoGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  listingInfoItem: {
+    width: '16.66%',
+    marginBottom: 6,
+  },
+  listingInfoLabel: {
+    fontSize: 7,
+    color: colors.textSecondary,
+    marginBottom: 1,
+  },
+  listingInfoValue: {
+    fontSize: 9,
+    color: colors.textPrimary,
+  },
+  // Property Description styles
+  descriptionContainer: {
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  descriptionTitle: {
+    fontSize: 9,
+    fontFamily: 'Helvetica-Bold',
+    color: colors.textSecondary,
+    marginBottom: 6,
+  },
+  descriptionText: {
+    fontSize: 9,
+    color: colors.textSecondary,
+    lineHeight: 1.4,
+  },
 });
 
 interface AttributeItemProps {
   label: string;
   value: string;
+  double?: boolean;
 }
 
-function AttributeItem({ label, value }: AttributeItemProps) {
+function AttributeItem({ label, value, double }: AttributeItemProps) {
   return (
-    <View style={attrStyles.item}>
+    <View style={double ? attrStyles.itemDouble : attrStyles.item}>
       <Text style={attrStyles.label}>{label}</Text>
       <Text style={attrStyles.value}>{value}</Text>
+    </View>
+  );
+}
+
+function formatDate(dateString: string | null | undefined): string | null {
+  if (!dateString) return null;
+  return new Date(dateString).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
+function ListingInfo({ evaluation }: { evaluation: Evaluation }) {
+  const items = [
+    { label: 'MLS #', value: evaluation.mlsNumber },
+    { label: 'Market', value: evaluation.mlsMarket },
+    { label: 'Listing Office', value: evaluation.listingOfficeName },
+    { label: 'List Date', value: formatDate(evaluation.listDate) },
+    { label: 'Date Sold', value: formatDate(evaluation.dateSold) },
+    { label: 'Data Source', value: evaluation.compDataSource },
+  ].filter((item) => item.value);
+
+  if (items.length === 0) return null;
+
+  return (
+    <View style={attrStyles.listingInfoContainer}>
+      <Text style={attrStyles.listingInfoTitle}>Listing Info</Text>
+      <View style={attrStyles.listingInfoGrid}>
+        {items.map(({ label, value }) => (
+          <View key={label} style={attrStyles.listingInfoItem}>
+            <Text style={attrStyles.listingInfoLabel}>{label}</Text>
+            <Text style={attrStyles.listingInfoValue}>{value}</Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+function PropertyDescription({ description }: { description: string }) {
+  return (
+    <View style={attrStyles.descriptionContainer}>
+      <Text style={attrStyles.descriptionTitle}>Property Description</Text>
+      <Text style={attrStyles.descriptionText}>{description}</Text>
     </View>
   );
 }
@@ -61,8 +159,6 @@ function AttributeItem({ label, value }: AttributeItemProps) {
  * Property attributes section displaying key property details in a grid layout.
  */
 export function PDFPropertyAttributes({ evaluation }: PDFPropertyAttributesProps) {
-  const { calculator } = evaluation;
-
   return (
     <View style={attrStyles.container} wrap={false}>
       <Text style={attrStyles.title}>Property Attributes</Text>
@@ -73,17 +169,17 @@ export function PDFPropertyAttributes({ evaluation }: PDFPropertyAttributesProps
         <AttributeItem label="Sqft" value={evaluation.sqft ? `${formatNumber(evaluation.sqft)} sqft` : '-'} />
         <AttributeItem label="Year Built" value={evaluation.yearBuilt ? String(evaluation.yearBuilt) : '-'} />
         <AttributeItem label="List Price" value={formatCurrency(evaluation.listPrice)} />
-        <AttributeItem label="Subdivision" value={evaluation.subdivision || '-'} />
+        <AttributeItem label="Subdivision" value={evaluation.subdivision || '-'} double />
         <AttributeItem label="County" value={evaluation.county || '-'} />
-        <AttributeItem
-          label="Taxes/Year"
-          value={`${formatCurrency(calculator?.dealTermInputs?.propertyTaxAnnual || 0)}/yr`}
-        />
-        <AttributeItem
-          label="HOA/Year"
-          value={`${formatCurrency(calculator?.dealTermInputs?.hoaAnnual || 0)}/yr`}
-        />
+        <AttributeItem label="Taxes/Year" value={`${formatCurrency(evaluation.taxesAnnual)}/yr`} />
+        <AttributeItem label="HOA/Year" value={`${formatCurrency(evaluation.hoaAnnual)}/yr`} />
       </View>
+
+      {/* Listing Info */}
+      <ListingInfo evaluation={evaluation} />
+
+      {/* Property Description */}
+      {evaluation.descriptionPublic && <PropertyDescription description={evaluation.descriptionPublic} />}
     </View>
   );
 }

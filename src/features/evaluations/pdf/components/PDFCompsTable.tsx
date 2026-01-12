@@ -43,7 +43,7 @@ const tableStyles = StyleSheet.create({
   count: {
     fontSize: 9,
     color: colors.textSecondary,
-    marginBottom: 8,
+    marginTop: 2,
   },
   table: {
     width: '100%',
@@ -78,14 +78,15 @@ const tableStyles = StyleSheet.create({
     fontSize: 8,
     color: colors.textSecondary,
   },
-  // Column widths
-  colAddress: { width: '28%' },
-  colSubdivision: { width: '18%' },
-  colPrice: { width: '14%', textAlign: 'right' },
+  // Column widths (adjusted for 8 columns including Year)
+  colAddress: { width: '24%' },
+  colSubdivision: { width: '16%' },
+  colPrice: { width: '12%', textAlign: 'right' },
   colPricePerSqft: { width: '10%', textAlign: 'right' },
   colBedBath: { width: '10%', textAlign: 'center' },
-  colSqft: { width: '10%', textAlign: 'right' },
-  colDate: { width: '10%', textAlign: 'right' },
+  colSqft: { width: '9%', textAlign: 'right' },
+  colYear: { width: '8%', textAlign: 'right' },
+  colDate: { width: '11%', textAlign: 'right' },
   // Footer
   footer: {
     marginTop: 8,
@@ -129,16 +130,17 @@ export function PDFCompsTable({
   const dateHeader = type === 'rent' ? 'DOM' : 'Date';
 
   return (
-    <View style={tableStyles.container} wrap={false}>
-      {/* Header */}
-      <View style={tableStyles.header}>
-        <Text style={tableStyles.title}>{title}</Text>
+    <View style={tableStyles.container}>
+      {/* Header - keep together */}
+      <View style={tableStyles.header} wrap={false}>
+        <View>
+          <Text style={tableStyles.title}>{title}</Text>
+          <Text style={tableStyles.count}>
+            {includedComps.length} comp{includedComps.length !== 1 ? 's' : ''} included
+          </Text>
+        </View>
         <Text style={tableStyles.calculatedValue}>{valueLabel}</Text>
       </View>
-
-      <Text style={tableStyles.count}>
-        {includedComps.length} comp{includedComps.length !== 1 ? 's' : ''} included
-      </Text>
 
       {includedComps.length === 0 ? (
         <Text style={tableStyles.emptyMessage}>No comps included in calculations</Text>
@@ -154,6 +156,7 @@ export function PDFCompsTable({
             <Text style={[tableStyles.tableHeaderCell, tableStyles.colPricePerSqft]}>$/Sqft</Text>
             <Text style={[tableStyles.tableHeaderCell, tableStyles.colBedBath]}>Bd/Ba/Gar</Text>
             <Text style={[tableStyles.tableHeaderCell, tableStyles.colSqft]}>Sqft</Text>
+            <Text style={[tableStyles.tableHeaderCell, tableStyles.colYear]}>Year</Text>
             <Text style={[tableStyles.tableHeaderCell, tableStyles.colDate]}>{dateHeader}</Text>
           </View>
 
@@ -181,6 +184,7 @@ export function PDFCompsTable({
               <Text style={[tableStyles.tableCell, tableStyles.colSqft]}>
                 {formatNumber(comp.sqft)}
               </Text>
+              <Text style={[tableStyles.tableCell, tableStyles.colYear]}>{comp.yearBuilt || '-'}</Text>
               <Text style={[tableStyles.tableCell, tableStyles.colDate]}>
                 {type === 'rent'
                   ? comp.daysOnMarket ?? '-'
