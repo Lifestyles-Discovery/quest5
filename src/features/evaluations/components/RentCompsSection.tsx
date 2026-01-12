@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useUpdateRentComps, useToggleRentCompInclusion } from '@/hooks/api/useEvaluations';
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback';
+import { useAuth } from '@/context/AuthContext';
 import type { Evaluation, RentComp, SearchType, RentCompInputs } from '@app-types/evaluation.types';
 import CompsMap from './CompsMap';
 import FilterBar from './FilterBar';
@@ -76,6 +77,7 @@ export default function RentCompsSection({
   subjectLongitude,
   subjectAddress,
 }: RentCompsSectionProps) {
+  const { user } = useAuth();
   const rentCompGroup = evaluation.rentCompGroup;
   const [filters, setFilters] = useState<Partial<RentCompInputs>>(
     rentCompGroup?.rentCompInputs || {}
@@ -270,6 +272,7 @@ export default function RentCompsSection({
           counties={rentCompGroup?.counties}
           onReset={handleResetFilters}
           subdivision={evaluation.subdivision}
+          defaultRadius={user?.preferences?.evaluationRadius}
         />
       </div>
 

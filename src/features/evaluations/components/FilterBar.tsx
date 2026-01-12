@@ -11,6 +11,7 @@ interface FilterBarProps {
   counties?: string[];
   onReset?: () => void;
   subdivision?: string; // For repopulating search term when switching to subdivision search
+  defaultRadius?: number; // User's preferred radius from settings
 }
 
 const BEDS_MAX = 6;
@@ -65,6 +66,7 @@ export default function FilterBar({
   counties = [],
   onReset,
   subdivision,
+  defaultRadius,
 }: FilterBarProps) {
   const isBroadSearch = filters.ignoreParametersExceptMonthsClosed || false;
   // Use first available search type as default (handles case where only Radius is available)
@@ -109,11 +111,18 @@ export default function FilterBar({
             searchTypes={searchTypes}
             onSearchTypeChange={(type) => {
               const wasRadius = filters.searchType?.toLowerCase() === 'radius';
+              const isNowRadius = type.toLowerCase() === 'radius';
               const isNowSubdivision = type.toLowerCase() === 'subdivision';
-              // Repopulate search term with subdivision when switching from radius to subdivision
+
               if (wasRadius && isNowSubdivision && subdivision) {
+                // Repopulate search term with subdivision when switching from radius to subdivision
                 const strippedSubdivision = stripSubdivisionSuffix(subdivision);
                 onChange({ ...filters, searchType: type, searchTerm: strippedSubdivision });
+              } else if (isNowRadius) {
+                // Populate radius with user preference or backend default
+                const radiusSearchType = searchTypes.find(st => st.type?.toLowerCase() === 'radius');
+                const radiusValue = defaultRadius || radiusSearchType?.defaultSearchTerm || '';
+                onChange({ ...filters, searchType: type, searchTerm: String(radiusValue) });
               } else {
                 onChange({ ...filters, searchType: type });
               }

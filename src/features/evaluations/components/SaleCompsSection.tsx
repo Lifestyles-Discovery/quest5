@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useUpdateSaleComps, useToggleSaleCompInclusion } from '@/hooks/api/useEvaluations';
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback';
+import { useAuth } from '@/context/AuthContext';
 import type { Evaluation, SaleComp, SearchType, SaleCompInputs } from '@app-types/evaluation.types';
 import CompsMap from './CompsMap';
 import FilterBar from './FilterBar';
@@ -76,6 +77,7 @@ export default function SaleCompsSection({
   subjectLongitude,
   subjectAddress,
 }: SaleCompsSectionProps) {
+  const { user } = useAuth();
   const saleCompGroup = evaluation.saleCompGroup;
   const [filters, setFilters] = useState<Partial<SaleCompInputs>>(
     saleCompGroup?.saleCompInputs || {}
@@ -284,6 +286,7 @@ export default function SaleCompsSection({
           counties={saleCompGroup?.counties}
           onReset={handleResetFilters}
           subdivision={evaluation.subdivision}
+          defaultRadius={user?.preferences?.evaluationRadius}
         />
       </div>
 
