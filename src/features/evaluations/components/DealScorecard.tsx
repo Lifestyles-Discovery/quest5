@@ -22,29 +22,6 @@ export default function DealScorecard({
   const showConventional = conventionalInputs.show;
   const showHardMoney = hardMoneyInputs.show;
 
-  // Neither strategy enabled
-  if (!showConventional && !showHardMoney) {
-    return (
-      <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <p className="text-center text-gray-500 dark:text-gray-400">
-          Enable a financing strategy to see results
-        </p>
-        <div className="mt-4 flex justify-center gap-4">
-          <ToggleButton
-            label="Conventional"
-            checked={showConventional}
-            onChange={onToggleConventional}
-          />
-          <ToggleButton
-            label="Hard Money"
-            checked={showHardMoney}
-            onChange={onToggleHardMoney}
-          />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
       {/* Primary Metrics - Gains & Returns */}
@@ -298,7 +275,7 @@ interface ToggleButtonProps {
 }
 
 function ToggleButton({ label, checked, onChange }: ToggleButtonProps) {
-  return (
+  const toggle = (
     <button
       onClick={() => onChange(!checked)}
       className={`
@@ -322,4 +299,15 @@ function ToggleButton({ label, checked, onChange }: ToggleButtonProps) {
       />
     </button>
   );
+
+  if (label) {
+    return (
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-gray-500 dark:text-gray-400">{label}</span>
+        {toggle}
+      </div>
+    );
+  }
+
+  return toggle;
 }
