@@ -436,7 +436,7 @@ function HardMoneyMonthlyCashflow({ calculator, viewMode }: MetricProps) {
             <V label="Monthly Rent" value={formatCurrency(calculator.hardMonthlyRent)} />
           </FormulaLine>
           <FormulaLine>
-            − <V label="Refi Mortgage Payment" value={formatCurrency(calculator.hardRefiNotePaymentMonthly)} />
+            − <V label="Refi Mortgage Payment" value={formatCurrency(calculator.hardRefinanceNotePaymentMonthly)} />
           </FormulaLine>
           <FormulaLine>
             − <V label="Property Tax" value={formatCurrency(calculator.hardPropertyTaxMonthly)} />/mo

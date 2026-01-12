@@ -241,7 +241,7 @@ export interface Calculator {
   hardCashOnCashReturnPercent: number;
   hardLoanAmount: number;
   hardRefiLoanAmount: number;
-  hardRefiNotePaymentMonthly: number;
+  hardRefinanceNotePaymentMonthly: number;
   hardMonthlyRent: number;
   hardPropertyTaxMonthly: number;
   hardPropertyInsuranceMonthly: number;
