@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, Fragment } from 'react';
 import { useUpdateRentComps, useToggleRentCompInclusion } from '@/hooks/api/useEvaluations';
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback';
 import { useAuth } from '@/context/AuthContext';
@@ -7,6 +7,7 @@ import CompsMap from './CompsMap';
 import FilterBar from './FilterBar';
 import PhotoThumbnail from '@/components/common/PhotoThumbnail';
 import Checkbox from '@/components/form/input/Checkbox';
+import CompDetails from './CompDetails';
 
 type RentSortKey = 'street' | 'subdivision' | 'priceSold' | 'pricePerSqft' | 'beds' | 'baths' | 'garage' | 'sqft' | 'yearBuilt';
 type SortOrder = 'asc' | 'desc';
@@ -87,6 +88,7 @@ export default function RentCompsSection({
   });
   const [sortKey, setSortKey] = useState<RentSortKey | null>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+  const [expandedCompId, setExpandedCompId] = useState<string | null>(null);
   const isInitialMount = useRef(true);
   const isSyncingFromServer = useRef(false);
   const hasInitializedSearchTerm = useRef(false);
@@ -202,6 +204,13 @@ export default function RentCompsSection({
     }
   };
 
+  const handleRowClick = (compId: string, e: React.MouseEvent) => {
+    // Don't expand if clicking on interactive elements
+    const target = e.target as HTMLElement;
+    if (target.closest('button, input, label')) return;
+    setExpandedCompId(expandedCompId === compId ? null : compId);
+  };
+
   const sortedComps = useMemo(() => {
     if (!sortKey) return rentComps;
     return [...rentComps].sort((a, b) => {
@@ -300,6 +309,7 @@ export default function RentCompsSection({
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="sticky top-0 bg-gray-50 dark:bg-gray-900">
               <tr>
+                <th className="w-8 px-2 py-2"></th>
                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">
                   Include
                 </th>
@@ -375,55 +385,77 @@ export default function RentCompsSection({
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {sortedComps.map((comp) => (
-                <tr
-                  key={comp.id}
-                  className={`${
-                    comp.include
-                      ? 'bg-white dark:bg-gray-800'
-                      : 'bg-gray-100 opacity-60 dark:bg-gray-900'
-                  }`}
-                >
-                  <td className="px-3 py-2">
-                    <Checkbox
-                      checked={comp.include}
-                      onChange={() => handleToggleComp(comp)}
-                    />
-                  </td>
-                  <td className="px-2 py-2">
-                    <PhotoThumbnail photos={comp.photoURLs} size="sm" />
-                  </td>
-                  <td className="px-3 py-2">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      {comp.street}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {comp.city}, {comp.state}
-                    </p>
-                  </td>
-                  <td className="px-3 py-2 text-sm text-gray-600 dark:text-gray-300">
-                    {comp.subdivision}
-                  </td>
-                  <td className="px-3 py-2 text-right text-sm font-medium text-gray-900 dark:text-white">
-                    {formatCurrency(comp.priceSold)}
-                  </td>
-                  <td className="px-3 py-2 text-right text-sm text-gray-600 dark:text-gray-300">
-                    ${comp.pricePerSqft.toFixed(2)}
-                  </td>
-                  <td className="px-3 py-2 text-center text-sm text-gray-600 dark:text-gray-300">
-                    {comp.beds}/{comp.baths}/{comp.garage}
-                  </td>
-                  <td className="px-3 py-2 text-right text-sm text-gray-600 dark:text-gray-300">
-                    {comp.sqft.toLocaleString()}
-                  </td>
-                  <td className="px-3 py-2 text-right text-sm text-gray-600 dark:text-gray-300">
-                    {comp.yearBuilt || '-'}
-                  </td>
-                  <td className="px-3 py-2 text-right text-sm text-gray-500 dark:text-gray-400">
-                    {comp.daysOnMarket}
-                  </td>
-                </tr>
-              ))}
+              {sortedComps.map((comp) => {
+                const isExpanded = expandedCompId === comp.id;
+                return (
+                  <Fragment key={comp.id}>
+                    <tr
+                      onClick={(e) => handleRowClick(comp.id, e)}
+                      className={`cursor-pointer transition-colors ${
+                        comp.include
+                          ? 'bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-750'
+                          : 'bg-gray-100 opacity-60 dark:bg-gray-900'
+                      } ${isExpanded ? 'bg-gray-50 dark:bg-gray-750' : ''}`}
+                    >
+                      <td className="px-2 py-2">
+                        <svg
+                          className={`h-4 w-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </td>
+                      <td className="px-3 py-2">
+                        <Checkbox
+                          checked={comp.include}
+                          onChange={() => handleToggleComp(comp)}
+                        />
+                      </td>
+                      <td className="px-2 py-2">
+                        <PhotoThumbnail photos={comp.photoURLs} size="sm" />
+                      </td>
+                      <td className="px-3 py-2">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          {comp.street}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {comp.city}, {comp.state}
+                        </p>
+                      </td>
+                      <td className="px-3 py-2 text-sm text-gray-600 dark:text-gray-300">
+                        {comp.subdivision}
+                      </td>
+                      <td className="px-3 py-2 text-right text-sm font-medium text-gray-900 dark:text-white">
+                        {formatCurrency(comp.priceSold)}
+                      </td>
+                      <td className="px-3 py-2 text-right text-sm text-gray-600 dark:text-gray-300">
+                        ${comp.pricePerSqft.toFixed(2)}
+                      </td>
+                      <td className="px-3 py-2 text-center text-sm text-gray-600 dark:text-gray-300">
+                        {comp.beds}/{comp.baths}/{comp.garage}
+                      </td>
+                      <td className="px-3 py-2 text-right text-sm text-gray-600 dark:text-gray-300">
+                        {comp.sqft.toLocaleString()}
+                      </td>
+                      <td className="px-3 py-2 text-right text-sm text-gray-600 dark:text-gray-300">
+                        {comp.yearBuilt || '-'}
+                      </td>
+                      <td className="px-3 py-2 text-right text-sm text-gray-500 dark:text-gray-400">
+                        {comp.daysOnMarket}
+                      </td>
+                    </tr>
+                    {isExpanded && (
+                      <tr>
+                        <td colSpan={11} className="bg-gray-50 dark:bg-gray-900/50">
+                          <CompDetails comp={comp} type="rent" />
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                );
+              })}
             </tbody>
           </table>
         )}

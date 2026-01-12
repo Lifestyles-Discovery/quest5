@@ -53,6 +53,11 @@ export interface SaleComp {
   latitude?: number;
   longitude?: number;
   distanceMiles?: number;
+  // Expanded detail fields (from MLS)
+  descriptionPublic?: string;
+  listingType?: string;
+  hoaAnnual?: number;
+  taxesAnnual?: number;
 }
 
 /**
@@ -127,6 +132,10 @@ export interface RentComp {
   latitude?: number;
   longitude?: number;
   distanceMiles?: number;
+  // Expanded detail fields (from MLS)
+  descriptionPublic?: string;
+  mlsNumber?: string;
+  listingType?: string;
 }
 
 /**
@@ -300,6 +309,9 @@ export interface Evaluation {
 
   // Optional scenario name
   name?: string;
+
+  // Subject property description (from MLS)
+  descriptionPublic?: string;
 
   // Comp groups
   saleCompGroup: SaleCompGroup;

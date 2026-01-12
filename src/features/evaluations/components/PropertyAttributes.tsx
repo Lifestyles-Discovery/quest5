@@ -108,6 +108,65 @@ export default function PropertyAttributes({
           onSave={(v) => handleSave('hoaAnnual', v)}
         />
       </div>
+
+      {/* Read-only Listing Info */}
+      <ListingInfo evaluation={evaluation} />
+
+      {/* Property Description */}
+      {evaluation.descriptionPublic && (
+        <PropertyDescription description={evaluation.descriptionPublic} />
+      )}
+    </div>
+  );
+}
+
+function ListingInfo({ evaluation }: { evaluation: Evaluation }) {
+  const formatDate = (dateString: string) => {
+    if (!dateString) return null;
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  };
+
+  const items = [
+    { label: 'MLS #', value: evaluation.mlsNumber },
+    { label: 'Market', value: evaluation.mlsMarket },
+    { label: 'Listing Office', value: evaluation.listingOfficeName },
+    { label: 'List Date', value: formatDate(evaluation.listDate) },
+    { label: 'Date Sold', value: formatDate(evaluation.dateSold) },
+    { label: 'Data Source', value: evaluation.compDataSource },
+  ].filter(item => item.value);
+
+  if (items.length === 0) return null;
+
+  return (
+    <div className="mt-4 border-t border-gray-200 pt-4 dark:border-gray-700">
+      <h3 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+        Listing Info
+      </h3>
+      <div className="grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-3 lg:grid-cols-6">
+        {items.map(({ label, value }) => (
+          <div key={label}>
+            <dt className="text-xs font-medium text-gray-500 dark:text-gray-400">{label}</dt>
+            <dd className="text-sm text-gray-900 dark:text-white">{value}</dd>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PropertyDescription({ description }: { description: string }) {
+  return (
+    <div className="mt-4 border-t border-gray-200 pt-4 dark:border-gray-700">
+      <h3 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+        Property Description
+      </h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        {description}
+      </p>
     </div>
   );
 }
