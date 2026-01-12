@@ -55,7 +55,7 @@ export default function PropertiesPage() {
   const [isNewPropertyOpen, setIsNewPropertyOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Build filter from tab and search
+  // Build filter from tab, search, and pagination
   const filter: PropertiesFilter = useMemo(
     () => ({
       searchTerm,
@@ -63,17 +63,19 @@ export default function PropertiesPage() {
       useDates: false,
       startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
       endDate: new Date(),
+      skip: (currentPage - 1) * PROPERTIES_PER_PAGE,
+      take: PROPERTIES_PER_PAGE,
     }),
-    [activeTab, searchTerm]
+    [activeTab, searchTerm, currentPage]
   );
 
-  const { data: properties, isLoading, error } = useProperties(filter);
+  const { data, isLoading, error, isPlaceholderData } = useProperties(filter);
 
-  // Pagination calculations
-  const totalProperties = properties?.length ?? 0;
+  // Server-side pagination values from response
+  const totalProperties = data?.totalCount ?? 0;
   const totalPages = Math.ceil(totalProperties / PROPERTIES_PER_PAGE);
-  const startIndex = (currentPage - 1) * PROPERTIES_PER_PAGE;
-  const paginatedProperties = properties?.slice(startIndex, startIndex + PROPERTIES_PER_PAGE);
+  const properties = data?.items ?? [];
+  const startIndex = data?.skip ?? 0;
 
   // Reset to page 1 when filter changes
   const handleTabChange = (tab: StageTabKey) => {
@@ -103,7 +105,7 @@ export default function PropertiesPage() {
               Deals
             </h1>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              {properties?.length ?? 0} deal{properties?.length !== 1 ? 's' : ''} found
+              {totalProperties} deal{totalProperties !== 1 ? 's' : ''} found
             </p>
           </div>
           <Button
@@ -146,8 +148,8 @@ export default function PropertiesPage() {
           </div>
         </div>
 
-        {/* Loading State */}
-        {isLoading && (
+        {/* Loading State - show skeleton only on initial load */}
+        {isLoading && !isPlaceholderData && (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <PropertyCardSkeleton key={i} />
@@ -165,7 +167,7 @@ export default function PropertiesPage() {
         )}
 
         {/* Empty State */}
-        {!isLoading && !error && properties?.length === 0 && (
+        {!isLoading && !error && properties.length === 0 && totalProperties === 0 && (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <svg
               className="mb-4 h-16 w-16 text-gray-300 dark:text-gray-600"
@@ -193,9 +195,13 @@ export default function PropertiesPage() {
         )}
 
         {/* Properties Grid */}
-        {!isLoading && !error && paginatedProperties && paginatedProperties.length > 0 && (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {paginatedProperties.map((property) => (
+        {!isLoading && !error && properties.length > 0 && (
+          <div
+            className={`grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 ${
+              isPlaceholderData ? 'opacity-50' : ''
+            }`}
+          >
+            {properties.map((property) => (
               <PropertyCard key={property.id} property={property} />
             ))}
           </div>
@@ -205,14 +211,16 @@ export default function PropertiesPage() {
         {!isLoading && !error && totalPages > 1 && (
           <div className="flex items-center justify-between border-t border-gray-200 pt-4 dark:border-gray-700">
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Showing {startIndex + 1}-{Math.min(startIndex + PROPERTIES_PER_PAGE, totalProperties)} of {totalProperties} deals
+              Showing {startIndex + 1}-
+              {Math.min(startIndex + PROPERTIES_PER_PAGE, totalProperties)} of{' '}
+              {totalProperties} deals
             </p>
             <div className="flex gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
+                disabled={currentPage === 1 || isPlaceholderData}
               >
                 Previous
               </Button>
@@ -220,7 +228,7 @@ export default function PropertiesPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
+                disabled={currentPage === totalPages || isPlaceholderData}
               >
                 Next
               </Button>

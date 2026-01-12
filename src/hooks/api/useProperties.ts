@@ -8,6 +8,7 @@ import type {
   PropertyStage,
   CreatePropertyByAddressRequest,
   CreatePropertyByMlsRequest,
+  PaginatedResponse,
 } from '@app-types/property.types';
 
 /**
@@ -22,12 +23,13 @@ export const propertiesKeys = {
 };
 
 /**
- * Hook to fetch properties list with filtering
+ * Hook to fetch properties list with filtering and pagination
  */
 export function useProperties(filter: PropertiesFilter) {
   return useQuery({
     queryKey: propertiesKeys.list(filter),
     queryFn: () => propertiesService.getProperties(filter),
+    placeholderData: (previousData) => previousData,
   });
 }
 
@@ -127,12 +129,17 @@ export function useUpdatePropertyStage() {
       }
 
       // Also update in the list cache
-      queryClient.setQueriesData<PropertySummary[]>(
+      queryClient.setQueriesData<PaginatedResponse<PropertySummary>>(
         { queryKey: propertiesKeys.lists() },
         (old) =>
-          old?.map((p) =>
-            p.id === propertyId ? { ...p, stage } : p
-          )
+          old
+            ? {
+                ...old,
+                items: old.items.map((p) =>
+                  p.id === propertyId ? { ...p, stage } : p
+                ),
+              }
+            : old
       );
 
       return { previousProperty, previousStage };
@@ -147,12 +154,19 @@ export function useUpdatePropertyStage() {
       }
       // Rollback list cache on error
       if (context?.previousStage) {
-        queryClient.setQueriesData<PropertySummary[]>(
+        queryClient.setQueriesData<PaginatedResponse<PropertySummary>>(
           { queryKey: propertiesKeys.lists() },
           (old) =>
-            old?.map((p) =>
-              p.id === propertyId ? { ...p, stage: context.previousStage! } : p
-            )
+            old
+              ? {
+                  ...old,
+                  items: old.items.map((p) =>
+                    p.id === propertyId
+                      ? { ...p, stage: context.previousStage! }
+                      : p
+                  ),
+                }
+              : old
         );
       }
     },

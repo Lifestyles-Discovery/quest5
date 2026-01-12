@@ -166,6 +166,16 @@ export interface PropertyListing {
 }
 
 /**
+ * Generic paginated response wrapper
+ */
+export interface PaginatedResponse<T> {
+  items: T[];
+  totalCount: number;
+  skip: number;
+  take: number;
+}
+
+/**
  * Filter options for properties list
  */
 export interface PropertiesFilter {
@@ -174,6 +184,8 @@ export interface PropertiesFilter {
   useDates: boolean;
   startDate: Date;
   endDate: Date;
+  skip: number;
+  take: number;
 }
 
 /**
@@ -185,6 +197,8 @@ export const DEFAULT_PROPERTIES_FILTER: PropertiesFilter = {
   useDates: false,
   startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
   endDate: new Date(),
+  skip: 0,
+  take: 6,
 };
 
 /**

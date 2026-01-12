@@ -7,6 +7,7 @@ import type {
   PropertyStage,
   CreatePropertyByAddressRequest,
   CreatePropertyByMlsRequest,
+  PaginatedResponse,
 } from '@app-types/property.types';
 
 /**
@@ -14,10 +15,12 @@ import type {
  */
 export const propertiesService = {
   /**
-   * Get list of properties with optional filtering
+   * Get list of properties with filtering and pagination
    */
-  async getProperties(filter: PropertiesFilter): Promise<PropertySummary[]> {
-    const response = await apiClient.get<PropertySummary[]>(
+  async getProperties(
+    filter: PropertiesFilter
+  ): Promise<PaginatedResponse<PropertySummary>> {
+    const response = await apiClient.get<PaginatedResponse<PropertySummary>>(
       ENDPOINTS.properties.list,
       {
         headers: {
@@ -26,6 +29,8 @@ export const propertiesService = {
           useDates: String(filter.useDates),
           startDate: filter.startDate.toISOString(),
           endDate: filter.endDate.toISOString(),
+          skip: String(filter.skip),
+          take: String(filter.take),
         },
       }
     );

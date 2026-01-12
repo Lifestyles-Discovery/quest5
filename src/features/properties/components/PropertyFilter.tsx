@@ -50,6 +50,8 @@ export function PropertyFilter({
       useDates: false,
       startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
       endDate: new Date(),
+      skip: 0,
+      take: 6,
     };
     setLocalFilter(resetFilter);
     onFilterChange(resetFilter);
