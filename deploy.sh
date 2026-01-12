@@ -10,4 +10,4 @@ npm run deploy
 
 echo ""
 echo "Deployment complete!"
-echo "Site: https://quest5.lifestylesquest.com"
+echo "Site: https://app.lifestylesquest.com"
