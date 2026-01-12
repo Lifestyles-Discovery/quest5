@@ -24,8 +24,8 @@ export default function AuthLayout({
                   className="h-12 object-contain"
                 />
               </Link>
-              <p className="text-center text-gray-400 dark:text-white/60">
-                Real Estate Investment Analysis Platform
+              <p className="text-center text-gray-400 dark:text-white/60 max-w-[12rem]">
+                The Lifestyles Unlimited Single Family Property Evaluation Tool
               </p>
             </div>
           </div>
