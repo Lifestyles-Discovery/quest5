@@ -64,17 +64,39 @@ function PropertyDetailSkeleton() {
         </div>
       </div>
 
-      {/* Evaluation content skeleton */}
+      {/* Property Attributes skeleton */}
       <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
         <div className="space-y-6">
           <Skeleton className="h-6 w-40" />
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="space-y-2">
+          {/* Editable fields grid - matches PropertyAttributes 6-column layout */}
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
+              <div key={i} className={i === 7 ? 'col-span-2 space-y-2' : 'space-y-2'}>
                 <Skeleton className="h-4 w-16" />
-                <Skeleton className="h-6 w-24" />
+                <Skeleton className="h-6 w-full" />
               </div>
             ))}
+          </div>
+          {/* Listing Info skeleton */}
+          <div className="border-t border-gray-200 pt-4 dark:border-gray-700">
+            <Skeleton className="h-4 w-24 mb-2" />
+            <div className="grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-3 lg:grid-cols-6">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="space-y-1">
+                  <Skeleton className="h-3 w-12" />
+                  <Skeleton className="h-4 w-20" />
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Description skeleton */}
+          <div className="border-t border-gray-200 pt-4 dark:border-gray-700">
+            <Skeleton className="h-4 w-36 mb-2" />
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+            </div>
           </div>
         </div>
       </div>

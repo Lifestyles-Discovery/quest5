@@ -195,6 +195,9 @@ export default function RentCompsSection({
   const rentComps = rentCompGroup?.rentComps || [];
   const includedComps = rentComps.filter((c) => c.include);
 
+  // Disable expansion for Discovery (non-MLS) data source
+  const isExpansionEnabled = evaluation.compDataSource !== 'Discovery';
+
   const handleSort = (key: RentSortKey) => {
     if (sortKey === key) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -205,6 +208,7 @@ export default function RentCompsSection({
   };
 
   const handleRowClick = (compId: string, e: React.MouseEvent) => {
+    if (!isExpansionEnabled) return;
     // Don't expand if clicking on interactive elements
     const target = e.target as HTMLElement;
     if (target.closest('button, input, label')) return;
@@ -309,7 +313,7 @@ export default function RentCompsSection({
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="sticky top-0 bg-gray-50 dark:bg-gray-900">
               <tr>
-                <th className="w-8 px-2 py-2"></th>
+                {isExpansionEnabled && <th className="w-8 px-2 py-2"></th>}
                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">
                   Include
                 </th>
@@ -386,27 +390,29 @@ export default function RentCompsSection({
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {sortedComps.map((comp) => {
-                const isExpanded = expandedCompId === comp.id;
+                const isExpanded = isExpansionEnabled && expandedCompId === comp.id;
                 return (
                   <Fragment key={comp.id}>
                     <tr
                       onClick={(e) => handleRowClick(comp.id, e)}
-                      className={`cursor-pointer transition-colors ${
+                      className={`transition-colors ${isExpansionEnabled ? 'cursor-pointer' : ''} ${
                         comp.include
                           ? 'bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-750'
                           : 'bg-gray-100 opacity-60 dark:bg-gray-900'
                       } ${isExpanded ? 'bg-gray-50 dark:bg-gray-750' : ''}`}
                     >
-                      <td className="px-2 py-2">
-                        <svg
-                          className={`h-4 w-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </td>
+                      {isExpansionEnabled && (
+                        <td className="px-2 py-2">
+                          <svg
+                            className={`h-4 w-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </td>
+                      )}
                       <td className="px-3 py-2">
                         <Checkbox
                           checked={comp.include}
@@ -446,7 +452,7 @@ export default function RentCompsSection({
                         {comp.daysOnMarket}
                       </td>
                     </tr>
-                    {isExpanded && (
+                    {isExpansionEnabled && isExpanded && (
                       <tr>
                         <td colSpan={11} className="bg-gray-50 dark:bg-gray-900/50">
                           <CompDetails comp={comp} type="rent" />

@@ -87,7 +87,7 @@ export default function PropertyAttributes({
 
         <EditableField
           label="County"
-          value={evaluation.county || ''}
+          value={evaluation.county === 'null' ? '' : (evaluation.county || '')}
           format="text"
           onSave={(v) => handleSave('county', v)}
         />
@@ -109,8 +109,10 @@ export default function PropertyAttributes({
         />
       </div>
 
-      {/* Read-only Listing Info */}
-      <ListingInfo evaluation={evaluation} />
+      {/* Read-only Listing Info - only for MLS properties */}
+      {evaluation.compDataSource !== 'Discovery' && (
+        <ListingInfo evaluation={evaluation} />
+      )}
 
       {/* Property Description */}
       {evaluation.descriptionPublic && (
@@ -121,9 +123,23 @@ export default function PropertyAttributes({
 }
 
 function ListingInfo({ evaluation }: { evaluation: Evaluation }) {
+  // Filter out invalid placeholder values from backend
+  const isValidValue = (value: unknown): boolean => {
+    if (value === null || value === undefined) return false;
+    if (typeof value === 'string') {
+      const lower = value.toLowerCase();
+      if (lower === 'null' || lower === 'notset' || lower === '') return false;
+    }
+    return true;
+  };
+
   const formatDate = (dateString: string) => {
     if (!dateString) return null;
-    return new Date(dateString).toLocaleDateString('en-US', {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return null;
+    // Year < 1900 is an invalid placeholder (e.g., year 0001)
+    if (date.getFullYear() < 1900) return null;
+    return date.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
@@ -137,7 +153,7 @@ function ListingInfo({ evaluation }: { evaluation: Evaluation }) {
     { label: 'List Date', value: formatDate(evaluation.listDate) },
     { label: 'Date Sold', value: formatDate(evaluation.dateSold) },
     { label: 'Data Source', value: evaluation.compDataSource },
-  ].filter(item => item.value);
+  ].filter(item => isValidValue(item.value));
 
   if (items.length === 0) return null;
 
