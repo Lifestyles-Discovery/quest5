@@ -69,23 +69,28 @@ function SearchCriteriaDisplay({
   const hasCountyFilter = confineToCounty && confineToCounty.trim() !== '';
   const hasZipFilter = confineToZip && confineToZip.trim() !== '';
 
-  // Build criteria items
+  // Build criteria items - only include filters that are actually used
   const items: { label: string; value: string }[] = [
     { label: formatSearchType(searchType), value: formatSearchTermDisplay(searchType, searchTerm) },
-    { label: 'Sqft', value: ignoreParametersExceptMonthsClosed ? 'Any' : `${formatNumber(sqftMin)}-${formatNumber(sqftMax)}` },
-    { label: 'Beds', value: ignoreParametersExceptMonthsClosed ? 'Any' : `${bedsMin}-${bedsMax}` },
-    { label: 'Baths', value: ignoreParametersExceptMonthsClosed ? 'Any' : `${bathsMin}-${bathsMax}` },
-    { label: 'Garage', value: ignoreParametersExceptMonthsClosed ? 'Any' : `${garageMin}-${garageMax}` },
-    { label: 'Year', value: ignoreParametersExceptMonthsClosed ? 'Any' : `${yearMin}-${yearMax}` },
-    { label: 'Last', value: `${monthsClosed} mo` },
   ];
 
-  if (hasCountyFilter) {
-    items.push({ label: 'County', value: confineToCounty });
+  // Only add property filters if NOT in broad search mode
+  if (!ignoreParametersExceptMonthsClosed) {
+    items.push(
+      { label: 'Sqft', value: `${formatNumber(sqftMin)}-${formatNumber(sqftMax)}` },
+      { label: 'Beds', value: `${bedsMin}-${bedsMax}` },
+      { label: 'Baths', value: `${bathsMin}-${bathsMax}` },
+      { label: 'Garage', value: `${garageMin}-${garageMax}` },
+      { label: 'Year', value: `${yearMin}-${yearMax}` },
+    );
   }
-  if (hasZipFilter) {
-    items.push({ label: 'ZIP', value: confineToZip });
-  }
+
+  // Time range is always used
+  items.push({ label: 'Last', value: `${monthsClosed} mo` });
+
+  // County/ZIP filters if set
+  if (hasCountyFilter) items.push({ label: 'County', value: confineToCounty });
+  if (hasZipFilter) items.push({ label: 'ZIP', value: confineToZip });
 
   return (
     <div className="mb-3 border-b border-gray-100 pb-2 text-xs text-gray-500">
