@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo, Fragment } from 'react';
 import { useUpdateRentComps, useToggleRentCompInclusion } from '@/hooks/api/useEvaluations';
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback';
+import { useLocalStorageBoolean } from '@/hooks/useLocalStorage';
 import { useAuth } from '@/context/AuthContext';
 import { useReadOnly } from '@/context/ReadOnlyContext';
 import type { Evaluation, RentComp, SearchType, RentCompInputs } from '@app-types/evaluation.types';
@@ -89,6 +90,7 @@ export default function RentCompsSection({
   const [showMap, setShowMap] = useState(() => {
     return localStorage.getItem('showRentCompsMap') === 'true';
   });
+  const [isFilterPanelExpanded, toggleFilterPanel] = useLocalStorageBoolean('rentCompsFilterPanelExpanded', false);
   const [sortKey, setSortKey] = useState<RentSortKey | null>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [expandedCompId, setExpandedCompId] = useState<string | null>(null);
@@ -306,6 +308,8 @@ export default function RentCompsSection({
             onReset={handleResetFilters}
             subdivision={evaluation.subdivision}
             defaultRadius={user?.preferences?.evaluationRadius}
+            isExpanded={isFilterPanelExpanded}
+            onToggleExpanded={toggleFilterPanel}
           />
         )}
       </div>

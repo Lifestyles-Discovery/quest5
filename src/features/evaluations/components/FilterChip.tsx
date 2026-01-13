@@ -225,6 +225,7 @@ interface LocationEditorProps {
   searchTypes: { type: string }[];
   onSearchTypeChange: (type: string) => void;
   onSearchTermChange: (term: string) => void;
+  compact?: boolean; // Single-line horizontal layout
 }
 
 export function LocationEditor({
@@ -233,8 +234,34 @@ export function LocationEditor({
   searchTypes,
   onSearchTypeChange,
   onSearchTermChange,
+  compact = false,
 }: LocationEditorProps) {
   const isRadius = searchType?.toLowerCase() === 'radius';
+
+  if (compact) {
+    return (
+      <div className="flex items-center gap-2">
+        <select
+          value={searchType || ''}
+          onChange={(e) => onSearchTypeChange(e.target.value)}
+          className="rounded border border-gray-300 bg-white px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+        >
+          {searchTypes.map((st) => (
+            <option key={st.type} value={st.type}>{st.type}</option>
+          ))}
+        </select>
+        <input
+          type={isRadius ? 'number' : 'text'}
+          value={searchTerm || ''}
+          onChange={(e) => onSearchTermChange(e.target.value)}
+          placeholder={isRadius ? 'Miles' : 'Subdivision name'}
+          step={isRadius ? '0.1' : undefined}
+          onFocus={(e) => e.target.select()}
+          className="w-40 rounded border border-gray-300 bg-white px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-2">

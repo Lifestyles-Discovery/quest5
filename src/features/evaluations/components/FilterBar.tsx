@@ -1,5 +1,7 @@
 import type { SaleCompInputs, RentCompInputs, SearchType } from '@app-types/evaluation.types';
+import { ChevronDownIcon } from '@/icons';
 import FilterChip, { RangeEditor, NumberEditor, SelectEditor, LocationEditor } from './FilterChip';
+import ExpandedFilterPanel from './ExpandedFilterPanel';
 
 type CompInputs = SaleCompInputs | RentCompInputs;
 
@@ -13,6 +15,8 @@ interface FilterBarProps {
   onReset?: () => void;
   subdivision?: string; // For repopulating search term when switching to subdivision search
   defaultRadius?: number; // User's preferred radius from settings
+  isExpanded?: boolean;
+  onToggleExpanded?: () => void;
 }
 
 const BEDS_MAX = 6;
@@ -69,6 +73,8 @@ export default function FilterBar({
   onReset,
   subdivision,
   defaultRadius,
+  isExpanded,
+  onToggleExpanded,
 }: FilterBarProps) {
   const isBroadSearch = filters.ignoreParametersExceptMonthsClosed || false;
   // Use first available search type as default (handles case where only Radius is available)
@@ -105,8 +111,8 @@ export default function FilterBar({
         </div>
       )}
 
-      {/* Main filter chips */}
-      <div className="flex flex-wrap items-center gap-2">
+      {/* Main filter chips - hidden when panel is expanded */}
+      <div className={`flex flex-wrap items-center gap-2 ${isExpanded ? 'hidden' : ''}`}>
         {/* Location - always active, even in broad search */}
         <FilterChip label={formatLocation(filters.searchTerm, filters.searchType || defaultSearchType)}>
           <LocationEditor
@@ -259,7 +265,63 @@ export default function FilterBar({
             reset
           </button>
         )}
+
+        {/* Expand/Collapse toggle - inline with chips (only when not expanded) */}
+        {onToggleExpanded && !isExpanded && (
+          <button
+            type="button"
+            onClick={onToggleExpanded}
+            className="ml-auto flex items-center gap-1 rounded-full px-3 py-1 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          >
+            <ChevronDownIcon className="size-4 -rotate-90 transition-transform" />
+            Show filters
+          </button>
+        )}
       </div>
+
+      {/* Expanded filter panel - replaces chips when expanded */}
+      {isExpanded && onToggleExpanded && (
+        <>
+          <ExpandedFilterPanel
+            filters={filters}
+            onChange={onChange}
+            searchTypes={searchTypes}
+            zips={zips}
+            counties={counties}
+            subdivision={subdivision}
+            defaultRadius={defaultRadius}
+          />
+          {/* Controls row when expanded */}
+          <div className="flex items-center gap-2">
+            {!isBroadSearch && (
+              <button
+                type="button"
+                onClick={() => (onImmediateChange || onChange)({ ...filters, ignoreParametersExceptMonthsClosed: true })}
+                className="rounded-full px-3 py-1 text-sm text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+              >
+                broad
+              </button>
+            )}
+            {onReset && (
+              <button
+                type="button"
+                onClick={onReset}
+                className="rounded-full px-3 py-1 text-sm text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+              >
+                reset
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={onToggleExpanded}
+              className="ml-auto flex items-center gap-1 rounded-full px-3 py-1 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            >
+              <ChevronDownIcon className="size-4 transition-transform" />
+              Hide filters
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

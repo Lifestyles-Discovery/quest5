@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo, Fragment } from 'react';
 import { useUpdateSaleComps, useToggleSaleCompInclusion } from '@/hooks/api/useEvaluations';
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback';
+import { useLocalStorageBoolean } from '@/hooks/useLocalStorage';
 import { useAuth } from '@/context/AuthContext';
 import { useReadOnly } from '@/context/ReadOnlyContext';
 import type { Evaluation, SaleComp, SearchType, SaleCompInputs } from '@app-types/evaluation.types';
@@ -89,6 +90,7 @@ export default function SaleCompsSection({
   const [showMap, setShowMap] = useState(() => {
     return localStorage.getItem('showSaleCompsMap') === 'true';
   });
+  const [isFilterPanelExpanded, toggleFilterPanel] = useLocalStorageBoolean('saleCompsFilterPanelExpanded', false);
   const [sortKey, setSortKey] = useState<SaleSortKey | null>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [expandedCompId, setExpandedCompId] = useState<string | null>(null);
@@ -320,6 +322,8 @@ export default function SaleCompsSection({
             onReset={handleResetFilters}
             subdivision={evaluation.subdivision}
             defaultRadius={user?.preferences?.evaluationRadius}
+            isExpanded={isFilterPanelExpanded}
+            onToggleExpanded={toggleFilterPanel}
           />
         )}
       </div>
