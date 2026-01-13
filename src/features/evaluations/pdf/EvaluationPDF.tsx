@@ -40,6 +40,7 @@ export function EvaluationPDF({ evaluation, property }: EvaluationPDFProps) {
           state={property.state}
           zip={property.zip}
           scenarioName={evaluation.name}
+          created={evaluation.created}
         />
 
         {/* Property Attributes */}

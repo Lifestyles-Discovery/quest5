@@ -145,14 +145,14 @@ export function PDFCompsTable({
   const dateHeader = type === 'rent' ? 'DOM' : 'Date';
 
   return (
-    <View style={tableStyles.container}>
+    <View style={tableStyles.container} wrap={false}>
       {/* Search Criteria - render if provided */}
       {searchInputs && subjectProperty && (
         <PDFSearchCriteria inputs={searchInputs} subject={subjectProperty} />
       )}
 
-      {/* Header - keep together */}
-      <View style={tableStyles.header} wrap={false}>
+      {/* Header */}
+      <View style={tableStyles.header}>
         <View>
           <Text style={tableStyles.title}>{title}</Text>
           <Text style={tableStyles.count}>

@@ -7,6 +7,8 @@ interface PDFHeaderProps {
   state: string;
   zip: string;
   scenarioName?: string;
+  created?: string;
+  lastUpdate?: string;
 }
 
 const headerStyles = StyleSheet.create({
@@ -45,14 +47,20 @@ const headerStyles = StyleSheet.create({
 
 /**
  * Hero header section for the first page of the PDF.
- * Shows property address, location, scenario name, and generation date.
+ * Shows property address, location, scenario name, and created/updated dates.
  */
-export function PDFHeader({ address, city, state, zip, scenarioName }: PDFHeaderProps) {
-  const generatedDate = new Date().toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  });
+export function PDFHeader({ address, city, state, zip, scenarioName, created, lastUpdate }: PDFHeaderProps) {
+  const formatDate = (dateStr: string | undefined) => {
+    if (!dateStr) return null;
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  };
+
+  const createdDate = formatDate(created);
+  const updatedDate = formatDate(lastUpdate);
 
   return (
     <View style={headerStyles.container}>
@@ -66,7 +74,10 @@ export function PDFHeader({ address, city, state, zip, scenarioName }: PDFHeader
         ) : (
           <Text style={headerStyles.scenarioName}> </Text>
         )}
-        <Text style={headerStyles.date}>{generatedDate}</Text>
+        <View>
+          {createdDate && <Text style={headerStyles.date}>Created: {createdDate}</Text>}
+          {updatedDate && <Text style={headerStyles.date}>Last Update: {updatedDate}</Text>}
+        </View>
       </View>
     </View>
   );
