@@ -1,5 +1,6 @@
 import { useRef, useLayoutEffect } from 'react';
 import { useEditableField } from '@/hooks/useEditableField';
+import { useReadOnly } from '@/context/ReadOnlyContext';
 import {
   formatCurrency,
   formatCurrencyInput,
@@ -68,6 +69,8 @@ export function EditableField({
   debounceMs = 0,
   hint,
 }: EditableFieldProps) {
+  const { isReadOnly } = useReadOnly();
+
   // Determine input type based on format
   // Currency uses 'text' to allow $ and comma formatting while typing
   const inputType = type ?? (format === 'text' || format === 'currency' ? 'text' : 'number');
@@ -222,6 +225,10 @@ export function EditableField({
               ${sizes.input}
             `}
           />
+        </div>
+      ) : isReadOnly ? (
+        <div className={`mt-1 font-semibold text-gray-900 dark:text-white ${sizes.value}`}>
+          {getDisplayValue()}
         </div>
       ) : (
         <div

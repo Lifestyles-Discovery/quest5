@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useUpdateNotes } from '@/hooks/api/useEvaluations';
 import { debounce } from '@/utils/debounce';
+import { useReadOnly } from '@/context/ReadOnlyContext';
 
 interface EvaluationNotesProps {
   propertyId: string;
@@ -13,6 +14,7 @@ export default function EvaluationNotes({
   evaluationId,
   notes: initialNotes,
 }: EvaluationNotesProps) {
+  const { isReadOnly } = useReadOnly();
   const [notes, setNotes] = useState(initialNotes);
 
   // Sync local state with prop when it changes (e.g., after refresh)
@@ -64,53 +66,64 @@ export default function EvaluationNotes({
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
             Notes
           </h2>
-          <div className="text-sm text-gray-500 dark:text-gray-400">
-            {isSaving ? (
-              <span className="flex items-center gap-1">
-                <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                    fill="none"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-                Saving...
-              </span>
-            ) : lastSaved ? (
-              <span>Saved at {formatTime(lastSaved)}</span>
-            ) : null}
-          </div>
+          {!isReadOnly && (
+            <div className="text-sm text-gray-500 dark:text-gray-400">
+              {isSaving ? (
+                <span className="flex items-center gap-1">
+                  <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                  Saving...
+                </span>
+              ) : lastSaved ? (
+                <span>Saved at {formatTime(lastSaved)}</span>
+              ) : null}
+            </div>
+          )}
         </div>
       </div>
 
       <div className="p-4">
-        {/* Interactive textarea - hidden during PDF export */}
-        <textarea
-          value={notes}
-          onChange={handleChange}
-          placeholder="Add notes about this evaluation..."
-          rows={6}
-          className="block w-full resize-none rounded-lg border border-gray-300 p-3 text-sm focus:border-primary focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
-        />
-        {/* Static content for PDF export - only visible when printing */}
-        <div
-          className="hidden whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300"
-          data-print-content="true"
-        >
-          {notes || 'No notes added.'}
-        </div>
-        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400" data-hide-in-pdf="true">
-          Notes are automatically saved as you type.
-        </p>
+        {isReadOnly ? (
+          <div
+            className="prose prose-sm max-w-none whitespace-pre-wrap text-sm text-gray-700 dark:prose-invert dark:text-gray-300"
+            dangerouslySetInnerHTML={{ __html: notes || '<span class="italic text-gray-400">No notes added.</span>' }}
+          />
+        ) : (
+          <>
+            {/* Interactive textarea - hidden during PDF export */}
+            <textarea
+              value={notes}
+              onChange={handleChange}
+              placeholder="Add notes about this evaluation..."
+              rows={6}
+              className="block w-full resize-none rounded-lg border border-gray-300 p-3 text-sm focus:border-primary focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+            />
+            {/* Static content for PDF export - only visible when printing */}
+            <div
+              className="hidden whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300"
+              data-print-content="true"
+            >
+              {notes || 'No notes added.'}
+            </div>
+            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400" data-hide-in-pdf="true">
+              Notes are automatically saved as you type.
+            </p>
+          </>
+        )}
       </div>
     </div>
   );

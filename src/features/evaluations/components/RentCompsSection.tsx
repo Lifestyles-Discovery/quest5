@@ -2,9 +2,11 @@ import { useState, useEffect, useRef, useMemo, Fragment } from 'react';
 import { useUpdateRentComps, useToggleRentCompInclusion } from '@/hooks/api/useEvaluations';
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback';
 import { useAuth } from '@/context/AuthContext';
+import { useReadOnly } from '@/context/ReadOnlyContext';
 import type { Evaluation, RentComp, SearchType, RentCompInputs } from '@app-types/evaluation.types';
 import CompsMap from './CompsMap';
 import FilterBar from './FilterBar';
+import SearchCriteriaSummary from './SearchCriteriaSummary';
 import PhotoThumbnail from '@/components/common/PhotoThumbnail';
 import Checkbox from '@/components/form/input/Checkbox';
 import CompDetails from './CompDetails';
@@ -79,6 +81,7 @@ export default function RentCompsSection({
   subjectAddress,
 }: RentCompsSectionProps) {
   const { user } = useAuth();
+  const { isReadOnly } = useReadOnly();
   const rentCompGroup = evaluation.rentCompGroup;
   const [filters, setFilters] = useState<Partial<RentCompInputs>>(
     rentCompGroup?.rentCompInputs || {}
@@ -277,16 +280,20 @@ export default function RentCompsSection({
 
       {/* Filters */}
       <div className="border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-900/50">
-        <FilterBar
-          filters={filters}
-          onChange={setFilters}
-          searchTypes={filteredSearchTypes}
-          zips={rentCompGroup?.zips}
-          counties={rentCompGroup?.counties}
-          onReset={handleResetFilters}
-          subdivision={evaluation.subdivision}
-          defaultRadius={user?.preferences?.evaluationRadius}
-        />
+        {isReadOnly ? (
+          <SearchCriteriaSummary inputs={filters as RentCompInputs} />
+        ) : (
+          <FilterBar
+            filters={filters}
+            onChange={setFilters}
+            searchTypes={filteredSearchTypes}
+            zips={rentCompGroup?.zips}
+            counties={rentCompGroup?.counties}
+            onReset={handleResetFilters}
+            subdivision={evaluation.subdivision}
+            defaultRadius={user?.preferences?.evaluationRadius}
+          />
+        )}
       </div>
 
       {/* Map */}
@@ -314,9 +321,11 @@ export default function RentCompsSection({
             <thead className="sticky top-0 bg-gray-50 dark:bg-gray-900">
               <tr>
                 {isExpansionEnabled && <th className="w-8 px-2 py-2"></th>}
-                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Include
-                </th>
+                {!isReadOnly && (
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">
+                    Include
+                  </th>
+                )}
                 <th className="w-12 px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">
                   Photo
                 </th>
@@ -413,12 +422,14 @@ export default function RentCompsSection({
                           </svg>
                         </td>
                       )}
-                      <td className="px-3 py-2">
-                        <Checkbox
-                          checked={comp.include}
-                          onChange={() => handleToggleComp(comp)}
-                        />
-                      </td>
+                      {!isReadOnly && (
+                        <td className="px-3 py-2">
+                          <Checkbox
+                            checked={comp.include}
+                            onChange={() => handleToggleComp(comp)}
+                          />
+                        </td>
+                      )}
                       <td className="px-2 py-2">
                         <PhotoThumbnail photos={comp.photoURLs} size="sm" />
                       </td>

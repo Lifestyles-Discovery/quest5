@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { formatCurrency, formatPercent } from '@/utils/formatters';
+import { useReadOnly } from '@/context/ReadOnlyContext';
 import type { Calculator } from '@app-types/evaluation.types';
 import CalculationBreakdownModal from './CalculationBreakdownModal';
 
@@ -14,6 +15,7 @@ export default function DealScorecard({
   onToggleConventional,
   onToggleHardMoney,
 }: DealScorecardProps) {
+  const { isReadOnly } = useReadOnly();
   const [showBreakdown, setShowBreakdown] = useState(false);
   const { conventionalInputs, hardMoneyInputs } = calculator;
 
@@ -30,13 +32,15 @@ export default function DealScorecard({
             <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
               Conventional
             </h3>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-400 dark:text-gray-500">Show</span>
-              <ToggleButton
-                checked={showConventional}
-                onChange={onToggleConventional}
-              />
-            </div>
+            {!isReadOnly && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-400 dark:text-gray-500">Show</span>
+                <ToggleButton
+                  checked={showConventional}
+                  onChange={onToggleConventional}
+                />
+              </div>
+            )}
           </div>
 
           {showConventional ? (
@@ -59,13 +63,15 @@ export default function DealScorecard({
             <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
               Hard Money + Refi
             </h3>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-400 dark:text-gray-500">Show</span>
-              <ToggleButton
-                checked={showHardMoney}
-                onChange={onToggleHardMoney}
-              />
-            </div>
+            {!isReadOnly && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-400 dark:text-gray-500">Show</span>
+                <ToggleButton
+                  checked={showHardMoney}
+                  onChange={onToggleHardMoney}
+                />
+              </div>
+            )}
           </div>
 
           {showHardMoney ? (
