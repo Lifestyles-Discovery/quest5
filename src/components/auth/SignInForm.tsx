@@ -66,6 +66,17 @@ export default function SignInForm() {
       </div>
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <div>
+          {/* Mobile-only logo */}
+          <div className="flex justify-center mb-6 lg:hidden">
+            <Link to="/" className="dark:bg-white dark:rounded-lg dark:p-3">
+              <img
+                src="/images/logo/quest-logo-small.png"
+                alt="Quest Logo"
+                className="h-12 object-contain"
+              />
+            </Link>
+          </div>
+
           <div className="mb-5 sm:mb-8">
             <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
               Sign In
@@ -161,6 +172,26 @@ export default function SignInForm() {
                   Sign Up
                 </Link>
               </p>
+            </div>
+
+            {/* Mobile-only video section */}
+            <div className="mt-8 lg:hidden">
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90 text-center mb-2">
+                New Quest Orientation
+              </h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-4">
+                There's a new Quest! Watch this video to get familiar and up-to-speed quickly.
+              </p>
+              <div className="aspect-video overflow-hidden rounded-lg shadow-lg">
+                <iframe
+                  src="https://fast.wistia.net/embed/iframe/1ubgx153s0"
+                  title="New Quest Orientation"
+                  frameBorder="0"
+                  allow="autoplay; fullscreen"
+                  allowFullScreen
+                  className="w-full h-full"
+                ></iframe>
+              </div>
             </div>
           </div>
         </div>
