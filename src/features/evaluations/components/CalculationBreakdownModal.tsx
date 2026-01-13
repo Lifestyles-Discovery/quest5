@@ -125,7 +125,7 @@ function MetricCard({ title, children }: MetricCardProps) {
   );
 }
 
-function Formula({ children }: { children: string }) {
+function Formula({ children }: { children: React.ReactNode }) {
   return (
     <p className="font-mono text-sm text-gray-700 dark:text-gray-300">{children}</p>
   );
@@ -179,7 +179,7 @@ function ConventionalEquityCapture({ calculator, viewMode }: MetricProps) {
   return (
     <MetricCard title="Equity Capture">
       {viewMode === 'basic' ? (
-        <Formula>Market Value − Total Acquisition Cost</Formula>
+        <Formula>Market Value − Total Acquisition Cost = {formatCurrency(result)}</Formula>
       ) : (
         <FormulaBlock>
           <FormulaLine>
@@ -220,7 +220,7 @@ function ConventionalMonthlyCashflow({ calculator, viewMode }: MetricProps) {
   return (
     <MetricCard title="Monthly Cashflow">
       {viewMode === 'basic' ? (
-        <Formula>Rent − Monthly Expenses</Formula>
+        <Formula>Rent − Monthly Expenses = {formatCurrency(result)}/mo</Formula>
       ) : (
         <FormulaBlock>
           <FormulaLine>
@@ -266,7 +266,7 @@ function ConventionalAnnualCashflow({ calculator, viewMode }: MetricProps) {
   return (
     <MetricCard title="Annual Cashflow">
       {viewMode === 'basic' ? (
-        <Formula>Monthly Cashflow × 12</Formula>
+        <Formula>Monthly Cashflow × 12 = {formatCurrency(result)}/yr</Formula>
       ) : (
         <FormulaBlock>
           <FormulaLine>
@@ -289,7 +289,7 @@ function ConventionalReturnOnEquity({ calculator, viewMode }: MetricProps) {
   return (
     <MetricCard title="Return on Equity">
       {viewMode === 'basic' ? (
-        <Formula>Equity Capture ÷ Cash Invested × 100</Formula>
+        <Formula>Equity Capture ÷ Cash Invested × 100 = {formatPercent(result, 1)}</Formula>
       ) : (
         <FormulaBlock>
           <FormulaLine>
@@ -312,7 +312,7 @@ function ConventionalCashOnCash({ calculator, viewMode }: MetricProps) {
   return (
     <MetricCard title="Cash-on-Cash Return">
       {viewMode === 'basic' ? (
-        <Formula>Annual Cashflow ÷ Cash Invested × 100</Formula>
+        <Formula>Annual Cashflow ÷ Cash Invested × 100 = {formatPercent(result, 1)}</Formula>
       ) : (
         <FormulaBlock>
           <FormulaLine>
@@ -338,7 +338,7 @@ function ConventionalCashNeeded({ calculator, viewMode }: MetricProps) {
   return (
     <MetricCard title="Cash Needed">
       {viewMode === 'basic' ? (
-        <Formula>Down Payment + Closing Costs + Prepaid + Repairs</Formula>
+        <Formula>Down Payment + Closing Costs + Prepaid + Repairs = {formatCurrency(result)}</Formula>
       ) : (
         <FormulaBlock>
           <SubHeader>Down Payment</SubHeader>
@@ -384,7 +384,7 @@ function HardMoneyEquityCapture({ calculator, viewMode }: MetricProps) {
   return (
     <MetricCard title="Equity Capture">
       {viewMode === 'basic' ? (
-        <Formula>Market Value − Total Acquisition Cost (including refi)</Formula>
+        <Formula>Market Value − Total Acquisition Cost (including refi) = {formatCurrency(result)}</Formula>
       ) : (
         <FormulaBlock>
           <FormulaLine>
@@ -429,7 +429,7 @@ function HardMoneyMonthlyCashflow({ calculator, viewMode }: MetricProps) {
   return (
     <MetricCard title="Monthly Cashflow (Post-Refi)">
       {viewMode === 'basic' ? (
-        <Formula>Rent − Monthly Expenses (using refi mortgage)</Formula>
+        <Formula>Rent − Monthly Expenses (using refi mortgage) = {formatCurrency(result)}/mo</Formula>
       ) : (
         <FormulaBlock>
           <FormulaLine>
@@ -475,7 +475,7 @@ function HardMoneyAnnualCashflow({ calculator, viewMode }: MetricProps) {
   return (
     <MetricCard title="Annual Cashflow">
       {viewMode === 'basic' ? (
-        <Formula>Monthly Cashflow × 12</Formula>
+        <Formula>Monthly Cashflow × 12 = {formatCurrency(result)}/yr</Formula>
       ) : (
         <FormulaBlock>
           <FormulaLine>
@@ -498,7 +498,7 @@ function HardMoneyReturnOnEquity({ calculator, viewMode }: MetricProps) {
   return (
     <MetricCard title="Return on Equity">
       {viewMode === 'basic' ? (
-        <Formula>Equity Capture ÷ Cash Invested × 100</Formula>
+        <Formula>Equity Capture ÷ Cash Invested × 100 = {formatPercent(result, 1)}</Formula>
       ) : (
         <FormulaBlock>
           <FormulaLine>
@@ -521,7 +521,7 @@ function HardMoneyCashOnCash({ calculator, viewMode }: MetricProps) {
   return (
     <MetricCard title="Cash-on-Cash Return">
       {viewMode === 'basic' ? (
-        <Formula>Annual Cashflow ÷ Cash Invested × 100</Formula>
+        <Formula>Annual Cashflow ÷ Cash Invested × 100 = {formatPercent(result, 1)}</Formula>
       ) : (
         <FormulaBlock>
           <FormulaLine>
@@ -560,7 +560,7 @@ function HardMoneyCashNeeded({ calculator, viewMode }: MetricProps) {
   return (
     <MetricCard title="Cash Needed">
       {viewMode === 'basic' ? (
-        <Formula>Initial Close + Holding Costs + Refi Close − Cashback</Formula>
+        <Formula>Initial Close + Holding Costs + Refi Close − Cashback = {formatCurrency(result)}</Formula>
       ) : (
         <FormulaBlock>
           <SubHeader>Phase 1: Hard Money Close</SubHeader>
