@@ -34,7 +34,7 @@ export default function DealTermsSummary({
       {/* Primary: The 4 numbers that define the deal */}
       <div className="p-6">
         <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
-          Cash Flow Calculator
+          The Deal
         </h2>
         <div className={`grid grid-cols-2 gap-4 ${showHardMoney ? 'lg:grid-cols-5' : 'lg:grid-cols-4'}`}>
           <EditableField

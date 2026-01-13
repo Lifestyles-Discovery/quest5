@@ -265,7 +265,7 @@ export default function PrintEvaluationPage() {
         {/* Deal Terms */}
         {calculator && (
           <section className="rounded-lg border border-gray-200 bg-white p-5">
-            <h2 className="mb-4 text-lg font-semibold">Cash Flow Calculator</h2>
+            <h2 className="mb-4 text-lg font-semibold">The Deal</h2>
             <div className="grid grid-cols-4 gap-4 text-sm">
               <div>
                 <p className="text-gray-500">Purchase Price</p>
