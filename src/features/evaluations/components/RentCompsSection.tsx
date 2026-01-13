@@ -96,6 +96,8 @@ export default function RentCompsSection({
   const lastServerFiltersRef = useRef<string>('');
   const hasInitializedSearchTerm = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
+  // Queue for serializing toggle mutations to prevent backend race conditions
+  const toggleQueueRef = useRef<Promise<void>>(Promise.resolve());
 
   const updateRentComps = useUpdateRentComps();
   const toggleInclusion = useToggleRentCompInclusion();
@@ -188,12 +190,26 @@ export default function RentCompsSection({
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
-    toggleInclusion.mutate({
-      propertyId,
-      evaluationId,
-      compId: comp.id,
-      include: !comp.include,
-    });
+
+    // Queue the mutation to prevent backend race conditions.
+    // Each toggle waits for the previous one to complete before sending its request.
+    // Optimistic updates (in onMutate) still happen immediately for responsive UI.
+    toggleQueueRef.current = toggleQueueRef.current.then(
+      () =>
+        new Promise<void>((resolve) => {
+          toggleInclusion.mutate(
+            {
+              propertyId,
+              evaluationId,
+              compId: comp.id,
+              include: !comp.include,
+            },
+            {
+              onSettled: () => resolve(),
+            }
+          );
+        })
+    );
   };
 
   const formatCurrency = (value: number) => {

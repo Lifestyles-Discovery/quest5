@@ -206,25 +206,27 @@ export function useToggleSaleCompInclusion() {
       }
     },
     onSuccess: (updatedEvaluation, { propertyId, evaluationId }) => {
-      // Preserve local saleCompInputs to prevent sync effect from resetting filters
+      // Merge server response with current cache to prevent race conditions.
+      // Keep local saleComps (preserves optimistic updates from other in-flight mutations)
+      // and saleCompInputs (prevents sync effect from resetting filters).
+      // Only take calculated values from the server response.
       const current = queryClient.getQueryData<Evaluation>(
         evaluationsKeys.detail(propertyId, evaluationId)
       );
 
-      if (current?.saleCompGroup?.saleCompInputs) {
-        updatedEvaluation = {
-          ...updatedEvaluation,
-          saleCompGroup: {
-            ...updatedEvaluation.saleCompGroup,
-            saleCompInputs: current.saleCompGroup.saleCompInputs,
-          },
-        };
+      if (current) {
+        queryClient.setQueryData(
+          evaluationsKeys.detail(propertyId, evaluationId),
+          {
+            ...updatedEvaluation,
+            saleCompGroup: {
+              ...updatedEvaluation.saleCompGroup,
+              saleComps: current.saleCompGroup?.saleComps,
+              saleCompInputs: current.saleCompGroup?.saleCompInputs,
+            },
+          }
+        );
       }
-
-      queryClient.setQueryData(
-        evaluationsKeys.detail(propertyId, evaluationId),
-        updatedEvaluation
-      );
     },
   });
 }
@@ -317,25 +319,27 @@ export function useToggleRentCompInclusion() {
       }
     },
     onSuccess: (updatedEvaluation, { propertyId, evaluationId }) => {
-      // Preserve local rentCompInputs to prevent sync effect from resetting filters
+      // Merge server response with current cache to prevent race conditions.
+      // Keep local rentComps (preserves optimistic updates from other in-flight mutations)
+      // and rentCompInputs (prevents sync effect from resetting filters).
+      // Only take calculated values from the server response.
       const current = queryClient.getQueryData<Evaluation>(
         evaluationsKeys.detail(propertyId, evaluationId)
       );
 
-      if (current?.rentCompGroup?.rentCompInputs) {
-        updatedEvaluation = {
-          ...updatedEvaluation,
-          rentCompGroup: {
-            ...updatedEvaluation.rentCompGroup,
-            rentCompInputs: current.rentCompGroup.rentCompInputs,
-          },
-        };
+      if (current) {
+        queryClient.setQueryData(
+          evaluationsKeys.detail(propertyId, evaluationId),
+          {
+            ...updatedEvaluation,
+            rentCompGroup: {
+              ...updatedEvaluation.rentCompGroup,
+              rentComps: current.rentCompGroup?.rentComps,
+              rentCompInputs: current.rentCompGroup?.rentCompInputs,
+            },
+          }
+        );
       }
-
-      queryClient.setQueryData(
-        evaluationsKeys.detail(propertyId, evaluationId),
-        updatedEvaluation
-      );
     },
   });
 }
