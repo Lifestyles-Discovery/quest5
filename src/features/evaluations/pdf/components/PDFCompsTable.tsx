@@ -1,9 +1,18 @@
 import { View, Text, StyleSheet } from '@react-pdf/renderer';
 import { colors } from '../styles';
 import { formatCurrency, formatNumber } from '@/utils/formatters';
-import type { SaleComp, RentComp } from '@app-types/evaluation.types';
+import type { SaleComp, RentComp, SaleCompInputs, RentCompInputs } from '@app-types/evaluation.types';
+import { PDFSearchCriteria } from './PDFSearchCriteria';
 
 type CompType = 'sale' | 'rent';
+
+interface SubjectProperty {
+  sqft: number;
+  beds: number;
+  baths: number;
+  garage: number;
+  yearBuilt: number;
+}
 
 interface PDFCompsTableProps {
   title: string;
@@ -12,6 +21,10 @@ interface PDFCompsTableProps {
   averagePricePerSqft: number;
   subjectSqft: number;
   type: CompType;
+  /** Optional search inputs to display above the comps table */
+  searchInputs?: SaleCompInputs | RentCompInputs;
+  /** Subject property values for calculating search ranges */
+  subjectProperty?: SubjectProperty;
 }
 
 const tableStyles = StyleSheet.create({
@@ -122,6 +135,8 @@ export function PDFCompsTable({
   averagePricePerSqft,
   subjectSqft,
   type,
+  searchInputs,
+  subjectProperty,
 }: PDFCompsTableProps) {
   // Filter to only included comps
   const includedComps = comps.filter((comp) => comp.include);
@@ -131,6 +146,11 @@ export function PDFCompsTable({
 
   return (
     <View style={tableStyles.container}>
+      {/* Search Criteria - render if provided */}
+      {searchInputs && subjectProperty && (
+        <PDFSearchCriteria inputs={searchInputs} subject={subjectProperty} />
+      )}
+
       {/* Header - keep together */}
       <View style={tableStyles.header} wrap={false}>
         <View>

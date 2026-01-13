@@ -1,10 +1,109 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import axios from 'axios';
-import type { Evaluation } from '@app-types/evaluation.types';
+import type { Evaluation, SaleCompInputs, RentCompInputs } from '@app-types/evaluation.types';
 import type { Property } from '@app-types/property.types';
 import { baseURL } from '@/api/client';
-import { formatCurrency, formatPercent } from '@/utils/formatters';
+import { formatCurrency, formatPercent, formatNumber } from '@/utils/formatters';
+
+interface SubjectProperty {
+  sqft: number;
+  beds: number;
+  baths: number;
+  garage: number;
+  yearBuilt: number;
+}
+
+/**
+ * Displays search criteria in a compact inline format
+ */
+function SearchCriteriaDisplay({
+  inputs,
+  subject,
+}: {
+  inputs: SaleCompInputs | RentCompInputs;
+  subject: SubjectProperty;
+}) {
+  const {
+    searchType,
+    searchTerm,
+    sqftPlusMinus,
+    bedsMin,
+    bedsMax,
+    bathsMin,
+    bathsMax,
+    garageMin,
+    garageMax,
+    yearBuiltPlusMinus,
+    monthsClosed,
+    confineToCounty,
+    confineToZip,
+    ignoreParametersExceptMonthsClosed,
+  } = inputs;
+
+  // Calculate actual ranges from subject property
+  const sqftMin = Math.max(0, subject.sqft - sqftPlusMinus);
+  const sqftMax = subject.sqft + sqftPlusMinus;
+  const yearMin = subject.yearBuilt - yearBuiltPlusMinus;
+  const yearMax = subject.yearBuilt + yearBuiltPlusMinus;
+
+  // Format search type for display
+  const formatSearchType = (type: string): string => {
+    const typeMap: Record<string, string> = {
+      subdivision: 'Subdivision',
+      radius: 'Radius',
+      zip: 'ZIP',
+      city: 'City',
+      county: 'County',
+    };
+    return typeMap[type.toLowerCase()] || type;
+  };
+
+  // Format search term based on type
+  const formatSearchTermDisplay = (type: string, term: string): string => {
+    if (!term) return '-';
+    if (type.toLowerCase() === 'radius') return `${term} mi`;
+    return term;
+  };
+
+  const hasCountyFilter = confineToCounty && confineToCounty.trim() !== '';
+  const hasZipFilter = confineToZip && confineToZip.trim() !== '';
+
+  // Build criteria items
+  const items: { label: string; value: string }[] = [
+    { label: formatSearchType(searchType), value: formatSearchTermDisplay(searchType, searchTerm) },
+    { label: 'Sqft', value: ignoreParametersExceptMonthsClosed ? 'Any' : `${formatNumber(sqftMin)}-${formatNumber(sqftMax)}` },
+    { label: 'Beds', value: ignoreParametersExceptMonthsClosed ? 'Any' : `${bedsMin}-${bedsMax}` },
+    { label: 'Baths', value: ignoreParametersExceptMonthsClosed ? 'Any' : `${bathsMin}-${bathsMax}` },
+    { label: 'Garage', value: ignoreParametersExceptMonthsClosed ? 'Any' : `${garageMin}-${garageMax}` },
+    { label: 'Year', value: ignoreParametersExceptMonthsClosed ? 'Any' : `${yearMin}-${yearMax}` },
+    { label: 'Last', value: `${monthsClosed} mo` },
+  ];
+
+  if (hasCountyFilter) {
+    items.push({ label: 'County', value: confineToCounty });
+  }
+  if (hasZipFilter) {
+    items.push({ label: 'ZIP', value: confineToZip });
+  }
+
+  return (
+    <div className="mb-3 border-b border-gray-100 pb-2 text-xs text-gray-500">
+      <span className="flex flex-wrap items-center gap-x-1">
+        {items.map((item, index) => (
+          <span key={item.label} className="inline-flex items-center">
+            {index > 0 && <span className="mx-1.5 text-gray-300">•</span>}
+            <span className="text-gray-400">{item.label}:</span>
+            <span className="ml-0.5">{item.value}</span>
+          </span>
+        ))}
+      </span>
+      {ignoreParametersExceptMonthsClosed && (
+        <p className="mt-1 text-xs italic text-gray-400">Broad search: filters ignored except time range</p>
+      )}
+    </div>
+  );
+}
 
 /**
  * Print-optimized evaluation page for Restpack PDF generation
@@ -166,6 +265,20 @@ export default function PrintEvaluationPage() {
             {includedSaleComps.length} of {saleComps.length} included
           </p>
 
+          {/* Search Criteria */}
+          {evaluation.saleCompGroup?.saleCompInputs && (
+            <SearchCriteriaDisplay
+              inputs={evaluation.saleCompGroup.saleCompInputs}
+              subject={{
+                sqft: evaluation.sqft || 0,
+                beds: evaluation.beds || 0,
+                baths: evaluation.baths || 0,
+                garage: evaluation.garage || 0,
+                yearBuilt: evaluation.yearBuilt || 0,
+              }}
+            />
+          )}
+
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b text-left text-gray-500">
@@ -220,6 +333,20 @@ export default function PrintEvaluationPage() {
           <p className="mb-4 text-sm text-gray-500">
             {includedRentComps.length} of {rentComps.length} included
           </p>
+
+          {/* Search Criteria */}
+          {evaluation.rentCompGroup?.rentCompInputs && (
+            <SearchCriteriaDisplay
+              inputs={evaluation.rentCompGroup.rentCompInputs}
+              subject={{
+                sqft: evaluation.sqft || 0,
+                beds: evaluation.beds || 0,
+                baths: evaluation.baths || 0,
+                garage: evaluation.garage || 0,
+                yearBuilt: evaluation.yearBuilt || 0,
+              }}
+            />
+          )}
 
           <table className="w-full text-sm">
             <thead>

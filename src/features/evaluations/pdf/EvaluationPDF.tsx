@@ -54,6 +54,14 @@ export function EvaluationPDF({ evaluation, property }: EvaluationPDFProps) {
             averagePricePerSqft={saleCompGroup.averagePricePerSqft || 0}
             subjectSqft={evaluation.sqft || 0}
             type="sale"
+            searchInputs={saleCompGroup.saleCompInputs}
+            subjectProperty={{
+              sqft: evaluation.sqft || 0,
+              beds: evaluation.beds || 0,
+              baths: evaluation.baths || 0,
+              garage: evaluation.garage || 0,
+              yearBuilt: evaluation.yearBuilt || 0,
+            }}
           />
         )}
 
@@ -66,6 +74,14 @@ export function EvaluationPDF({ evaluation, property }: EvaluationPDFProps) {
             averagePricePerSqft={rentCompGroup.averagePricePerSqft || 0}
             subjectSqft={evaluation.sqft || 0}
             type="rent"
+            searchInputs={rentCompGroup.rentCompInputs}
+            subjectProperty={{
+              sqft: evaluation.sqft || 0,
+              beds: evaluation.beds || 0,
+              baths: evaluation.baths || 0,
+              garage: evaluation.garage || 0,
+              yearBuilt: evaluation.yearBuilt || 0,
+            }}
           />
         )}
 
