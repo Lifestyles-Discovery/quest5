@@ -84,7 +84,7 @@ export function PDFDealTerms({ calculator }: PDFDealTermsProps) {
 
   return (
     <View style={dealStyles.container} wrap={false}>
-      <Text style={dealStyles.title}>The Deal</Text>
+      <Text style={dealStyles.title}>Cash Flow Calculator</Text>
 
       {/* Primary Metrics */}
       <View style={dealStyles.primaryRow}>

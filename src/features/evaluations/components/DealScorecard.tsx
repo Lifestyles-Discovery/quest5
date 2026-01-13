@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { formatCurrency, formatPercent } from '@/utils/formatters';
-import { ChevronDownIcon } from '@/icons';
 import type { Calculator } from '@app-types/evaluation.types';
 import CalculationBreakdownModal from './CalculationBreakdownModal';
 
@@ -15,7 +14,6 @@ export default function DealScorecard({
   onToggleConventional,
   onToggleHardMoney,
 }: DealScorecardProps) {
-  const [showDetails, setShowDetails] = useState(false);
   const [showBreakdown, setShowBreakdown] = useState(false);
   const { conventionalInputs, hardMoneyInputs } = calculator;
 
@@ -85,29 +83,27 @@ export default function DealScorecard({
         </div>
       </div>
 
-      {/* Show Details Toggle */}
+      {/* Details Section */}
       {(showConventional || showHardMoney) && (
         <>
-          <button
-            onClick={() => setShowDetails(!showDetails)}
-            className="flex w-full items-center justify-center gap-2 border-t border-gray-200 py-3 text-sm text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700/50"
-          >
-            <ChevronDownIcon
-              className={`size-4 transition-transform ${showDetails ? 'rotate-180' : ''}`}
-            />
-            {showDetails ? 'Hide Details' : 'Show Details'}
-          </button>
-
-          {/* Expanded Details - always rendered for PDF export, hidden when collapsed */}
-          <div
-            className={`grid grid-cols-1 divide-y divide-gray-200 border-t border-gray-200 bg-gray-50 dark:divide-gray-700 dark:border-gray-700 dark:bg-gray-900/50 sm:grid-cols-2 sm:divide-x sm:divide-y-0 ${showDetails ? '' : 'hidden'}`}
-            data-expandable-content="true"
-          >
+          {/* Cash Out Of Pocket & Monthly Cash Flow Details */}
+          <div className="grid grid-cols-1 divide-y divide-gray-200 border-t border-gray-200 bg-gray-50 dark:divide-gray-700 dark:border-gray-700 dark:bg-gray-900/50 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
             {/* Conventional Details */}
             <div className={`p-6 ${!showConventional ? 'opacity-40' : ''}`}>
               {showConventional ? (
-                <DetailsColumn
+                <ConventionalDetailsColumn
+                  downPayment={calculator.conventionalDownpayment}
+                  closingCosts={calculator.conventionalClosingCosts}
+                  prepaidExpenses={calculator.conventionalPrepaidExpenses}
+                  repairs={calculator.conventionalRepairsMakeReady}
                   cashNeeded={calculator.conventionalCashOutOfPocketTotal}
+                  monthlyRent={calculator.conventionalMonthlyRent}
+                  notePayment={calculator.conventionalNotePaymentMonthly}
+                  propertyTax={calculator.conventionalPropertyTaxMonthly}
+                  propertyInsurance={calculator.conventionalPropertyInsuranceMonthly}
+                  mortgageInsurance={calculator.conventionalMortgageInsuranceMonthly}
+                  hoa={calculator.conventionalHoaMonthly}
+                  miscellaneous={calculator.conventionalMiscellaneousMonthly}
                   monthlyCashflow={calculator.conventionalTotalCashflowMonthly}
                 />
               ) : (
@@ -120,8 +116,19 @@ export default function DealScorecard({
             {/* Hard Money Details */}
             <div className={`p-6 ${!showHardMoney ? 'opacity-40' : ''}`}>
               {showHardMoney ? (
-                <DetailsColumn
+                <HardMoneyDetailsColumn
+                  hardCashToClose={calculator.hardCashToClose}
+                  hardHoldingCost={calculator.hardHoldingCost}
+                  refiCashToClose={calculator.hardRefiCashToClose}
+                  refiCashBack={calculator.hardRefiCashBack}
                   cashNeeded={calculator.hardCashOutOfPocketTotal}
+                  monthlyRent={calculator.hardMonthlyRent}
+                  notePayment={calculator.hardRefinanceNotePaymentMonthly}
+                  propertyTax={calculator.hardPropertyTaxMonthly}
+                  propertyInsurance={calculator.hardPropertyInsuranceMonthly}
+                  mortgageInsurance={calculator.hardMortgageInsuranceMonthly}
+                  hoa={calculator.hardHoaMonthly}
+                  miscellaneous={calculator.hardMiscellaneousMonthly}
                   monthlyCashflow={calculator.hardTotalCashflowMonthly}
                 />
               ) : (
@@ -226,40 +233,201 @@ function GainsColumn({ equityCapture, cashOnCashReturn, annualCashflow, returnOn
 }
 
 // ============================================================================
-// Details Column (Secondary - Expandable)
+// Conventional Details Column (Secondary - Expandable)
 // ============================================================================
 
-interface DetailsColumnProps {
+interface ConventionalDetailsProps {
+  downPayment: number;
+  closingCosts: number;
+  prepaidExpenses: number;
+  repairs: number;
   cashNeeded: number;
+  monthlyRent: number;
+  notePayment: number;
+  propertyTax: number;
+  propertyInsurance: number;
+  mortgageInsurance: number;
+  hoa: number;
+  miscellaneous: number;
   monthlyCashflow: number;
 }
 
-function DetailsColumn({ cashNeeded, monthlyCashflow }: DetailsColumnProps) {
+function ConventionalDetailsColumn({
+  downPayment,
+  closingCosts,
+  prepaidExpenses,
+  repairs,
+  cashNeeded,
+  monthlyRent,
+  notePayment,
+  propertyTax,
+  propertyInsurance,
+  mortgageInsurance,
+  hoa,
+  miscellaneous,
+  monthlyCashflow,
+}: ConventionalDetailsProps) {
   const isPositiveCashflow = monthlyCashflow >= 0;
 
   return (
-    <div className="space-y-3">
-      {/* Cash Needed */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500 dark:text-gray-400">Cash Needed</p>
-        <p className="text-sm font-semibold text-gray-900 dark:text-white">
-          {formatCurrency(cashNeeded)}
-        </p>
+    <div className="space-y-6">
+      {/* Cash Out Of Pocket Section */}
+      <div>
+        <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
+          Cash Out Of Pocket
+        </h4>
+        <div className="space-y-1">
+          <DetailRow label="Down payment" value={downPayment} />
+          <DetailRow label="Closing costs" value={closingCosts} />
+          <DetailRow label="Prepaid expenses" value={prepaidExpenses} />
+          <DetailRow label="Repairs" value={repairs} />
+          <DetailRow label="Total" value={cashNeeded} isTotal />
+        </div>
       </div>
 
-      {/* Monthly Cashflow */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500 dark:text-gray-400">Monthly Cashflow</p>
-        <p
-          className={`text-sm font-semibold ${
-            isPositiveCashflow
-              ? 'text-green-600 dark:text-green-400'
-              : 'text-red-600 dark:text-red-400'
-          }`}
-        >
-          {formatCurrency(monthlyCashflow)}/mo
-        </p>
+      {/* Monthly Cash Flow Section */}
+      <div>
+        <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
+          Monthly Cash Flow
+        </h4>
+        <div className="space-y-1">
+          <DetailRow label="Monthly rent" value={monthlyRent} isPositive />
+          <DetailRow label="Note payment" value={-notePayment} />
+          <DetailRow label="Property tax" value={-propertyTax} />
+          <DetailRow label="Property ins" value={-propertyInsurance} />
+          <DetailRow label="Mortgage ins" value={-mortgageInsurance} />
+          <DetailRow label="HOA" value={-hoa} />
+          <DetailRow label="Misc monthly" value={-miscellaneous} />
+          <DetailRow
+            label="Total"
+            value={monthlyCashflow}
+            isTotal
+            colorCode={isPositiveCashflow ? 'positive' : 'negative'}
+            suffix="/mo"
+          />
+        </div>
       </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// Hard Money Details Column (Secondary - Expandable)
+// ============================================================================
+
+interface HardMoneyDetailsProps {
+  hardCashToClose: number;
+  hardHoldingCost: number;
+  refiCashToClose: number;
+  refiCashBack: number;
+  cashNeeded: number;
+  monthlyRent: number;
+  notePayment: number;
+  propertyTax: number;
+  propertyInsurance: number;
+  mortgageInsurance: number;
+  hoa: number;
+  miscellaneous: number;
+  monthlyCashflow: number;
+}
+
+function HardMoneyDetailsColumn({
+  hardCashToClose,
+  hardHoldingCost,
+  refiCashToClose,
+  refiCashBack,
+  cashNeeded,
+  monthlyRent,
+  notePayment,
+  propertyTax,
+  propertyInsurance,
+  mortgageInsurance,
+  hoa,
+  miscellaneous,
+  monthlyCashflow,
+}: HardMoneyDetailsProps) {
+  const isPositiveCashflow = monthlyCashflow >= 0;
+
+  return (
+    <div className="space-y-6">
+      {/* Cash Out Of Pocket Section */}
+      <div>
+        <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
+          Cash Out Of Pocket
+        </h4>
+        <div className="space-y-1">
+          <DetailRow label="Hard cash to close" value={hardCashToClose} />
+          <DetailRow label="Holding costs" value={hardHoldingCost} />
+          <DetailRow label="Refi cash to close" value={refiCashToClose} />
+          <DetailRow label="Refi cashback" value={-refiCashBack} note="*" />
+          <DetailRow label="Total" value={cashNeeded} isTotal />
+        </div>
+      </div>
+
+      {/* Monthly Cash Flow Section (Post-Refi) */}
+      <div>
+        <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
+          Monthly Cash Flow
+        </h4>
+        <div className="space-y-1">
+          <DetailRow label="Monthly rent" value={monthlyRent} isPositive />
+          <DetailRow label="Note payment" value={-notePayment} />
+          <DetailRow label="Property tax" value={-propertyTax} />
+          <DetailRow label="Property ins" value={-propertyInsurance} />
+          <DetailRow label="Mortgage ins" value={-mortgageInsurance} />
+          <DetailRow label="HOA" value={-hoa} />
+          <DetailRow label="Misc monthly" value={-miscellaneous} />
+          <DetailRow
+            label="Total"
+            value={monthlyCashflow}
+            isTotal
+            colorCode={isPositiveCashflow ? 'positive' : 'negative'}
+            suffix="/mo"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// Detail Row Helper
+// ============================================================================
+
+interface DetailRowProps {
+  label: string;
+  value: number;
+  isTotal?: boolean;
+  isPositive?: boolean;
+  colorCode?: 'positive' | 'negative';
+  suffix?: string;
+  note?: string;
+}
+
+function DetailRow({ label, value, isTotal, isPositive, colorCode, suffix, note }: DetailRowProps) {
+  let valueClass = 'text-gray-900 dark:text-white';
+  if (isPositive) {
+    valueClass = 'text-green-600 dark:text-green-400';
+  } else if (colorCode === 'positive') {
+    valueClass = 'text-green-600 dark:text-green-400';
+  } else if (colorCode === 'negative') {
+    valueClass = 'text-red-600 dark:text-red-400';
+  }
+
+  return (
+    <div
+      className={`flex items-center justify-between ${
+        isTotal ? 'border-t border-gray-200 pt-1 dark:border-gray-600' : ''
+      }`}
+    >
+      <p className={`text-sm text-gray-500 dark:text-gray-400 ${isTotal ? 'font-semibold' : ''}`}>
+        {note && <span className="text-gray-400">{note}</span>}
+        {label}
+      </p>
+      <p className={`text-sm ${isTotal ? 'font-semibold' : ''} ${valueClass}`}>
+        {formatCurrency(value)}
+        {suffix && <span className="text-gray-400">{suffix}</span>}
+      </p>
     </div>
   );
 }

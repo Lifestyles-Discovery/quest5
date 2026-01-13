@@ -70,19 +70,54 @@ const calcStyles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
+  breakdownSection: {
+    marginBottom: 10,
+  },
+  breakdownTitle: {
+    fontSize: 8,
+    fontFamily: 'Helvetica-Bold',
+    color: colors.textSecondary,
+    textTransform: 'uppercase',
+    marginBottom: 4,
+  },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 4,
+    marginBottom: 2,
+  },
+  detailRowTotal: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 2,
+    paddingTop: 2,
+    borderTopWidth: 0.5,
+    borderTopColor: colors.border,
   },
   detailLabel: {
-    fontSize: 9,
+    fontSize: 8,
+    color: colors.textSecondary,
+  },
+  detailLabelBold: {
+    fontSize: 8,
+    fontFamily: 'Helvetica-Bold',
     color: colors.textSecondary,
   },
   detailValue: {
-    fontSize: 9,
+    fontSize: 8,
+    color: colors.textPrimary,
+  },
+  detailValueBold: {
+    fontSize: 8,
     fontFamily: 'Helvetica-Bold',
     color: colors.textPrimary,
+  },
+  detailValuePositive: {
+    fontSize: 8,
+    color: '#16a34a', // green-600
+  },
+  detailValueNegative: {
+    fontSize: 8,
+    color: '#dc2626', // red-600
   },
   // Loan terms section
   loanTermsSection: {
@@ -180,17 +215,69 @@ export function PDFCalculatorResults({ calculator }: PDFCalculatorResultsProps) 
               </View>
             </View>
 
-            {/* Details */}
+            {/* Cash Out Of Pocket Breakdown */}
             <View style={calcStyles.detailsSection}>
-              <View style={calcStyles.detailRow}>
-                <Text style={calcStyles.detailLabel}>Cash Needed</Text>
-                <Text style={calcStyles.detailValue}>{formatCurrency(calculator.conventionalCashOutOfPocketTotal || 0)}</Text>
+              <View style={calcStyles.breakdownSection}>
+                <Text style={calcStyles.breakdownTitle}>Cash Out Of Pocket</Text>
+                <View style={calcStyles.detailRow}>
+                  <Text style={calcStyles.detailLabel}>Down payment</Text>
+                  <Text style={calcStyles.detailValue}>{formatCurrency(calculator.conventionalDownpayment || 0)}</Text>
+                </View>
+                <View style={calcStyles.detailRow}>
+                  <Text style={calcStyles.detailLabel}>Closing costs</Text>
+                  <Text style={calcStyles.detailValue}>{formatCurrency(calculator.conventionalClosingCosts || 0)}</Text>
+                </View>
+                <View style={calcStyles.detailRow}>
+                  <Text style={calcStyles.detailLabel}>Prepaid expenses</Text>
+                  <Text style={calcStyles.detailValue}>{formatCurrency(calculator.conventionalPrepaidExpenses || 0)}</Text>
+                </View>
+                <View style={calcStyles.detailRow}>
+                  <Text style={calcStyles.detailLabel}>Repairs</Text>
+                  <Text style={calcStyles.detailValue}>{formatCurrency(calculator.conventionalRepairsMakeReady || 0)}</Text>
+                </View>
+                <View style={calcStyles.detailRowTotal}>
+                  <Text style={calcStyles.detailLabelBold}>Total</Text>
+                  <Text style={calcStyles.detailValueBold}>{formatCurrency(calculator.conventionalCashOutOfPocketTotal || 0)}</Text>
+                </View>
               </View>
-              <View style={calcStyles.detailRow}>
-                <Text style={calcStyles.detailLabel}>Monthly Cashflow</Text>
-                <Text style={calcStyles.detailValue}>
-                  {formatCurrency(calculator.conventionalTotalCashflowMonthly || 0)}/mo
-                </Text>
+
+              {/* Monthly Cash Flow Breakdown */}
+              <View style={calcStyles.breakdownSection}>
+                <Text style={calcStyles.breakdownTitle}>Monthly Cash Flow</Text>
+                <View style={calcStyles.detailRow}>
+                  <Text style={calcStyles.detailLabel}>Monthly rent</Text>
+                  <Text style={calcStyles.detailValuePositive}>{formatCurrency(calculator.conventionalMonthlyRent || 0)}</Text>
+                </View>
+                <View style={calcStyles.detailRow}>
+                  <Text style={calcStyles.detailLabel}>Note payment</Text>
+                  <Text style={calcStyles.detailValue}>{formatCurrency(-(calculator.conventionalNotePaymentMonthly || 0))}</Text>
+                </View>
+                <View style={calcStyles.detailRow}>
+                  <Text style={calcStyles.detailLabel}>Property tax</Text>
+                  <Text style={calcStyles.detailValue}>{formatCurrency(-(calculator.conventionalPropertyTaxMonthly || 0))}</Text>
+                </View>
+                <View style={calcStyles.detailRow}>
+                  <Text style={calcStyles.detailLabel}>Property ins</Text>
+                  <Text style={calcStyles.detailValue}>{formatCurrency(-(calculator.conventionalPropertyInsuranceMonthly || 0))}</Text>
+                </View>
+                <View style={calcStyles.detailRow}>
+                  <Text style={calcStyles.detailLabel}>Mortgage ins</Text>
+                  <Text style={calcStyles.detailValue}>{formatCurrency(-(calculator.conventionalMortgageInsuranceMonthly || 0))}</Text>
+                </View>
+                <View style={calcStyles.detailRow}>
+                  <Text style={calcStyles.detailLabel}>HOA</Text>
+                  <Text style={calcStyles.detailValue}>{formatCurrency(-(calculator.conventionalHoaMonthly || 0))}</Text>
+                </View>
+                <View style={calcStyles.detailRow}>
+                  <Text style={calcStyles.detailLabel}>Misc monthly</Text>
+                  <Text style={calcStyles.detailValue}>{formatCurrency(-(calculator.conventionalMiscellaneousMonthly || 0))}</Text>
+                </View>
+                <View style={calcStyles.detailRowTotal}>
+                  <Text style={calcStyles.detailLabelBold}>Total</Text>
+                  <Text style={(calculator.conventionalTotalCashflowMonthly || 0) >= 0 ? calcStyles.detailValuePositive : calcStyles.detailValueNegative}>
+                    {formatCurrency(calculator.conventionalTotalCashflowMonthly || 0)}/mo
+                  </Text>
+                </View>
               </View>
             </View>
 
@@ -266,17 +353,69 @@ export function PDFCalculatorResults({ calculator }: PDFCalculatorResultsProps) 
               </View>
             </View>
 
-            {/* Details */}
+            {/* Cash Out Of Pocket Breakdown */}
             <View style={calcStyles.detailsSection}>
-              <View style={calcStyles.detailRow}>
-                <Text style={calcStyles.detailLabel}>Cash Needed</Text>
-                <Text style={calcStyles.detailValue}>{formatCurrency(calculator.hardCashOutOfPocketTotal || 0)}</Text>
+              <View style={calcStyles.breakdownSection}>
+                <Text style={calcStyles.breakdownTitle}>Cash Out Of Pocket</Text>
+                <View style={calcStyles.detailRow}>
+                  <Text style={calcStyles.detailLabel}>Hard cash to close</Text>
+                  <Text style={calcStyles.detailValue}>{formatCurrency(calculator.hardCashToClose || 0)}</Text>
+                </View>
+                <View style={calcStyles.detailRow}>
+                  <Text style={calcStyles.detailLabel}>Holding costs</Text>
+                  <Text style={calcStyles.detailValue}>{formatCurrency(calculator.hardHoldingCost || 0)}</Text>
+                </View>
+                <View style={calcStyles.detailRow}>
+                  <Text style={calcStyles.detailLabel}>Refi cash to close</Text>
+                  <Text style={calcStyles.detailValue}>{formatCurrency(calculator.hardRefiCashToClose || 0)}</Text>
+                </View>
+                <View style={calcStyles.detailRow}>
+                  <Text style={calcStyles.detailLabel}>*Refi cashback</Text>
+                  <Text style={calcStyles.detailValue}>{formatCurrency(-(calculator.hardRefiCashBack || 0))}</Text>
+                </View>
+                <View style={calcStyles.detailRowTotal}>
+                  <Text style={calcStyles.detailLabelBold}>Total</Text>
+                  <Text style={calcStyles.detailValueBold}>{formatCurrency(calculator.hardCashOutOfPocketTotal || 0)}</Text>
+                </View>
               </View>
-              <View style={calcStyles.detailRow}>
-                <Text style={calcStyles.detailLabel}>Monthly Cashflow</Text>
-                <Text style={calcStyles.detailValue}>
-                  {formatCurrency(calculator.hardTotalCashflowMonthly || 0)}/mo
-                </Text>
+
+              {/* Monthly Cash Flow Breakdown */}
+              <View style={calcStyles.breakdownSection}>
+                <Text style={calcStyles.breakdownTitle}>Monthly Cash Flow</Text>
+                <View style={calcStyles.detailRow}>
+                  <Text style={calcStyles.detailLabel}>Monthly rent</Text>
+                  <Text style={calcStyles.detailValuePositive}>{formatCurrency(calculator.hardMonthlyRent || 0)}</Text>
+                </View>
+                <View style={calcStyles.detailRow}>
+                  <Text style={calcStyles.detailLabel}>Note payment</Text>
+                  <Text style={calcStyles.detailValue}>{formatCurrency(-(calculator.hardRefinanceNotePaymentMonthly || 0))}</Text>
+                </View>
+                <View style={calcStyles.detailRow}>
+                  <Text style={calcStyles.detailLabel}>Property tax</Text>
+                  <Text style={calcStyles.detailValue}>{formatCurrency(-(calculator.hardPropertyTaxMonthly || 0))}</Text>
+                </View>
+                <View style={calcStyles.detailRow}>
+                  <Text style={calcStyles.detailLabel}>Property ins</Text>
+                  <Text style={calcStyles.detailValue}>{formatCurrency(-(calculator.hardPropertyInsuranceMonthly || 0))}</Text>
+                </View>
+                <View style={calcStyles.detailRow}>
+                  <Text style={calcStyles.detailLabel}>Mortgage ins</Text>
+                  <Text style={calcStyles.detailValue}>{formatCurrency(-(calculator.hardMortgageInsuranceMonthly || 0))}</Text>
+                </View>
+                <View style={calcStyles.detailRow}>
+                  <Text style={calcStyles.detailLabel}>HOA</Text>
+                  <Text style={calcStyles.detailValue}>{formatCurrency(-(calculator.hardHoaMonthly || 0))}</Text>
+                </View>
+                <View style={calcStyles.detailRow}>
+                  <Text style={calcStyles.detailLabel}>Misc monthly</Text>
+                  <Text style={calcStyles.detailValue}>{formatCurrency(-(calculator.hardMiscellaneousMonthly || 0))}</Text>
+                </View>
+                <View style={calcStyles.detailRowTotal}>
+                  <Text style={calcStyles.detailLabelBold}>Total</Text>
+                  <Text style={(calculator.hardTotalCashflowMonthly || 0) >= 0 ? calcStyles.detailValuePositive : calcStyles.detailValueNegative}>
+                    {formatCurrency(calculator.hardTotalCashflowMonthly || 0)}/mo
+                  </Text>
+                </View>
               </View>
             </View>
 
