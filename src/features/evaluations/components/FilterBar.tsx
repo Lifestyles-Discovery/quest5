@@ -6,6 +6,7 @@ type CompInputs = SaleCompInputs | RentCompInputs;
 interface FilterBarProps {
   filters: Partial<CompInputs>;
   onChange: (filters: Partial<CompInputs>) => void;
+  onImmediateChange?: (filters: Partial<CompInputs>) => void; // Bypasses debounce for mode switches
   searchTypes: SearchType[];
   zips?: string[];
   counties?: string[];
@@ -61,6 +62,7 @@ function formatMonths(value: number | undefined): string {
 export default function FilterBar({
   filters,
   onChange,
+  onImmediateChange,
   searchTypes,
   zips = [],
   counties = [],
@@ -73,8 +75,10 @@ export default function FilterBar({
   const defaultSearchType = searchTypes[0]?.type || 'subdivision';
 
   // When broad search is on, clicking a muted chip turns it off and activates that filter
+  // Use immediate change to bypass debounce for mode switches
   const handleMutedChipClick = () => {
-    onChange({ ...filters, ignoreParametersExceptMonthsClosed: false });
+    const newFilters = { ...filters, ignoreParametersExceptMonthsClosed: false };
+    (onImmediateChange || onChange)(newFilters);
   };
 
   // Muted chip style for when broad search is active
@@ -93,7 +97,7 @@ export default function FilterBar({
           <span className="text-gray-500 dark:text-gray-400">— only location + time apply</span>
           <button
             type="button"
-            onClick={() => onChange({ ...filters, ignoreParametersExceptMonthsClosed: false })}
+            onClick={() => (onImmediateChange || onChange)({ ...filters, ignoreParametersExceptMonthsClosed: false })}
             className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
           >
             use precise filters
@@ -238,7 +242,7 @@ export default function FilterBar({
         {!isBroadSearch && (
           <button
             type="button"
-            onClick={() => onChange({ ...filters, ignoreParametersExceptMonthsClosed: true })}
+            onClick={() => (onImmediateChange || onChange)({ ...filters, ignoreParametersExceptMonthsClosed: true })}
             className="rounded-full px-3 py-1 text-sm text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
           >
             broad

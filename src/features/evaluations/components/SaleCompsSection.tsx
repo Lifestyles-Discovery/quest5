@@ -93,7 +93,7 @@ export default function SaleCompsSection({
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [expandedCompId, setExpandedCompId] = useState<string | null>(null);
   const isInitialMount = useRef(true);
-  const isSyncingFromServer = useRef(false);
+  const lastServerFiltersRef = useRef<string>('');
   const hasInitializedSearchTerm = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -123,52 +123,62 @@ export default function SaleCompsSection({
     }
   }, [evaluation.subdivision, filters.searchTerm]);
 
-  // Debounced search function with request cancellation
-  const [debouncedSearch, cancelSearch] = useDebouncedCallback(
-    (inputs: Partial<SaleCompInputs>) => {
-      // Cancel any in-flight request
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-      // Create new controller for this request
-      abortControllerRef.current = new AbortController();
+  // Core search function with request cancellation
+  const executeSearch = (inputs: Partial<SaleCompInputs>) => {
+    // Cancel any in-flight request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    // Create new controller for this request
+    abortControllerRef.current = new AbortController();
 
-      const startTime = performance.now();
-      updateSaleComps.mutate(
-        {
-          propertyId,
-          evaluationId,
-          inputs,
-          signal: abortControllerRef.current.signal,
+    const startTime = performance.now();
+    updateSaleComps.mutate(
+      {
+        propertyId,
+        evaluationId,
+        inputs,
+        signal: abortControllerRef.current.signal,
+      },
+      {
+        onSettled: () => {
+          console.log(`[SaleComps] API response: ${Math.round(performance.now() - startTime)}ms`);
         },
-        {
-          onSettled: () => {
-            console.log(`[SaleComps] API response: ${Math.round(performance.now() - startTime)}ms`);
-          },
-        }
-      );
-    },
-    500
-  );
+      }
+    );
+  };
+
+  // Debounced search for typing/incremental changes (300ms for snappy feel)
+  const [debouncedSearch, cancelSearch] = useDebouncedCallback(executeSearch, 300);
+
+  // Immediate search for mode switches (bypasses debounce)
+  const immediateSearch = (inputs: Partial<SaleCompInputs>) => {
+    cancelSearch();
+    executeSearch(inputs);
+  };
 
   // Sync filters when evaluation changes (from server response)
   useEffect(() => {
     if (saleCompGroup?.saleCompInputs) {
-      isSyncingFromServer.current = true;
+      // Store the server's filter state for comparison
+      lastServerFiltersRef.current = JSON.stringify(saleCompGroup.saleCompInputs);
       setFilters(saleCompGroup.saleCompInputs);
     }
   }, [saleCompGroup?.saleCompInputs]);
 
-  // Auto-search when filters change (skip initial mount and server syncs)
+  // Auto-search when filters change (skip if matches server state)
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
     }
-    if (isSyncingFromServer.current) {
-      isSyncingFromServer.current = false;
+
+    // Compare current filters to what server sent - if they match, don't re-search
+    const currentFiltersJson = JSON.stringify(filters);
+    if (currentFiltersJson === lastServerFiltersRef.current) {
       return;
     }
+
     debouncedSearch(filters);
   }, [filters, debouncedSearch]);
 
@@ -300,6 +310,10 @@ export default function SaleCompsSection({
           <FilterBar
             filters={filters}
             onChange={setFilters}
+            onImmediateChange={(newFilters) => {
+              setFilters(newFilters);
+              immediateSearch(newFilters);
+            }}
             searchTypes={filteredSearchTypes}
             zips={saleCompGroup?.zips}
             counties={saleCompGroup?.counties}
@@ -427,7 +441,7 @@ export default function SaleCompsSection({
                       className={`transition-colors ${isExpansionEnabled ? 'cursor-pointer' : ''} ${
                         comp.include
                           ? 'bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-750'
-                          : 'bg-gray-100 opacity-60 dark:bg-gray-900'
+                          : 'bg-gray-100 opacity-50 line-through decoration-gray-500 dark:bg-gray-900 dark:decoration-gray-400'
                       } ${isExpanded ? 'bg-gray-50 dark:bg-gray-750' : ''}`}
                     >
                       {isExpansionEnabled && (

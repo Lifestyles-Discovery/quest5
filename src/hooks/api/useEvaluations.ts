@@ -137,29 +137,7 @@ export function useUpdateSaleComps() {
       signal?: AbortSignal;
     }) => evaluationsService.updateSaleComps(propertyId, evaluationId, inputs, signal),
     onSuccess: (updatedEvaluation, { propertyId, evaluationId }) => {
-      // Preserve include flags from current cache to avoid overwriting toggled comps
-      const current = queryClient.getQueryData<Evaluation>(
-        evaluationsKeys.detail(propertyId, evaluationId)
-      );
-
-      if (current?.saleCompGroup?.saleComps && updatedEvaluation.saleCompGroup?.saleComps) {
-        const includeMap = new Map(
-          current.saleCompGroup.saleComps.map((c) => [c.id, c.include])
-        );
-
-        updatedEvaluation = {
-          ...updatedEvaluation,
-          saleCompGroup: {
-            ...updatedEvaluation.saleCompGroup,
-            saleComps: updatedEvaluation.saleCompGroup.saleComps.map((comp) => ({
-              ...comp,
-              // Preserve include flag if comp existed before, otherwise use server value
-              include: includeMap.has(comp.id) ? includeMap.get(comp.id)! : comp.include,
-            })),
-          },
-        };
-      }
-
+      // Trust server's include flags - backend preserves exclusions via the Excluded list
       queryClient.setQueryData(
         evaluationsKeys.detail(propertyId, evaluationId),
         updatedEvaluation
@@ -270,29 +248,7 @@ export function useUpdateRentComps() {
       signal?: AbortSignal;
     }) => evaluationsService.updateRentComps(propertyId, evaluationId, inputs, signal),
     onSuccess: (updatedEvaluation, { propertyId, evaluationId }) => {
-      // Preserve include flags from current cache to avoid overwriting toggled comps
-      const current = queryClient.getQueryData<Evaluation>(
-        evaluationsKeys.detail(propertyId, evaluationId)
-      );
-
-      if (current?.rentCompGroup?.rentComps && updatedEvaluation.rentCompGroup?.rentComps) {
-        const includeMap = new Map(
-          current.rentCompGroup.rentComps.map((c) => [c.id, c.include])
-        );
-
-        updatedEvaluation = {
-          ...updatedEvaluation,
-          rentCompGroup: {
-            ...updatedEvaluation.rentCompGroup,
-            rentComps: updatedEvaluation.rentCompGroup.rentComps.map((comp) => ({
-              ...comp,
-              // Preserve include flag if comp existed before, otherwise use server value
-              include: includeMap.has(comp.id) ? includeMap.get(comp.id)! : comp.include,
-            })),
-          },
-        };
-      }
-
+      // Trust server's include flags - backend preserves exclusions via the Excluded list
       queryClient.setQueryData(
         evaluationsKeys.detail(propertyId, evaluationId),
         updatedEvaluation
