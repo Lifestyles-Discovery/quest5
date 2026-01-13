@@ -96,6 +96,12 @@ export function PDFDealTerms({ calculator }: PDFDealTermsProps) {
           <Text style={dealStyles.primaryLabel}>Market Value</Text>
           <Text style={dealStyles.primaryValue}>{formatCurrency(dealTermInputs?.estimatedMarketValue || 0)}</Text>
         </View>
+        {showHardMoney && (
+          <View style={{ ...dealStyles.primaryItem, width: primaryItemWidth }}>
+            <Text style={dealStyles.primaryLabel}>Hard Appraised Value</Text>
+            <Text style={dealStyles.primaryValue}>{formatCurrency(dealTermInputs?.estimatedAppraisedValue || 0)}</Text>
+          </View>
+        )}
         <View style={{ ...dealStyles.primaryItem, width: primaryItemWidth }}>
           <Text style={dealStyles.primaryLabel}>Monthly Rent</Text>
           <Text style={dealStyles.primaryValue}>{formatCurrency(dealTermInputs?.rent || 0)}</Text>
@@ -104,12 +110,6 @@ export function PDFDealTerms({ calculator }: PDFDealTermsProps) {
           <Text style={dealStyles.primaryLabel}>Repairs</Text>
           <Text style={dealStyles.primaryValue}>{formatCurrency(dealTermInputs?.repairsMakeReady || 0)}</Text>
         </View>
-        {showHardMoney && (
-          <View style={{ ...dealStyles.primaryItem, width: primaryItemWidth }}>
-            <Text style={dealStyles.primaryLabel}>Hard Appraised Value</Text>
-            <Text style={dealStyles.primaryValue}>{formatCurrency(dealTermInputs?.estimatedAppraisedValue || 0)}</Text>
-          </View>
-        )}
       </View>
 
       {/* Costs & Adjustments */}

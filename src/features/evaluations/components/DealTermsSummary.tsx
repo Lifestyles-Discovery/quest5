@@ -52,6 +52,16 @@ export default function DealTermsSummary({
             hint={saleCompValue ? `From sale comps: ${formatCurrency(saleCompValue)}` : 'From your sale comps'}
             size="xl"
           />
+          {showHardMoney && (
+            <EditableField
+              label="Hard Appraised Value"
+              value={dealTerms.estimatedAppraisedValue}
+              format="currency"
+              onSave={(v) => onChange('estimatedAppraisedValue', v as number)}
+              hint="For hard money LTV"
+              size="xl"
+            />
+          )}
           <EditableField
             label="Monthly Rent"
             value={dealTerms.rent}
@@ -67,16 +77,6 @@ export default function DealTermsSummary({
             onSave={(v) => onChange('repairsMakeReady', v as number)}
             size="xl"
           />
-          {showHardMoney && (
-            <EditableField
-              label="Hard Appraised Value"
-              value={dealTerms.estimatedAppraisedValue}
-              format="currency"
-              onSave={(v) => onChange('estimatedAppraisedValue', v as number)}
-              hint="For hard money LTV"
-              size="xl"
-            />
-          )}
         </div>
       </div>
 
