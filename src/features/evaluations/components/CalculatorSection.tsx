@@ -24,9 +24,9 @@ export default function CalculatorSection({
   const calculator = evaluation.calculator;
   const updateCalculator = useUpdateCalculator();
 
-  // Track which financing sections are expanded (loan settings are rarely changed)
-  const [conventionalExpanded, setConventionalExpanded] = useState(false);
-  const [hardMoneyExpanded, setHardMoneyExpanded] = useState(false);
+  // Track which financing sections are expanded
+  const [conventionalExpanded, setConventionalExpanded] = useState(true);
+  const [hardMoneyExpanded, setHardMoneyExpanded] = useState(true);
 
   // API requires ALL calculator values to be sent each time (like Quest4)
   const handleDealTermChange = async (field: keyof DealTermInputs, value: number) => {
