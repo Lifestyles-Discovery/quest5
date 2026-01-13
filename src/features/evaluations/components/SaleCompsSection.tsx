@@ -96,8 +96,6 @@ export default function SaleCompsSection({
   const lastServerFiltersRef = useRef<string>('');
   const hasInitializedSearchTerm = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
-  // Queue for serializing toggle mutations to prevent backend race conditions
-  const toggleQueueRef = useRef<Promise<void>>(Promise.resolve());
 
   const updateSaleComps = useUpdateSaleComps();
   const toggleInclusion = useToggleSaleCompInclusion();
@@ -190,26 +188,12 @@ export default function SaleCompsSection({
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
-
-    // Queue the mutation to prevent backend race conditions.
-    // Each toggle waits for the previous one to complete before sending its request.
-    // Optimistic updates (in onMutate) still happen immediately for responsive UI.
-    toggleQueueRef.current = toggleQueueRef.current.then(
-      () =>
-        new Promise<void>((resolve) => {
-          toggleInclusion.mutate(
-            {
-              propertyId,
-              evaluationId,
-              compId: comp.id,
-              include: !comp.include,
-            },
-            {
-              onSettled: () => resolve(),
-            }
-          );
-        })
-    );
+    toggleInclusion.mutate({
+      propertyId,
+      evaluationId,
+      compId: comp.id,
+      include: !comp.include,
+    });
   };
 
   const formatCurrency = (value: number) => {
