@@ -81,6 +81,7 @@ export default function CalculatorSection({
         onChange={handleDealTermChange}
         saleCompValue={evaluation.saleCompGroup?.calculatedValue}
         rentCompValue={evaluation.rentCompGroup?.calculatedValue}
+        showHardMoney={calculator.hardMoneyInputs.show}
       />
 
       {/* Results - The payoff, right after your inputs */}

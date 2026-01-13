@@ -78,7 +78,9 @@ const dealStyles = StyleSheet.create({
  * and associated costs/adjustments.
  */
 export function PDFDealTerms({ calculator }: PDFDealTermsProps) {
-  const { dealTermInputs } = calculator;
+  const { dealTermInputs, hardMoneyInputs } = calculator;
+  const showHardMoney = hardMoneyInputs?.show;
+  const primaryItemWidth = showHardMoney ? '20%' : '25%';
 
   return (
     <View style={dealStyles.container} wrap={false}>
@@ -86,22 +88,28 @@ export function PDFDealTerms({ calculator }: PDFDealTermsProps) {
 
       {/* Primary Metrics */}
       <View style={dealStyles.primaryRow}>
-        <View style={dealStyles.primaryItem}>
+        <View style={{ ...dealStyles.primaryItem, width: primaryItemWidth }}>
           <Text style={dealStyles.primaryLabel}>Purchase Price</Text>
           <Text style={dealStyles.primaryValue}>{formatCurrency(dealTermInputs?.purchasePrice || 0)}</Text>
         </View>
-        <View style={dealStyles.primaryItem}>
+        <View style={{ ...dealStyles.primaryItem, width: primaryItemWidth }}>
           <Text style={dealStyles.primaryLabel}>Market Value</Text>
           <Text style={dealStyles.primaryValue}>{formatCurrency(dealTermInputs?.estimatedMarketValue || 0)}</Text>
         </View>
-        <View style={dealStyles.primaryItem}>
+        <View style={{ ...dealStyles.primaryItem, width: primaryItemWidth }}>
           <Text style={dealStyles.primaryLabel}>Monthly Rent</Text>
           <Text style={dealStyles.primaryValue}>{formatCurrency(dealTermInputs?.rent || 0)}</Text>
         </View>
-        <View style={dealStyles.primaryItem}>
+        <View style={{ ...dealStyles.primaryItem, width: primaryItemWidth }}>
           <Text style={dealStyles.primaryLabel}>Repairs</Text>
           <Text style={dealStyles.primaryValue}>{formatCurrency(dealTermInputs?.repairsMakeReady || 0)}</Text>
         </View>
+        {showHardMoney && (
+          <View style={{ ...dealStyles.primaryItem, width: primaryItemWidth }}>
+            <Text style={dealStyles.primaryLabel}>Hard Appraised Value</Text>
+            <Text style={dealStyles.primaryValue}>{formatCurrency(dealTermInputs?.estimatedAppraisedValue || 0)}</Text>
+          </View>
+        )}
       </View>
 
       {/* Costs & Adjustments */}
@@ -128,10 +136,12 @@ export function PDFDealTerms({ calculator }: PDFDealTermsProps) {
             <Text style={dealStyles.costLabel}>Seller Credit</Text>
             <Text style={dealStyles.costValue}>{formatCurrency(dealTermInputs?.sellerContribution || 0)}</Text>
           </View>
-          <View style={dealStyles.costItem}>
-            <Text style={dealStyles.costLabel}>Hard Appraised Value</Text>
-            <Text style={dealStyles.costValue}>{formatCurrency(dealTermInputs?.estimatedAppraisedValue || 0)}</Text>
-          </View>
+          {!showHardMoney && (
+            <View style={dealStyles.costItem}>
+              <Text style={dealStyles.costLabel}>Hard Appraised Value</Text>
+              <Text style={dealStyles.costValue}>{formatCurrency(dealTermInputs?.estimatedAppraisedValue || 0)}</Text>
+            </View>
+          )}
           <View style={dealStyles.costItem}>
             <Text style={dealStyles.costLabel}>Max Refi Cashback</Text>
             <Text style={dealStyles.costValue}>{formatCurrency(dealTermInputs?.maxRefiCashback || 0)}</Text>

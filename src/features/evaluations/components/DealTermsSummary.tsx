@@ -8,6 +8,7 @@ interface DealTermsSummaryProps {
   onChange: (field: keyof DealTermInputs, value: number) => void;
   saleCompValue?: number;
   rentCompValue?: number;
+  showHardMoney?: boolean;
 }
 
 export default function DealTermsSummary({
@@ -15,6 +16,7 @@ export default function DealTermsSummary({
   onChange,
   saleCompValue,
   rentCompValue,
+  showHardMoney,
 }: DealTermsSummaryProps) {
   const [showMore, setShowMore] = useState(false);
 
@@ -34,7 +36,7 @@ export default function DealTermsSummary({
         <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
           The Deal
         </h2>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className={`grid grid-cols-2 gap-4 ${showHardMoney ? 'lg:grid-cols-5' : 'lg:grid-cols-4'}`}>
           <EditableField
             label="Purchase Price"
             value={dealTerms.purchasePrice}
@@ -65,6 +67,16 @@ export default function DealTermsSummary({
             onSave={(v) => onChange('repairsMakeReady', v as number)}
             size="xl"
           />
+          {showHardMoney && (
+            <EditableField
+              label="Hard Appraised Value"
+              value={dealTerms.estimatedAppraisedValue}
+              format="currency"
+              onSave={(v) => onChange('estimatedAppraisedValue', v as number)}
+              hint="For hard money LTV"
+              size="xl"
+            />
+          )}
         </div>
       </div>
 
@@ -125,14 +137,16 @@ export default function DealTermsSummary({
               size="sm"
               hint="Negotiated closing cost credit"
             />
-            <EditableField
-              label="Hard Appraised Value"
-              value={dealTerms.estimatedAppraisedValue}
-              format="currency"
-              onSave={(v) => onChange('estimatedAppraisedValue', v as number)}
-              size="sm"
-              hint="For hard money. Use Market Value if unknown"
-            />
+            {!showHardMoney && (
+              <EditableField
+                label="Hard Appraised Value"
+                value={dealTerms.estimatedAppraisedValue}
+                format="currency"
+                onSave={(v) => onChange('estimatedAppraisedValue', v as number)}
+                size="sm"
+                hint="For hard money. Use Market Value if unknown"
+              />
+            )}
             <EditableField
               label="Max Refi Cashback"
               value={dealTerms.maxRefiCashback}
