@@ -2,10 +2,23 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import svgr from "vite-plugin-svgr";
 import { fileURLToPath, URL } from "node:url";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 
 // Read package.json version
 const packageJson = JSON.parse(readFileSync("./package.json", "utf-8"));
+
+// Plugin to generate version.json for update checking
+function versionFilePlugin() {
+  return {
+    name: 'version-file',
+    writeBundle() {
+      writeFileSync(
+        './dist/version.json',
+        JSON.stringify({ version: packageJson.version, buildTime: new Date().toISOString() })
+      );
+    },
+  };
+}
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -43,6 +56,7 @@ export default defineConfig({
   },
   plugins: [
     react(),
+    versionFilePlugin(),
     svgr({
       svgrOptions: {
         icon: true,
