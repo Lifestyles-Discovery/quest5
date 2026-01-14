@@ -530,6 +530,33 @@ export function useExportPdf() {
 }
 
 /**
+ * Hook to generate Agent PDF using client-side @react-pdf/renderer
+ *
+ * Generates simplified, agent-friendly PDFs with larger fonts and simple tables.
+ * Shows enabled financing scenarios based on calculator.conventionalInputs.show
+ * and calculator.hardMoneyInputs.show flags.
+ * Uses dynamic import to avoid loading ~1MB PDF library until needed.
+ */
+export function useExportAgentPdf() {
+  return useMutation({
+    mutationFn: async ({
+      evaluation,
+      property,
+    }: {
+      evaluation: Evaluation;
+      property: Property;
+    }) => {
+      const { downloadAgentPDF } = await import('@/features/evaluations/pdf');
+      await downloadAgentPDF(evaluation, property);
+      return evaluation;
+    },
+    onSuccess: (evaluation) => {
+      trackActivity('export_agent_pdf', { evaluationId: evaluation.id });
+    },
+  });
+}
+
+/**
  * Hook to email evaluation
  */
 export function useEmailEvaluation() {

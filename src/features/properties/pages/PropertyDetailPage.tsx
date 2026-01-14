@@ -8,10 +8,12 @@ import { useProperty, useUpdatePropertyStage } from '@hooks/api/useProperties';
 import {
   useDeleteEvaluation,
   useExportPdf,
+  useExportAgentPdf,
   useUpdateAttributes,
   useGetActiveShare,
   evaluationsKeys,
 } from '@hooks/api/useEvaluations';
+import { useAuth } from '@/context/AuthContext';
 import { useDeleteNote } from '@hooks/api/useNotes';
 import { useGetDocumentUrl, useDeleteDocument } from '@hooks/api/useDocuments';
 import { useRemoveConnectionFromProperty } from '@hooks/api/useConnections';
@@ -135,12 +137,17 @@ export default function PropertyDetailPage() {
   const [editingNote, setEditingNote] = useState<PropertyNote | undefined>(undefined);
   const [showUploader, setShowUploader] = useState(false);
   const [connectionPickerOpen, setConnectionPickerOpen] = useState(false);
+  const [showPdfMenu, setShowPdfMenu] = useState(false);
+  const pdfMenuRef = useRef<HTMLDivElement>(null);
 
   // Hooks
+  const { rights } = useAuth();
+  const canExportAgentPdf = rights?.search || rights?.admin;
   const { data: property, isLoading: propertyLoading, error: propertyError } = useProperty(id!);
   const updateStage = useUpdatePropertyStage();
   const deleteEvaluation = useDeleteEvaluation();
   const exportPdf = useExportPdf();
+  const exportAgentPdf = useExportAgentPdf();
   const updateAttributes = useUpdateAttributes();
 
   // Notes, documents, connections hooks
@@ -196,6 +203,19 @@ export default function PropertyDetailPage() {
       navigate(`/deals/${id}/scenario/${currentEvaluationId}`, { replace: true });
     }
   }, [property, currentEvaluationId, scenarioId, id, navigate]);
+
+  // Close PDF menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (pdfMenuRef.current && !pdfMenuRef.current.contains(event.target as Node)) {
+        setShowPdfMenu(false);
+      }
+    };
+    if (showPdfMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showPdfMenu]);
 
   // Handlers
   const handleStageChange = (newStage: PropertyStage) => {
@@ -255,6 +275,29 @@ export default function PropertyDetailPage() {
     );
   };
 
+  const handleExportAgentPdf = () => {
+    if (!evaluation || !property) {
+      alert('Data not loaded. Please try again.');
+      return;
+    }
+
+    const showConventional = evaluation.calculator?.conventionalInputs?.show;
+    const showHardMoney = evaluation.calculator?.hardMoneyInputs?.show;
+    if (!showConventional && !showHardMoney) {
+      alert('Please enable a financing scenario first.');
+      return;
+    }
+
+    exportAgentPdf.mutate(
+      { evaluation, property },
+      {
+        onError: (error) => {
+          console.error('Agent PDF export failed:', error);
+          alert(`Agent PDF export failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        },
+      }
+    );
+  };
 
   const handleDelete = () => {
     if (!currentEvaluationId || !property) return;
@@ -543,21 +586,67 @@ export default function PropertyDetailPage() {
 
               {/* Actions Row */}
               <div className="mt-4 flex flex-wrap gap-2">
-                <button
-                  onClick={handleExportPdf}
-                  disabled={exportPdf.isPending || !currentEvaluationId}
-                  className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
-                >
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                  {exportPdf.isPending ? 'Generating...' : 'Export PDF'}
-                </button>
+                {/* PDF Export - dropdown for agents/admins, simple button for others */}
+                {canExportAgentPdf ? (
+                  <div className="relative" ref={pdfMenuRef}>
+                    <button
+                      onClick={() => setShowPdfMenu(!showPdfMenu)}
+                      disabled={(exportPdf.isPending || exportAgentPdf.isPending) || !currentEvaluationId}
+                      className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                    >
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                        />
+                      </svg>
+                      {exportPdf.isPending || exportAgentPdf.isPending ? 'Generating...' : 'Export PDF'}
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    {showPdfMenu && (
+                      <div className="absolute left-0 top-full z-10 mt-1 w-48 rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+                        <button
+                          onClick={() => {
+                            handleExportPdf();
+                            setShowPdfMenu(false);
+                          }}
+                          className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                        >
+                          Full Analysis
+                        </button>
+                        <button
+                          onClick={() => {
+                            handleExportAgentPdf();
+                            setShowPdfMenu(false);
+                          }}
+                          className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                        >
+                          Client Summary
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleExportPdf}
+                    disabled={exportPdf.isPending || !currentEvaluationId}
+                    className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                  >
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                    {exportPdf.isPending ? 'Generating...' : 'Export PDF'}
+                  </button>
+                )}
 
                 <button
                   onClick={() => setShowShareModal(true)}
