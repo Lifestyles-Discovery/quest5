@@ -65,7 +65,11 @@ export default function PhotoGallery({
     if (viewMode !== 'fullscreen' || touchStart === null) return;
     const diff = touchStart - e.changedTouches[0].clientX;
     if (Math.abs(diff) > 50) {
-      diff > 0 ? nextPhoto() : prevPhoto();
+      if (diff > 0) {
+        nextPhoto();
+      } else {
+        prevPhoto();
+      }
     }
     setTouchStart(null);
   };

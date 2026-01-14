@@ -207,7 +207,7 @@ export default function RentCompsSection({
     }).format(value);
   };
 
-  const rentComps = rentCompGroup?.rentComps || [];
+  const rentComps = useMemo(() => rentCompGroup?.rentComps || [], [rentCompGroup?.rentComps]);
   const includedComps = rentComps.filter((c) => c.include);
 
   // Disable expansion for Discovery (non-MLS) data source

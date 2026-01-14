@@ -216,7 +216,7 @@ export default function SaleCompsSection({
     });
   };
 
-  const saleComps = saleCompGroup?.saleComps || [];
+  const saleComps = useMemo(() => saleCompGroup?.saleComps || [], [saleCompGroup?.saleComps]);
   const includedComps = saleComps.filter((c) => c.include);
 
   // Disable expansion for Discovery (non-MLS) data source
