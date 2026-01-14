@@ -142,7 +142,7 @@ export default function PropertyDetailPage() {
 
   // Hooks
   const { rights } = useAuth();
-  const canExportAgentPdf = rights?.search || rights?.admin;
+  const canExportAgentPdf = rights?.agent || rights?.admin;
   const { data: property, isLoading: propertyLoading, error: propertyError } = useProperty(id!);
   const updateStage = useUpdatePropertyStage();
   const deleteEvaluation = useDeleteEvaluation();

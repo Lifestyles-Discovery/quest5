@@ -1,8 +1,10 @@
 /**
  * User rights/permissions
+ * Note: Backend sends 'agent' for agent capability (RightsEnum.Agent)
  */
 export interface UserRights {
   admin: boolean;
+  agent: boolean;
   search: boolean;
   searchFree: boolean;
   preferred: boolean;

@@ -84,10 +84,11 @@ export const adminService = {
     rights: UserRightsUpdate
   ): Promise<void> {
     // Convert rights object to comma-separated string for API
+    // Values must match RightsEnum in backend (PascalCase)
     const rightsArray: string[] = [];
-    if (rights.admin) rightsArray.push('admin');
-    if (rights.search) rightsArray.push('search');
-    if (rights.searchFree) rightsArray.push('searchFree');
+    if (rights.admin) rightsArray.push('Admin');
+    if (rights.search) rightsArray.push('Agent');
+    if (rights.searchFree) rightsArray.push('SearchFree');
 
     await apiClient.put(ENDPOINTS.users.updateRights(userId), null, {
       headers: {
