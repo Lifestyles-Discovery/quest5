@@ -56,7 +56,7 @@ export interface SaleComp {
   // Expanded detail fields (from MLS)
   descriptionPublic?: string;
   listingType?: string;
-  hoaAnnual?: number;
+  annualHOA?: number;
   taxesAnnual?: number;
 }
 

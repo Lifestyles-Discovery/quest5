@@ -70,10 +70,10 @@ export default function CompDetails({ comp, type }: CompDetailsProps) {
         </div>
         {type === 'sale' && isSaleComp(comp) && (
           <>
-            {comp.hoaAnnual !== undefined && comp.hoaAnnual > 0 && (
+            {comp.annualHOA !== undefined && comp.annualHOA > 0 && (
               <div>
                 <dt className="text-xs font-medium text-gray-500 dark:text-gray-400">HOA/Year</dt>
-                <dd className="text-sm text-gray-900 dark:text-white">{formatCurrency(comp.hoaAnnual)}</dd>
+                <dd className="text-sm text-gray-900 dark:text-white">{formatCurrency(comp.annualHOA)}</dd>
               </div>
             )}
             {comp.taxesAnnual !== undefined && comp.taxesAnnual > 0 && (
