@@ -98,6 +98,8 @@ export default function SaleCompsSection({
   const lastServerFiltersRef = useRef<string>('');
   const hasInitializedSearchTerm = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const [lastError, setLastError] = useState<string | null>(null);
+  const errorTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const updateSaleComps = useUpdateSaleComps();
   const toggleInclusion = useToggleSaleCompInclusion();
@@ -125,7 +127,14 @@ export default function SaleCompsSection({
     }
   }, [evaluation.subdivision, filters.searchTerm]);
 
-  // Core search function with request cancellation
+  // Cleanup error timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current);
+    };
+  }, []);
+
+  // Core search function with request cancellation and error handling
   const executeSearch = (inputs: Partial<SaleCompInputs>) => {
     // Cancel any in-flight request
     if (abortControllerRef.current) {
@@ -133,6 +142,8 @@ export default function SaleCompsSection({
     }
     // Create new controller for this request
     abortControllerRef.current = new AbortController();
+    // Clear any previous error
+    setLastError(null);
 
     const startTime = performance.now();
     updateSaleComps.mutate(
@@ -145,6 +156,30 @@ export default function SaleCompsSection({
       {
         onSettled: () => {
           console.log(`[SaleComps] API response: ${Math.round(performance.now() - startTime)}ms`);
+        },
+        onError: (error) => {
+          // Don't show error for aborted requests (user changed filters again)
+          if (error instanceof Error && error.name === 'CanceledError') {
+            return;
+          }
+
+          // Extract error message
+          let errorMessage = 'Failed to load comps. Please try again.';
+          const axiosError = error as { response?: { data?: string; status?: number } };
+          if (axiosError.response?.data && typeof axiosError.response.data === 'string') {
+            errorMessage = axiosError.response.data;
+          } else if (axiosError.response?.status === 401) {
+            errorMessage = 'Session expired. Please refresh the page.';
+          } else if (axiosError.response?.status === 500) {
+            errorMessage = 'Server error. Please try again later.';
+          }
+
+          console.error('[SaleComps] Search failed:', { error, inputs, propertyId, evaluationId });
+          setLastError(errorMessage);
+
+          // Auto-clear error after 8 seconds
+          if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current);
+          errorTimeoutRef.current = setTimeout(() => setLastError(null), 8000);
         },
       }
     );
@@ -162,9 +197,23 @@ export default function SaleCompsSection({
   // Sync filters when evaluation changes (from server response)
   useEffect(() => {
     if (saleCompGroup?.saleCompInputs) {
-      // Store the server's filter state for comparison
-      lastServerFiltersRef.current = JSON.stringify(saleCompGroup.saleCompInputs);
-      setFilters(saleCompGroup.saleCompInputs);
+      const serverInputs = saleCompGroup.saleCompInputs;
+
+      // Preserve auto-populated searchTerm if server's is empty
+      // This prevents a race condition where sync effect overwrites auto-populate
+      setFilters((prev) => {
+        if (
+          hasInitializedSearchTerm.current &&
+          prev.searchTerm &&
+          (!serverInputs.searchTerm || serverInputs.searchTerm === '')
+        ) {
+          const merged = { ...serverInputs, searchTerm: prev.searchTerm };
+          lastServerFiltersRef.current = JSON.stringify(merged);
+          return merged;
+        }
+        lastServerFiltersRef.current = JSON.stringify(serverInputs);
+        return serverInputs;
+      });
     }
   }, [saleCompGroup?.saleCompInputs]);
 
@@ -327,6 +376,35 @@ export default function SaleCompsSection({
           />
         )}
       </div>
+
+      {/* Error Banner */}
+      {lastError && (
+        <div className="mx-4 mt-3 flex items-center gap-3 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-400">
+          <svg className="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span className="flex-1">{lastError}</span>
+          <button
+            type="button"
+            onClick={() => setLastError(null)}
+            className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setLastError(null);
+              executeSearch(filters);
+            }}
+            className="rounded px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-100 dark:text-red-300 dark:hover:bg-red-500/20"
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
       {/* Map */}
       {showMap && (
