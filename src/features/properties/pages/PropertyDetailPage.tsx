@@ -13,7 +13,6 @@ import {
   useGetActiveShare,
   evaluationsKeys,
 } from '@hooks/api/useEvaluations';
-import { useAuth } from '@/context/AuthContext';
 import { useDeleteNote } from '@hooks/api/useNotes';
 import { useGetDocumentUrl, useDeleteDocument } from '@hooks/api/useDocuments';
 import { useRemoveConnectionFromProperty } from '@hooks/api/useConnections';
@@ -141,8 +140,7 @@ export default function PropertyDetailPage() {
   const pdfMenuRef = useRef<HTMLDivElement>(null);
 
   // Hooks
-  const { rights } = useAuth();
-  const canExportAgentPdf = rights?.agent || rights?.admin;
+  const canExportAgentPdf = true; // Client Summary available to all users
   const { data: property, isLoading: propertyLoading, error: propertyError } = useProperty(id!);
   const updateStage = useUpdatePropertyStage();
   const deleteEvaluation = useDeleteEvaluation();
