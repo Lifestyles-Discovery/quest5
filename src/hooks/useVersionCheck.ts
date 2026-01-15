@@ -22,6 +22,10 @@ export function useVersionCheck(): VersionCheckResult {
       const response = await fetch(`${VERSION_FILE}?t=${Date.now()}`);
       if (!response.ok) return;
 
+      // Verify response is JSON before parsing (dev server returns HTML for missing files)
+      const contentType = response.headers.get('content-type');
+      if (!contentType?.includes('application/json')) return;
+
       const data = await response.json();
       const serverVersion = data.version;
       const currentVersion = __APP_VERSION__;
@@ -30,9 +34,8 @@ export function useVersionCheck(): VersionCheckResult {
         console.log(`[VersionCheck] Update available: ${currentVersion} → ${serverVersion}`);
         setUpdateAvailable(true);
       }
-    } catch (error) {
+    } catch {
       // Silently fail - version check is non-critical
-      console.debug('[VersionCheck] Failed to check version:', error);
     }
   }, []);
 

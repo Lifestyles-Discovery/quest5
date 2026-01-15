@@ -7,7 +7,7 @@
  * @example formatCurrency(425000) → "$425,000"
  */
 export function formatCurrency(value: number | null | undefined): string {
-  if (value == null) return '-';
+  if (value == null || typeof value !== 'number' || !isFinite(value)) return '-';
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -21,7 +21,7 @@ export function formatCurrency(value: number | null | undefined): string {
  * @example formatNumber(2100) → "2,100"
  */
 export function formatNumber(value: number | null | undefined): string {
-  if (value == null) return '-';
+  if (value == null || typeof value !== 'number' || !isFinite(value)) return '-';
   return new Intl.NumberFormat('en-US').format(value);
 }
 
@@ -30,7 +30,7 @@ export function formatNumber(value: number | null | undefined): string {
  * @example formatPercent(7.125) → "7.125%"
  */
 export function formatPercent(value: number | null | undefined, decimals = 3): string {
-  if (value == null) return '-';
+  if (value == null || typeof value !== 'number' || !isFinite(value)) return '-';
   return `${value.toFixed(decimals).replace(/\.?0+$/, '')}%`;
 }
 
@@ -56,7 +56,7 @@ export function formatWithSuffix(
  * @example formatDecimal(2.5) → "2.5"
  */
 export function formatDecimal(value: number | null | undefined): string {
-  if (value == null) return '-';
+  if (value == null || typeof value !== 'number' || !isFinite(value)) return '-';
   return String(value);
 }
 
