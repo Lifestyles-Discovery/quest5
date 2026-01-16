@@ -427,7 +427,7 @@ export default function SaleCompsSection({
             <p className="mt-1 text-sm">Try adjusting your filters.</p>
           </div>
         ) : (
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <table className="min-w-[900px] divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="sticky top-0 bg-gray-50 dark:bg-gray-900">
               <tr>
                 {isExpansionEnabled && <th className="w-8 px-2 py-2"></th>}

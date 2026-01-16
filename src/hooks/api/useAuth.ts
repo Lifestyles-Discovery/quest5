@@ -66,11 +66,26 @@ export function useSession() {
 }
 
 /**
- * Hook to check if an email is already a member
+ * Hook to check if an email is already a member (legacy - checks Infusionsoft membership)
+ * @deprecated Use useGetProductStatus instead for sign-up flow
  */
 export function useIsMember() {
   return useMutation({
     mutationFn: (email: string) => subscriptionService.isMember(email),
+  });
+}
+
+/**
+ * Hook to get product status for an email during sign-up
+ * Returns NextCall which indicates what action the user should take:
+ * - 'CreateSubscription': User can proceed with sign-up
+ * - 'SignIn': User already has active subscription
+ * - 'Reactivate': User has cancelled subscription
+ * - 'Resume': User has subscription on hold
+ */
+export function useGetProductStatus() {
+  return useMutation({
+    mutationFn: (email: string) => subscriptionService.getProductStatus(email),
   });
 }
 

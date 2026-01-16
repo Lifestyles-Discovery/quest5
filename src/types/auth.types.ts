@@ -105,9 +105,44 @@ export interface CreateSubscriptionRequest {
 }
 
 /**
- * Subscription status response
+ * Simple subscription status (legacy)
  */
 export type SubscriptionStatus = 'active' | 'cancelled' | 'on_hold' | 'none';
+
+/**
+ * Backend subscription status values
+ */
+export type SubscriptionStatusValue = 'Active' | 'Canceled' | 'OnHold' | 'None' | 'Trialing' | 'PastDue';
+
+/**
+ * Backend NextCall enum values - what action the user should take
+ */
+export type NextCallValue =
+  | 'AddSubscriptionNoCC'
+  | 'AddSubscriptionWithCC'
+  | 'BillingPortal'
+  | 'CreateSubscription'
+  | 'None'
+  | 'Reactivate'
+  | 'Resume'
+  | 'SignIn';
+
+/**
+ * Full subscription status response from /subscriptions/status endpoint
+ * Used to determine what action a user should take during sign-up flow
+ */
+export interface ProductStatusResponse {
+  BillingPortalUrl: string;
+  SubscriptionStatus: SubscriptionStatusValue;
+  SignInUrl: string;
+  NextCall: NextCallValue;
+  Price: number;
+  Interval: number;
+  IntervalUnit: string;
+  TrialInterval: number;
+  TrialIntervalUnit: string;
+  TrialEndDate: string;
+}
 
 /**
  * Reactivation request

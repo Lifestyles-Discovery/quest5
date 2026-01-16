@@ -6,7 +6,7 @@ import Input from '../form/input/InputField';
 import Checkbox from '../form/input/Checkbox';
 import Alert from '../ui/alert/Alert';
 import Button from '../ui/button/Button';
-import { useCreateSubscription, useIsMember } from '@hooks/api/useAuth';
+import { useCreateSubscription, useGetProductStatus } from '@hooks/api/useAuth';
 
 export default function SignUpForm() {
   const navigate = useNavigate();
@@ -30,7 +30,7 @@ export default function SignUpForm() {
   const [cardCvv, setCardCvv] = useState('');
 
   const createSubscription = useCreateSubscription();
-  const checkMember = useIsMember();
+  const getProductStatus = useGetProductStatus();
 
   const validateAccountStep = () => {
     if (!firstName.trim()) {
@@ -63,17 +63,28 @@ export default function SignUpForm() {
       return;
     }
 
-    // Check if email is already registered
+    // Check subscription status to see if user can proceed with sign-up
     try {
-      const isMember = await checkMember.mutateAsync(email);
-      if (isMember) {
-        setError(
-          'This email is already registered. Please sign in or use a different email.'
-        );
+      const status = await getProductStatus.mutateAsync(email);
+      // If NextCall is not CreateSubscription, user already has account or needs different action
+      if (status.NextCall !== 'CreateSubscription') {
+        if (status.NextCall === 'SignIn') {
+          setError(
+            'This email is already registered. Please sign in or use a different email.'
+          );
+        } else if (status.NextCall === 'Reactivate') {
+          setError(
+            'Your subscription is cancelled. Please sign in to reactivate.'
+          );
+        } else if (status.NextCall === 'Resume') {
+          setError('Your subscription is on hold. Please sign in to resume.');
+        } else {
+          setError('This email is already registered. Please sign in.');
+        }
         return;
       }
     } catch {
-      // If check fails, continue anyway - the subscription creation will catch duplicates
+      // If status check fails, continue anyway - the subscription creation will catch issues
     }
 
     // Pre-fill billing name from account name
@@ -146,7 +157,7 @@ export default function SignUpForm() {
     );
   };
 
-  const isPending = createSubscription.isPending || checkMember.isPending;
+  const isPending = createSubscription.isPending || getProductStatus.isPending;
 
   return (
     <div className="flex w-full flex-1 flex-col overflow-y-auto no-scrollbar lg:w-1/2">
@@ -293,7 +304,7 @@ export default function SignUpForm() {
                     onClick={handleContinueToBilling}
                     disabled={isPending}
                   >
-                    {checkMember.isPending ? 'Checking...' : 'Continue to Payment'}
+                    {getProductStatus.isPending ? 'Checking...' : 'Continue to Payment'}
                   </Button>
                 </div>
               </div>

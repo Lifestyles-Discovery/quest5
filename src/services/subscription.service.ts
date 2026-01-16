@@ -2,7 +2,7 @@ import { authenticatorClient, API_KEY, QUEST_PRODUCT } from '@/api/authenticator
 import { apiClient } from '@/api/client';
 import type {
   CreateSubscriptionRequest,
-  SubscriptionStatus,
+  ProductStatusResponse,
   ReactivateRequest,
   Session,
 } from '@app-types/auth.types';
@@ -25,9 +25,10 @@ export const subscriptionService = {
 
   /**
    * Get subscription status for an email
+   * Returns detailed status including NextCall which indicates what action the user should take
    */
-  async getProductStatus(email: string): Promise<SubscriptionStatus> {
-    const response = await authenticatorClient.get<SubscriptionStatus>(
+  async getProductStatus(email: string): Promise<ProductStatusResponse> {
+    const response = await authenticatorClient.get<ProductStatusResponse>(
       '/subscriptions/status',
       {
         headers: {
