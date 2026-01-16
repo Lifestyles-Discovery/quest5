@@ -41,9 +41,8 @@ export default function PropertyAttributes({
         <EditableField
           label="Baths"
           value={evaluation.baths || 0}
-          format="decimal"
+          format="number"
           suffix=" baths"
-          step={0.5}
           onSave={(v) => handleSave('baths', v)}
         />
 
