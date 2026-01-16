@@ -130,18 +130,19 @@ export type NextCallValue =
 /**
  * Full subscription status response from /subscriptions/status endpoint
  * Used to determine what action a user should take during sign-up flow
+ * Note: API returns camelCase property names
  */
 export interface ProductStatusResponse {
-  BillingPortalUrl: string;
-  SubscriptionStatus: SubscriptionStatusValue;
-  SignInUrl: string;
-  NextCall: NextCallValue;
-  Price: number;
-  Interval: number;
-  IntervalUnit: string;
-  TrialInterval: number;
-  TrialIntervalUnit: string;
-  TrialEndDate: string;
+  billingPortalUrl: string;
+  subscriptionStatus: SubscriptionStatusValue;
+  signInUrl: string;
+  nextCall: NextCallValue;
+  price: number;
+  interval: number;
+  intervalUnit: string;
+  trialInterval: number;
+  trialIntervalUnit: string;
+  trialEndDate: string;
 }
 
 /**

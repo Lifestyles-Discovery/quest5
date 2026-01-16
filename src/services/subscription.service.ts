@@ -4,7 +4,6 @@ import type {
   CreateSubscriptionRequest,
   ProductStatusResponse,
   ReactivateRequest,
-  Session,
 } from '@app-types/auth.types';
 
 /**
@@ -42,9 +41,10 @@ export const subscriptionService = {
 
   /**
    * Create a new subscription with credit card
+   * Note: Returns the user ID (string), not a session. Caller should sign in after this succeeds.
    */
-  async createSubscription(request: CreateSubscriptionRequest): Promise<Session> {
-    const response = await authenticatorClient.post<Session>(
+  async createSubscription(request: CreateSubscriptionRequest): Promise<string> {
+    const response = await authenticatorClient.post<string>(
       '/subscriptions',
       {},
       {

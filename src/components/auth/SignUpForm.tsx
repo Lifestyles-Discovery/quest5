@@ -6,7 +6,7 @@ import Input from '../form/input/InputField';
 import Checkbox from '../form/input/Checkbox';
 import Alert from '../ui/alert/Alert';
 import Button from '../ui/button/Button';
-import { useCreateSubscription, useGetProductStatus } from '@hooks/api/useAuth';
+import { useCreateSubscription, useGetProductStatus, useSignIn } from '@hooks/api/useAuth';
 
 export default function SignUpForm() {
   const navigate = useNavigate();
@@ -31,6 +31,7 @@ export default function SignUpForm() {
 
   const createSubscription = useCreateSubscription();
   const getProductStatus = useGetProductStatus();
+  const signIn = useSignIn();
 
   const validateAccountStep = () => {
     if (!firstName.trim()) {
@@ -66,17 +67,17 @@ export default function SignUpForm() {
     // Check subscription status to see if user can proceed with sign-up
     try {
       const status = await getProductStatus.mutateAsync(email);
-      // If NextCall is not CreateSubscription, user already has account or needs different action
-      if (status.NextCall !== 'CreateSubscription') {
-        if (status.NextCall === 'SignIn') {
+      // If nextCall is not CreateSubscription, user already has account or needs different action
+      if (status.nextCall !== 'CreateSubscription') {
+        if (status.nextCall === 'SignIn') {
           setError(
             'This email is already registered. Please sign in or use a different email.'
           );
-        } else if (status.NextCall === 'Reactivate') {
+        } else if (status.nextCall === 'Reactivate') {
           setError(
             'Your subscription is cancelled. Please sign in to reactivate.'
           );
-        } else if (status.NextCall === 'Resume') {
+        } else if (status.nextCall === 'Resume') {
           setError('Your subscription is on hold. Please sign in to resume.');
         } else {
           setError('This email is already registered. Please sign in.');
@@ -145,7 +146,20 @@ export default function SignUpForm() {
       },
       {
         onSuccess: () => {
-          navigate('/');
+          // After subscription is created, sign in with the same credentials
+          // The createSubscription endpoint only returns a user ID, not a session
+          signIn.mutate(
+            { email, password },
+            {
+              onSuccess: () => {
+                navigate('/');
+              },
+              onError: () => {
+                // Account was created but sign-in failed - redirect to sign-in page
+                navigate('/signin');
+              },
+            }
+          );
         },
         onError: (err) => {
           const message =
@@ -157,7 +171,7 @@ export default function SignUpForm() {
     );
   };
 
-  const isPending = createSubscription.isPending || getProductStatus.isPending;
+  const isPending = createSubscription.isPending || getProductStatus.isPending || signIn.isPending;
 
   return (
     <div className="flex w-full flex-1 flex-col overflow-y-auto no-scrollbar lg:w-1/2">

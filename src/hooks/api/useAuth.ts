@@ -103,16 +103,14 @@ export function useSubscriptionStatus(email: string) {
 /**
  * Hook to create a new subscription (sign up)
  * Uses Authenticator API
+ * Note: This only creates the subscription - returns a user ID, not a session.
+ * The caller should sign in the user after this succeeds.
  */
 export function useCreateSubscription() {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (request: CreateSubscriptionRequest) =>
       subscriptionService.createSubscription(request),
-    onSuccess: (session: Session) => {
-      storeSession(session);
-      queryClient.setQueryData(authKeys.session, session);
+    onSuccess: () => {
       trackActivity('signup');
     },
   });
