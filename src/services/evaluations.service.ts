@@ -290,10 +290,10 @@ export const evaluationsService = {
   ): Promise<Evaluation> {
     const response = await apiClient.put<Evaluation>(
       ENDPOINTS.evaluations.updateNotes(propertyId, evaluationId),
-      {},
+      notes,
       {
         headers: {
-          notes,
+          'Content-Type': 'application/json',
         },
       }
     );

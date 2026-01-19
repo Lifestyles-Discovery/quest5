@@ -17,16 +17,14 @@ export default function EvaluationNotes({
   const { isReadOnly } = useReadOnly();
   const [notes, setNotes] = useState(initialNotes);
 
-  // Refs to prevent cursor jumping during editing
-  const isEditingRef = useRef(false);
-  const lastSentValueRef = useRef(initialNotes);
+  // Track focus state to prevent cursor jumping during editing
+  const isFocusedRef = useRef(false);
 
   // Sync local state with prop when it changes (e.g., after refresh)
-  // but only if user is not actively editing
+  // but only if textarea is not focused
   useEffect(() => {
-    if (!isEditingRef.current && initialNotes !== lastSentValueRef.current) {
+    if (!isFocusedRef.current) {
       setNotes(initialNotes);
-      lastSentValueRef.current = initialNotes;
     }
   }, [initialNotes]);
   const [isSaving, setIsSaving] = useState(false);
@@ -38,18 +36,15 @@ export default function EvaluationNotes({
   const debouncedSave = useCallback(
     debounce((value: string) => {
       setIsSaving(true);
-      lastSentValueRef.current = value;
       updateNotes.mutate(
         { propertyId, evaluationId, notes: value },
         {
           onSuccess: () => {
             setIsSaving(false);
             setLastSaved(new Date());
-            isEditingRef.current = false;
           },
           onError: () => {
             setIsSaving(false);
-            isEditingRef.current = false;
           },
         }
       );
@@ -59,9 +54,16 @@ export default function EvaluationNotes({
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
-    isEditingRef.current = true;
     setNotes(value);
     debouncedSave(value);
+  };
+
+  const handleFocus = () => {
+    isFocusedRef.current = true;
+  };
+
+  const handleBlur = () => {
+    isFocusedRef.current = false;
   };
 
   const formatTime = (date: Date) => {
@@ -119,6 +121,8 @@ export default function EvaluationNotes({
             <textarea
               value={notes}
               onChange={handleChange}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
               placeholder="Add notes about this evaluation..."
               rows={6}
               className="block w-full resize-none rounded-lg border border-gray-300 p-3 text-sm focus:border-primary focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
