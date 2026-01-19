@@ -24,10 +24,9 @@ export const authenticatorClient = axios.create({
   },
 });
 
-// Quest product identifiers for Chargify
+// Quest product identifier for Chargify
 export const QUEST_PRODUCT = {
   name: 'Quest',
-  handle: 'quest-monthly',
 } as const;
 
 export { API_KEY, baseURL as authenticatorBaseURL };

@@ -1,6 +1,10 @@
 import { apiClient } from '@/api/client';
 import { ENDPOINTS } from '@/api/endpoints';
-import type { User, UserPreferences } from '@app-types/auth.types';
+import type {
+  User,
+  UserPreferences,
+  ReactivateSubscriptionRequest,
+} from '@app-types/auth.types';
 import type { AccountFormData } from '@app-types/settings.types';
 
 /**
@@ -69,5 +73,31 @@ export const settingsService = {
       `users/${userId}/chargifyUrl`
     );
     return response.data;
+  },
+
+  /**
+   * Reactivate a cancelled subscription with new credit card info
+   * Matches Quest4's reactivation flow - uses Liberator API endpoint
+   */
+  async reactivateSubscription(
+    request: ReactivateSubscriptionRequest
+  ): Promise<void> {
+    await apiClient.put(
+      `users/${request.userId}/reactivate`,
+      {},
+      {
+        headers: {
+          userId: request.userId,
+          firstNameOnCard: request.firstNameOnCard,
+          lastNameOnCard: request.lastNameOnCard,
+          ccNumber: request.cardNumber,
+          expirationMonth: request.cardExpMonth,
+          expirationYear: request.cardExpYear,
+          cvv: request.cardCvv,
+          subscriptionType: 'StandardMonthly',
+          rights: '',
+        },
+      }
+    );
   },
 };

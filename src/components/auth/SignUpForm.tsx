@@ -15,7 +15,7 @@ export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [step, setStep] = useState<'account' | 'billing'>('account');
+  const [step, setStep] = useState<'account' | 'billing' | 'success'>('account');
 
   // Account info
   const [firstName, setFirstName] = useState('');
@@ -149,20 +149,8 @@ export default function SignUpForm() {
       },
       {
         onSuccess: () => {
-          // After subscription is created, sign in with the same credentials
-          // The createSubscription endpoint only returns a user ID, not a session
-          signIn.mutate(
-            { email, password },
-            {
-              onSuccess: () => {
-                navigate('/');
-              },
-              onError: () => {
-                // Account was created but sign-in failed - redirect to sign-in page
-                navigate('/signin');
-              },
-            }
-          );
+          // Show success step - like Quest4's "Done" step
+          setStep('success');
         },
         onError: (err) => {
           const errorData = (err as { response?: { data?: string | { message?: string } } })
@@ -173,6 +161,22 @@ export default function SignUpForm() {
               : errorData.message
             : null;
           setError(message || 'Failed to create subscription. Please try again.');
+        },
+      }
+    );
+  };
+
+  const handleSignIn = () => {
+    // Try to sign in with the credentials used during signup
+    signIn.mutate(
+      { email, password },
+      {
+        onSuccess: () => {
+          navigate('/');
+        },
+        onError: () => {
+          // If auto-sign-in fails, redirect to sign-in page
+          navigate('/signin');
         },
       }
     );
@@ -193,16 +197,18 @@ export default function SignUpForm() {
       </div>
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center">
         <div>
-          <div className="mb-5 sm:mb-8">
-            <h1 className="text-title-sm mb-2 font-semibold text-gray-800 dark:text-white/90 sm:text-title-md">
-              {step === 'account' ? 'Create Account' : 'Payment Details'}
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {step === 'account'
-                ? 'Enter your details to create your Quest account'
-                : 'Enter your payment details to complete signup'}
-            </p>
-          </div>
+          {step !== 'success' && (
+            <div className="mb-5 sm:mb-8">
+              <h1 className="text-title-sm mb-2 font-semibold text-gray-800 dark:text-white/90 sm:text-title-md">
+                {step === 'account' ? 'Create Account' : 'Payment Details'}
+              </h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {step === 'account'
+                  ? 'Enter your details to create your Quest account'
+                  : 'Enter your payment details to complete signup'}
+              </p>
+            </div>
+          )}
 
           {error && (
             <div className="mb-4">
@@ -211,28 +217,70 @@ export default function SignUpForm() {
           )}
 
           {/* Step indicator */}
-          <div className="mb-6 flex items-center gap-2">
-            <div
-              className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium ${
-                step === 'account'
-                  ? 'bg-brand-500 text-white'
-                  : 'bg-green-500 text-white'
-              }`}
-            >
-              {step === 'billing' ? '✓' : '1'}
+          {step !== 'success' && (
+            <div className="mb-6 flex items-center gap-2">
+              <div
+                className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium ${
+                  step === 'account'
+                    ? 'bg-brand-500 text-white'
+                    : 'bg-green-500 text-white'
+                }`}
+              >
+                {step === 'billing' ? '✓' : '1'}
+              </div>
+              <div className="h-0.5 w-8 bg-gray-200 dark:bg-gray-700" />
+              <div
+                className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium ${
+                  step === 'billing'
+                    ? 'bg-brand-500 text-white'
+                    : 'bg-gray-200 text-gray-500 dark:bg-gray-700'
+                }`}
+              >
+                2
+              </div>
             </div>
-            <div className="h-0.5 w-8 bg-gray-200 dark:bg-gray-700" />
-            <div
-              className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium ${
-                step === 'billing'
-                  ? 'bg-brand-500 text-white'
-                  : 'bg-gray-200 text-gray-500 dark:bg-gray-700'
-              }`}
-            >
-              2
-            </div>
-          </div>
+          )}
 
+          {step === 'success' ? (
+            // Success step - like Quest4's "Done" step
+            <div className="space-y-6 text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+                <svg
+                  className="h-8 w-8 text-green-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-title-sm mb-2 font-semibold text-gray-800 dark:text-white/90 sm:text-title-md">
+                  Account Created!
+                </h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Your subscription is active and ready to go!
+                </p>
+              </div>
+              <Alert
+                variant="success"
+                title="Welcome to Quest"
+                message="Your account has been created successfully. Click the button below to sign in and start using Quest."
+              />
+              <Button
+                className="w-full"
+                onClick={handleSignIn}
+                disabled={signIn.isPending}
+              >
+                {signIn.isPending ? 'Signing in...' : 'Sign In'}
+              </Button>
+            </div>
+          ) : (
           <form onSubmit={step === 'billing' ? handleSubmit : (e) => e.preventDefault()}>
             {step === 'account' ? (
               <div className="space-y-5">
@@ -392,7 +440,7 @@ export default function SignUpForm() {
                       type="text"
                       value={cardExpYear}
                       onChange={(e) => setCardExpYear(e.target.value)}
-                      placeholder="YY"
+                      placeholder="YYYY"
                       disabled={isPending}
                     />
                   </div>
@@ -426,18 +474,21 @@ export default function SignUpForm() {
               </div>
             )}
           </form>
+          )}
 
-          <div className="mt-5">
-            <p className="text-center text-sm font-normal text-gray-700 dark:text-gray-400 sm:text-start">
-              Already have an account?{' '}
-              <Link
-                to="/signin"
-                className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
-              >
-                Sign In
-              </Link>
-            </p>
-          </div>
+          {step !== 'success' && (
+            <div className="mt-5">
+              <p className="text-center text-sm font-normal text-gray-700 dark:text-gray-400 sm:text-start">
+                Already have an account?{' '}
+                <Link
+                  to="/signin"
+                  className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
+                >
+                  Sign In
+                </Link>
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

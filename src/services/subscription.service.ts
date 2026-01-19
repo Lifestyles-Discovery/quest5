@@ -51,7 +51,6 @@ export const subscriptionService = {
         headers: {
           apiKey: API_KEY,
           product: QUEST_PRODUCT.name,
-          productHandle: QUEST_PRODUCT.handle,
           email: request.email,
           password: request.password,
           firstName: request.firstName,
@@ -62,7 +61,14 @@ export const subscriptionService = {
           cvv: request.cardCvv,
           expirationMonth: request.cardExpMonth,
           expirationYear: request.cardExpYear,
-          ...(request.trialPeriod && { trialPeriod: request.trialPeriod }),
+          ...(request.trialPeriod && {
+            trialPeriodDays:
+              request.trialPeriod === 'Days14'
+                ? 14
+                : request.trialPeriod === 'Days7'
+                  ? 7
+                  : -1,
+          }),
         },
       }
     );

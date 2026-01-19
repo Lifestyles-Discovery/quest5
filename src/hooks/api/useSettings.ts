@@ -1,7 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { settingsService } from '@services/settings.service';
 import { authKeys } from './useAuth';
-import type { UserPreferences } from '@app-types/auth.types';
+import type {
+  UserPreferences,
+  ReactivateSubscriptionRequest,
+} from '@app-types/auth.types';
 import type { AccountFormData } from '@app-types/settings.types';
 
 /**
@@ -63,5 +66,16 @@ export function useGetChargifyUrl() {
   return useMutation({
     mutationFn: ({ userId }: { userId: string }) =>
       settingsService.getChargifyUrl(userId),
+  });
+}
+
+/**
+ * Hook to reactivate a cancelled subscription with new credit card info
+ * Matches Quest4's reactivation flow
+ */
+export function useReactivateSubscription() {
+  return useMutation({
+    mutationFn: (request: ReactivateSubscriptionRequest) =>
+      settingsService.reactivateSubscription(request),
   });
 }

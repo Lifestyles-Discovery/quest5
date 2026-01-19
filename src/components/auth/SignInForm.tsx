@@ -43,8 +43,9 @@ export default function SignInForm() {
           if (axiosError.response?.status === 404) {
             setError("Your email or password were entered incorrectly");
           } else if (axiosError.response?.status === 403) {
-            // Subscription inactive - redirect to blocked page with billing portal access
-            navigate("/subscription-blocked");
+            // Subscription inactive - redirect to reactivate page
+            // User can reactivate with new credit card info (matching Quest4 behavior)
+            navigate("/reactivate");
           } else {
             setError("An unexpected error occurred. Please try again.");
           }

@@ -148,11 +148,25 @@ export interface ProductStatusResponse {
 }
 
 /**
- * Reactivation request
+ * Reactivation request (simple - for resume)
  */
 export interface ReactivateRequest {
   email: string;
   password: string;
+}
+
+/**
+ * Reactivation request with credit card (for cancelled subscriptions)
+ * Matches Quest4's reactivation flow which allows updating payment method
+ */
+export interface ReactivateSubscriptionRequest {
+  userId: string;
+  firstNameOnCard: string;
+  lastNameOnCard: string;
+  cardNumber: string;
+  cardExpMonth: string;
+  cardExpYear: string;
+  cardCvv: string;
 }
 
 /**
