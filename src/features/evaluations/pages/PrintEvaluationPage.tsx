@@ -567,10 +567,9 @@ export default function PrintEvaluationPage() {
         {evaluation.notes && (
           <section className="rounded-lg border border-gray-200 bg-white p-5">
             <h2 className="mb-2 text-lg font-semibold">Notes</h2>
-            <div
-              className="prose prose-sm max-w-none text-gray-700"
-              dangerouslySetInnerHTML={{ __html: evaluation.notes }}
-            />
+            <div className="whitespace-pre-wrap text-sm text-gray-700">
+              {evaluation.notes}
+            </div>
           </section>
         )}
       </div>

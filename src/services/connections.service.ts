@@ -9,10 +9,17 @@ import type { Connection, ConnectionFormData } from '@app-types/connection.types
 export const connectionsService = {
   /**
    * Get all connections for a user
+   * @param userId - The user ID
+   * @param includeHidden - Include soft-deleted connections (default: true to match Quest4 behavior)
    */
-  async getConnections(userId: string): Promise<Connection[]> {
+  async getConnections(userId: string, includeHidden: boolean = true): Promise<Connection[]> {
     const response = await apiClient.get<Connection[]>(
-      ENDPOINTS.connections.list(userId)
+      ENDPOINTS.connections.list(userId),
+      {
+        headers: {
+          includeHidden: String(includeHidden),
+        },
+      }
     );
     return response.data;
   },

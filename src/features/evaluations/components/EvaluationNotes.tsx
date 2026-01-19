@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useUpdateNotes } from '@/hooks/api/useEvaluations';
 import { debounce } from '@/utils/debounce';
 import { useReadOnly } from '@/context/ReadOnlyContext';
@@ -17,9 +17,17 @@ export default function EvaluationNotes({
   const { isReadOnly } = useReadOnly();
   const [notes, setNotes] = useState(initialNotes);
 
+  // Refs to prevent cursor jumping during editing
+  const isEditingRef = useRef(false);
+  const lastSentValueRef = useRef(initialNotes);
+
   // Sync local state with prop when it changes (e.g., after refresh)
+  // but only if user is not actively editing
   useEffect(() => {
-    setNotes(initialNotes);
+    if (!isEditingRef.current && initialNotes !== lastSentValueRef.current) {
+      setNotes(initialNotes);
+      lastSentValueRef.current = initialNotes;
+    }
   }, [initialNotes]);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -30,15 +38,18 @@ export default function EvaluationNotes({
   const debouncedSave = useCallback(
     debounce((value: string) => {
       setIsSaving(true);
+      lastSentValueRef.current = value;
       updateNotes.mutate(
         { propertyId, evaluationId, notes: value },
         {
           onSuccess: () => {
             setIsSaving(false);
             setLastSaved(new Date());
+            isEditingRef.current = false;
           },
           onError: () => {
             setIsSaving(false);
+            isEditingRef.current = false;
           },
         }
       );
@@ -48,6 +59,7 @@ export default function EvaluationNotes({
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
+    isEditingRef.current = true;
     setNotes(value);
     debouncedSave(value);
   };
@@ -98,10 +110,9 @@ export default function EvaluationNotes({
 
       <div className="p-4">
         {isReadOnly ? (
-          <div
-            className="prose prose-sm max-w-none whitespace-pre-wrap text-sm text-gray-700 dark:prose-invert dark:text-gray-300"
-            dangerouslySetInnerHTML={{ __html: notes || '<span class="italic text-gray-400">No notes added.</span>' }}
-          />
+          <div className="whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300">
+            {notes || <span className="italic text-gray-400">No notes added.</span>}
+          </div>
         ) : (
           <>
             {/* Interactive textarea - hidden during PDF export */}

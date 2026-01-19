@@ -1,6 +1,17 @@
 import { useState, useRef, useEffect } from 'react';
-import { useCopyEvaluation, useUpdateAttributes } from '@hooks/api/useEvaluations';
+import { useCopyEvaluation, useUpdateAttributes, useUpdateNotes } from '@hooks/api/useEvaluations';
 import type { Property } from '@app-types/property.types';
+
+/**
+ * Helper to truncate notes and strip any HTML for preview display
+ */
+function getNotesPreview(notes: string | undefined | null, maxLength: number = 80): string {
+  if (!notes) return '';
+  // Strip HTML tags and decode entities
+  const stripped = notes.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
+  if (stripped.length <= maxLength) return stripped;
+  return stripped.slice(0, maxLength).trim() + '...';
+}
 
 interface ScenarioHistoryProps {
   property: Property;
@@ -35,9 +46,15 @@ export function ScenarioHistory({
 }: ScenarioHistoryProps) {
   const copyEvaluation = useCopyEvaluation();
   const updateAttributes = useUpdateAttributes();
+  const updateNotes = useUpdateNotes();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Notes editing state
+  const [editingNotesId, setEditingNotesId] = useState<string | null>(null);
+  const [notesEditValue, setNotesEditValue] = useState('');
+  const notesTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Focus input when entering edit mode
   useEffect(() => {
@@ -46,6 +63,14 @@ export function ScenarioHistory({
       inputRef.current.select();
     }
   }, [editingId]);
+
+  // Focus notes textarea when entering notes edit mode
+  useEffect(() => {
+    if (editingNotesId && notesTextareaRef.current) {
+      notesTextareaRef.current.focus();
+      notesTextareaRef.current.select();
+    }
+  }, [editingNotesId]);
 
   const handleNewScenario = () => {
     copyEvaluation.mutate(
@@ -86,6 +111,38 @@ export function ScenarioHistory({
     } else if (e.key === 'Escape') {
       e.preventDefault();
       cancelEdit();
+    }
+  };
+
+  // Notes editing functions
+  const startEditingNotes = (evaluationId: string, currentNotes: string | undefined) => {
+    setEditingNotesId(evaluationId);
+    setNotesEditValue(currentNotes || '');
+  };
+
+  const saveNotesEdit = (evaluationId: string) => {
+    const trimmedNotes = notesEditValue.trim();
+    updateNotes.mutate({
+      propertyId: property.id,
+      evaluationId,
+      notes: trimmedNotes,
+    });
+    setEditingNotesId(null);
+    setNotesEditValue('');
+  };
+
+  const cancelNotesEdit = () => {
+    setEditingNotesId(null);
+    setNotesEditValue('');
+  };
+
+  const handleNotesKeyDown = (e: React.KeyboardEvent, evaluationId: string) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      saveNotesEdit(evaluationId);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      cancelNotesEdit();
     }
   };
 
@@ -192,6 +249,48 @@ export function ScenarioHistory({
                         {formatDate(evaluation.created)}
                       </p>
                     )}
+                  </button>
+                )}
+                {/* Notes preview/editing */}
+                {editingNotesId === evaluation.id ? (
+                  <div className="mt-1">
+                    <textarea
+                      ref={notesTextareaRef}
+                      value={notesEditValue}
+                      onChange={(e) => setNotesEditValue(e.target.value)}
+                      onBlur={() => saveNotesEdit(evaluation.id)}
+                      onKeyDown={(e) => handleNotesKeyDown(e, evaluation.id)}
+                      placeholder="Add notes..."
+                      rows={2}
+                      className="w-full rounded border border-brand-300 bg-white px-2 py-1 text-xs text-gray-600 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-brand-600 dark:bg-gray-800 dark:text-gray-300"
+                    />
+                    <p className="mt-0.5 text-xs text-gray-400">
+                      Enter to save, Shift+Enter for new line, Esc to cancel
+                    </p>
+                  </div>
+                ) : (
+                  getNotesPreview(evaluation.notes) && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        startEditingNotes(evaluation.id, evaluation.notes);
+                      }}
+                      className="mt-1 text-left text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    >
+                      {getNotesPreview(evaluation.notes)}
+                    </button>
+                  )
+                )}
+                {/* Add notes link if no notes exist */}
+                {!editingNotesId && !getNotesPreview(evaluation.notes) && editingId !== evaluation.id && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      startEditingNotes(evaluation.id, evaluation.notes);
+                    }}
+                    className="mt-1 text-xs text-gray-400 hover:text-brand-500 dark:hover:text-brand-400"
+                  >
+                    + Add notes
                   </button>
                 )}
               </div>

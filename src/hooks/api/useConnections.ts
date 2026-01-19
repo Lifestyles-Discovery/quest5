@@ -7,16 +7,21 @@ import type { Connection, ConnectionFormData } from '@app-types/connection.types
  */
 export const connectionsKeys = {
   all: ['connections'] as const,
-  list: (userId: string) => [...connectionsKeys.all, 'list', userId] as const,
+  // Use for invalidation - matches all list queries for a user regardless of includeHidden
+  listPrefix: (userId: string) => [...connectionsKeys.all, 'list', userId] as const,
+  // Use for specific queries
+  list: (userId: string, includeHidden: boolean) => [...connectionsKeys.all, 'list', userId, includeHidden] as const,
 };
 
 /**
  * Hook to fetch all connections for a user
+ * @param userId - The user ID
+ * @param includeHidden - Include soft-deleted connections (default: true to match Quest4 behavior)
  */
-export function useConnections(userId: string | undefined) {
+export function useConnections(userId: string | undefined, includeHidden: boolean = true) {
   return useQuery({
-    queryKey: connectionsKeys.list(userId ?? ''),
-    queryFn: () => connectionsService.getConnections(userId!),
+    queryKey: connectionsKeys.list(userId ?? '', includeHidden),
+    queryFn: () => connectionsService.getConnections(userId!, includeHidden),
     enabled: !!userId,
   });
 }
@@ -37,7 +42,7 @@ export function useCreateConnection() {
     }) => connectionsService.createConnection(userId, data),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: connectionsKeys.list(variables.userId),
+        queryKey: connectionsKeys.listPrefix(variables.userId),
       });
     },
   });
@@ -61,7 +66,7 @@ export function useUpdateConnection() {
     }) => connectionsService.updateConnection(userId, connectionId, data),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: connectionsKeys.list(variables.userId),
+        queryKey: connectionsKeys.listPrefix(variables.userId),
       });
     },
   });
@@ -90,7 +95,7 @@ export function useToggleConnectionVisibility() {
       ),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: connectionsKeys.list(variables.userId),
+        queryKey: connectionsKeys.listPrefix(variables.userId),
       });
     },
   });
