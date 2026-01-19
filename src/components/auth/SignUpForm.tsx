@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate, useSearchParams } from 'react-router';
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from '../../icons';
 import Label from '../form/Label';
 import Input from '../form/input/InputField';
@@ -10,6 +10,8 @@ import { useCreateSubscription, useGetProductStatus, useSignIn } from '@hooks/ap
 
 export default function SignUpForm() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const trialPeriod = searchParams.get('trial');
   const [showPassword, setShowPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -143,6 +145,7 @@ export default function SignUpForm() {
         cardExpMonth,
         cardExpYear,
         cardCvv,
+        trialPeriod: trialPeriod || undefined,
       },
       {
         onSuccess: () => {
@@ -162,10 +165,14 @@ export default function SignUpForm() {
           );
         },
         onError: (err) => {
-          const message =
-            (err as { response?: { data?: { message?: string } } })?.response
-              ?.data?.message || 'Failed to create subscription. Please try again.';
-          setError(message);
+          const errorData = (err as { response?: { data?: string | { message?: string } } })
+            ?.response?.data;
+          const message = errorData
+            ? typeof errorData === 'string'
+              ? errorData
+              : errorData.message
+            : null;
+          setError(message || 'Failed to create subscription. Please try again.');
         },
       }
     );

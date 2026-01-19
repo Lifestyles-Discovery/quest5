@@ -102,6 +102,8 @@ export interface CreateSubscriptionRequest {
   cardExpMonth: string;
   cardExpYear: string;
   cardCvv: string;
+  // Trial period from URL param (e.g., 'Days7', 'Days14', 'None')
+  trialPeriod?: string;
 }
 
 /**

@@ -62,6 +62,7 @@ export const subscriptionService = {
           cvv: request.cardCvv,
           expirationMonth: request.cardExpMonth,
           expirationYear: request.cardExpYear,
+          ...(request.trialPeriod && { trialPeriod: request.trialPeriod }),
         },
       }
     );
