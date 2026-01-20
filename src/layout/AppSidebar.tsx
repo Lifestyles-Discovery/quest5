@@ -2,15 +2,8 @@ import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { Link, useLocation } from "react-router";
 
 // Icons
-import {
-  BoxCubeIcon,
-  ChevronDownIcon,
-  GridIcon,
-  GroupIcon,
-  HorizontaLDots,
-  PageIcon,
-  PlugInIcon,
-} from "../icons";
+import { ChevronDownIcon, HorizontaLDots } from "../icons";
+import { Search, Home, Users, Settings, Shield } from "lucide-react";
 import { useSidebar } from "../context/SidebarContext";
 import { useSession } from "@/hooks/api/useAuth";
 
@@ -24,17 +17,17 @@ type NavItem = {
 // Quest5 Navigation Items (simplified - 37signals philosophy)
 const navItems: NavItem[] = [
   {
-    icon: <GridIcon />,
+    icon: <Search />,
     name: "Search",
     path: "/search",
   },
   {
-    icon: <BoxCubeIcon />,
+    icon: <Home />,
     name: "Deals",
     path: "/deals",
   },
   {
-    icon: <GroupIcon />,
+    icon: <Users />,
     name: "Contacts",
     path: "/contacts",
   },
@@ -43,12 +36,12 @@ const navItems: NavItem[] = [
 // Settings & Admin
 const settingsItems: NavItem[] = [
   {
-    icon: <PageIcon />,
+    icon: <Settings />,
     name: "Settings",
     path: "/settings",
   },
   {
-    icon: <PlugInIcon />,
+    icon: <Shield />,
     name: "Super Admin",
     path: "/admin",
   },

@@ -15,7 +15,6 @@ import { ReactComponent as GridIcon } from "./grid.svg?react";
 import { ReactComponent as FileIcon } from "./file.svg?react";
 import { ReactComponent as DownloadIcon } from "./download.svg?react";
 import { ReactComponent as ArrowRightIcon } from "./arrow-right.svg?react";
-import { ReactComponent as GroupIcon } from "./group.svg?react";
 import { ReactComponent as BoxIconLine } from "./box-line.svg?react";
 import { ReactComponent as ShootingStarIcon } from "./shooting-star.svg?react";
 import { ReactComponent as DollarLineIcon } from "./dollar-line.svg?react";
@@ -44,7 +43,6 @@ import { ReactComponent as TableIcon } from "./table.svg?react";
 import { ReactComponent as PageIcon } from "./page.svg?react";
 import { ReactComponent as PieChartIcon } from "./pie-chart.svg?react";
 import { ReactComponent as BoxCubeIcon } from "./box-cube.svg?react";
-import { ReactComponent as PlugInIcon } from "./plug-in.svg?react";
 import { ReactComponent as DocsIcon } from "./docs.svg?react";
 import { ReactComponent as MailIcon } from "./mail-line.svg?react";
 import { ReactComponent as HorizontaLDots } from "./horizontal-dots.svg?react";
@@ -74,7 +72,6 @@ export {
   FolderIcon,
   ArrowDownIcon,
   ArrowRightIcon,
-  GroupIcon,
   BoxIconLine,
   ShootingStarIcon,
   DollarLineIcon,
@@ -102,7 +99,6 @@ export {
   PageIcon,
   PieChartIcon,
   BoxCubeIcon,
-  PlugInIcon,
   DocsIcon,
   MailIcon,
   HorizontaLDots,

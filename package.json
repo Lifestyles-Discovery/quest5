@@ -24,6 +24,7 @@
     "date-fns": "^4.1.0",
     "flatpickr": "^4.6.13",
     "leaflet": "^1.9.4",
+    "lucide-react": "^0.562.0",
     "react": "^19.0.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
