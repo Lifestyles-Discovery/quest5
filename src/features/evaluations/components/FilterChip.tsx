@@ -174,15 +174,62 @@ interface NumberEditorProps {
 }
 
 export function NumberEditor({ label, value, onChange, suffix, prefix, step }: NumberEditorProps) {
+  // Local state to buffer input while typing (prevents cursor jumping)
+  const [localValue, setLocalValue] = useState<string>(value ? String(value) : '');
+  const isTypingRef = useRef(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Sync external value to local state when not actively typing
+  useEffect(() => {
+    if (!isTypingRef.current) {
+      setLocalValue(value ? String(value) : '');
+    }
+  }, [value]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setLocalValue(newValue);
+    isTypingRef.current = true;
+
+    // Clear any pending debounce
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    // Debounce propagation to parent
+    timeoutRef.current = setTimeout(() => {
+      isTypingRef.current = false;
+      onChange(Number(newValue) || 0);
+    }, 300);
+  };
+
+  const handleBlur = () => {
+    // Cancel pending debounce and propagate immediately
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    isTypingRef.current = false;
+    onChange(Number(localValue) || 0);
+  };
+
   return (
     <div className="flex items-center gap-2">
       <span className="text-xs font-medium text-gray-500 dark:text-gray-400">{label}</span>
       {prefix && <span className="text-sm text-gray-600 dark:text-gray-400">{prefix}</span>}
       <input
         type="number"
-        value={value || ''}
-        onChange={(e) => onChange(Number(e.target.value))}
-        onFocus={(e) => e.target.select()}
+        value={localValue}
+        onChange={handleChange}
+        onBlur={handleBlur}
         step={step}
         className="w-20 rounded border border-gray-300 bg-white px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
       />
