@@ -6,6 +6,7 @@ import {
   BoxCubeIcon,
   ChevronDownIcon,
   GridIcon,
+  GroupIcon,
   HorizontaLDots,
   PageIcon,
   PlugInIcon,
@@ -31,6 +32,11 @@ const navItems: NavItem[] = [
     icon: <BoxCubeIcon />,
     name: "Deals",
     path: "/deals",
+  },
+  {
+    icon: <GroupIcon />,
+    name: "Contacts",
+    path: "/contacts",
   },
 ];
 

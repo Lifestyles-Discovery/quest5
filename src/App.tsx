@@ -44,6 +44,7 @@ import PrivacyPolicy from "./pages/Legal/PrivacyPolicy";
 
 // Quest Features
 import { PropertiesPage, PropertyDetailPage } from "./features/properties";
+import { ContactsPage } from "./features/connections";
 import { SearchPage } from "./features/search";
 import { SettingsPage } from "./features/settings";
 import { AdminPage } from "./features/admin";
@@ -71,6 +72,9 @@ export default function App() {
             <Route path="/deals" element={<PropertiesPage />} />
             <Route path="/deals/:id" element={<PropertyDetailPage />} />
             <Route path="/deals/:id/scenario/:scenarioId" element={<PropertyDetailPage />} />
+
+            {/* Contacts */}
+            <Route path="/contacts" element={<ContactsPage />} />
 
             {/* Legacy /properties routes - redirect to /deals */}
             <Route path="/properties" element={<Navigate to="/deals" replace />} />
