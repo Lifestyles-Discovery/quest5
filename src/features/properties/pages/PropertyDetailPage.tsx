@@ -434,10 +434,10 @@ export default function PropertyDetailPage() {
 
       <div className="space-y-6">
         {/* Property Header Card */}
-        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+        <div className="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
           <div className="grid grid-cols-1 lg:grid-cols-3">
             {/* Photo */}
-            <div className="relative h-64 lg:h-auto">
+            <div className="relative h-64 overflow-hidden rounded-t-xl lg:rounded-l-xl lg:rounded-tr-none lg:h-auto">
               {imageError ? (
                 <div className="flex h-full w-full items-center justify-center bg-gray-100 dark:bg-gray-800">
                   <svg
