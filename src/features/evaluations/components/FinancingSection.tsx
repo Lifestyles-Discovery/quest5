@@ -164,7 +164,7 @@ function ConventionalSection({
               />
               <div>
                 <EditableField
-                  label="Lender Fees"
+                  label="Lender & Title Fees"
                   value={inputs.lenderAndTitleFees}
                   format="currency"
                   onSave={(v) => onChange('lenderAndTitleFees', v as number)}
@@ -304,7 +304,7 @@ function HardMoneySection({
               </div>
               <div>
                 <EditableField
-                  label="Lender Fees"
+                  label="Lender & Title & Policy Fees"
                   value={inputs.hardLenderAndTitleFees}
                   format="currency"
                   onSave={(v) => onChange('hardLenderAndTitleFees', v as number)}
@@ -388,7 +388,7 @@ function HardMoneySection({
               />
               <div>
                 <EditableField
-                  label="Lender Fees"
+                  label="Lender & Title Fees"
                   value={inputs.refinanceLenderAndTitleFees}
                   format="currency"
                   onSave={(v) => onChange('refinanceLenderAndTitleFees', v as number)}

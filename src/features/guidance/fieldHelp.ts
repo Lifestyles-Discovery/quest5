@@ -54,7 +54,7 @@ export const FIELD_HELP = {
   hardLoanToValuePercent:
     'Percentage of appraised value the lender will loan. Typical hard money LTV is 65-75%.',
   hardLenderAndTitleFees:
-    'Include: origination points, title insurance, attorney fees, builder\'s risk insurance, hard money appraisal, and recording fees.',
+    'Include: origination points, title insurance, attorney fees, builders risk policy, hard money appraisal, and recording fees.',
   hardInterestRate:
     'Annual interest rate on hard money loan. Rates are higher than conventional (typically 10-14%).',
   hardMonthsToRefi:
