@@ -120,21 +120,21 @@ export default function FilterBar({
             searchTerm={filters.searchTerm || ''}
             searchTypes={searchTypes}
             onSearchTypeChange={(type) => {
-              const wasRadius = filters.searchType?.toLowerCase() === 'radius';
-              const isNowRadius = type.toLowerCase() === 'radius';
-              const isNowSubdivision = type.toLowerCase() === 'subdivision';
+              const typeLower = type.toLowerCase();
+              const selectedSearchType = searchTypes.find(st => st.type?.toLowerCase() === typeLower);
+              const defaultTerm = selectedSearchType?.defaultSearchTerm || '';
 
-              if (wasRadius && isNowSubdivision && subdivision) {
-                // Repopulate search term with subdivision when switching from radius to subdivision
+              if (typeLower === 'subdivision' && subdivision) {
+                // Use stripped subdivision name for cleaner search
                 const strippedSubdivision = stripSubdivisionSuffix(subdivision);
                 onChange({ ...filters, searchType: type, searchTerm: strippedSubdivision });
-              } else if (isNowRadius) {
-                // Populate radius with user preference or backend default
-                const radiusSearchType = searchTypes.find(st => st.type?.toLowerCase() === 'radius');
-                const radiusValue = defaultRadius || radiusSearchType?.defaultSearchTerm || '';
+              } else if (typeLower === 'radius') {
+                // Use user preference or backend default for radius
+                const radiusValue = defaultRadius || defaultTerm || '1';
                 onChange({ ...filters, searchType: type, searchTerm: String(radiusValue) });
               } else {
-                onChange({ ...filters, searchType: type });
+                // Use the default search term from the backend (zip, city, county, etc.)
+                onChange({ ...filters, searchType: type, searchTerm: defaultTerm });
               }
             }}
             onSearchTermChange={(term) => onChange({ ...filters, searchTerm: term })}
@@ -249,9 +249,9 @@ export default function FilterBar({
           <button
             type="button"
             onClick={() => (onImmediateChange || onChange)({ ...filters, ignoreParametersExceptMonthsClosed: true })}
-            className="rounded-full px-3 py-1 text-sm text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+            className="rounded-full px-3 py-1.5 text-base font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/30"
           >
-            broad
+            Broad
           </button>
         )}
 
@@ -260,9 +260,9 @@ export default function FilterBar({
           <button
             type="button"
             onClick={onReset}
-            className="rounded-full px-3 py-1 text-sm text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+            className="rounded-full px-3 py-1.5 text-base font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/30"
           >
-            reset
+            Reset
           </button>
         )}
 
@@ -297,18 +297,18 @@ export default function FilterBar({
               <button
                 type="button"
                 onClick={() => (onImmediateChange || onChange)({ ...filters, ignoreParametersExceptMonthsClosed: true })}
-                className="rounded-full px-3 py-1 text-sm text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+                className="rounded-full px-3 py-1.5 text-base font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/30"
               >
-                broad
+                Broad
               </button>
             )}
             {onReset && (
               <button
                 type="button"
                 onClick={onReset}
-                className="rounded-full px-3 py-1 text-sm text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+                className="rounded-full px-3 py-1.5 text-base font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/30"
               >
-                reset
+                Reset
               </button>
             )}
             <button

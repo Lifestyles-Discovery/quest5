@@ -80,9 +80,16 @@ const tableStyles = StyleSheet.create({
     paddingVertical: 4,
     minHeight: 24,
   },
+  tableRowExcluded: {
+    backgroundColor: colors.backgroundMuted,
+  },
   tableCell: {
     fontSize: 9,
     color: colors.textPrimary,
+  },
+  tableCellExcluded: {
+    color: colors.textMuted,
+    textDecoration: 'line-through',
   },
   tableCellBold: {
     fontFamily: 'Helvetica-Bold',
@@ -126,7 +133,7 @@ const tableStyles = StyleSheet.create({
 
 /**
  * Comps table component for displaying sale or rent comparables.
- * Only renders comps that are marked as included.
+ * Shows all comps with excluded ones displayed in muted styling.
  */
 export function PDFCompsTable({
   title,
@@ -138,8 +145,9 @@ export function PDFCompsTable({
   searchInputs,
   subjectProperty,
 }: PDFCompsTableProps) {
-  // Filter to only included comps
-  const includedComps = comps.filter((comp) => comp.include);
+  // Show all comps, track included count for display
+  const allComps = comps;
+  const includedCount = comps.filter((comp) => comp.include).length;
 
   const valueLabel = type === 'rent' ? `${formatCurrency(calculatedValue)}/mo` : formatCurrency(calculatedValue);
   const dateHeader = type === 'rent' ? 'DOM' : 'Date';
@@ -156,14 +164,14 @@ export function PDFCompsTable({
         <View>
           <Text style={tableStyles.title}>{title}</Text>
           <Text style={tableStyles.count}>
-            {includedComps.length} comp{includedComps.length !== 1 ? 's' : ''} included
+            {includedCount} of {allComps.length} comp{allComps.length !== 1 ? 's' : ''} included
           </Text>
         </View>
         <Text style={tableStyles.calculatedValue}>{valueLabel}</Text>
       </View>
 
-      {includedComps.length === 0 ? (
-        <Text style={tableStyles.emptyMessage}>No comps included in calculations</Text>
+      {allComps.length === 0 ? (
+        <Text style={tableStyles.emptyMessage}>No comps found</Text>
       ) : (
         <>
           {/* Table Header */}
@@ -181,43 +189,61 @@ export function PDFCompsTable({
           </View>
 
           {/* Table Rows */}
-          {includedComps.map((comp) => (
-            <View key={comp.id} style={tableStyles.tableRow}>
-              <View style={tableStyles.colAddress}>
-                <Text style={[tableStyles.tableCell, tableStyles.tableCellBold]}>{comp.street}</Text>
-                <Text style={tableStyles.tableCellSecondary}>
-                  {comp.city}, {comp.state}
+          {allComps.map((comp) => {
+            const isExcluded = !comp.include;
+            // Apply strikethrough inline to ensure it renders in react-pdf
+            const excludedStyle = { color: colors.textMuted, textDecoration: 'line-through' as const };
+            const cellStyle = isExcluded
+              ? [tableStyles.tableCell, excludedStyle]
+              : [tableStyles.tableCell];
+            const boldCellStyle = isExcluded
+              ? [tableStyles.tableCell, excludedStyle]
+              : [tableStyles.tableCell, tableStyles.tableCellBold];
+            const secondaryExcludedStyle = isExcluded
+              ? [tableStyles.tableCellSecondary, excludedStyle]
+              : tableStyles.tableCellSecondary;
+
+            return (
+              <View
+                key={comp.id}
+                style={[tableStyles.tableRow, isExcluded && tableStyles.tableRowExcluded]}
+              >
+                <View style={tableStyles.colAddress}>
+                  <Text style={[...boldCellStyle]}>{comp.street}</Text>
+                  <Text style={secondaryExcludedStyle}>
+                    {comp.city}, {comp.state}
+                  </Text>
+                </View>
+                <Text style={[...cellStyle, tableStyles.colSubdivision]}>
+                  {comp.subdivision || '-'}
+                </Text>
+                <Text style={[...boldCellStyle, tableStyles.colPrice]}>
+                  {formatCurrency(comp.priceSold)}
+                </Text>
+                <Text style={[...cellStyle, tableStyles.colPricePerSqft]}>
+                  ${type === 'rent' ? comp.pricePerSqft?.toFixed(2) : Math.round(comp.pricePerSqft)}
+                </Text>
+                <Text style={[...cellStyle, tableStyles.colBedBath]}>
+                  {comp.beds}/{comp.baths}/{comp.garage}
+                </Text>
+                <Text style={[...cellStyle, tableStyles.colSqft]}>
+                  {formatNumber(comp.sqft)}
+                </Text>
+                <Text style={[...cellStyle, tableStyles.colYear]}>{comp.yearBuilt || '-'}</Text>
+                <Text style={[...cellStyle, tableStyles.colDate]}>
+                  {type === 'rent'
+                    ? comp.daysOnMarket ?? '-'
+                    : (comp as SaleComp).dateSold
+                      ? new Date((comp as SaleComp).dateSold).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: '2-digit',
+                        })
+                      : '-'}
                 </Text>
               </View>
-              <Text style={[tableStyles.tableCell, tableStyles.colSubdivision]}>
-                {comp.subdivision || '-'}
-              </Text>
-              <Text style={[tableStyles.tableCell, tableStyles.tableCellBold, tableStyles.colPrice]}>
-                {formatCurrency(comp.priceSold)}
-              </Text>
-              <Text style={[tableStyles.tableCell, tableStyles.colPricePerSqft]}>
-                ${type === 'rent' ? comp.pricePerSqft?.toFixed(2) : Math.round(comp.pricePerSqft)}
-              </Text>
-              <Text style={[tableStyles.tableCell, tableStyles.colBedBath]}>
-                {comp.beds}/{comp.baths}/{comp.garage}
-              </Text>
-              <Text style={[tableStyles.tableCell, tableStyles.colSqft]}>
-                {formatNumber(comp.sqft)}
-              </Text>
-              <Text style={[tableStyles.tableCell, tableStyles.colYear]}>{comp.yearBuilt || '-'}</Text>
-              <Text style={[tableStyles.tableCell, tableStyles.colDate]}>
-                {type === 'rent'
-                  ? comp.daysOnMarket ?? '-'
-                  : (comp as SaleComp).dateSold
-                    ? new Date((comp as SaleComp).dateSold).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: '2-digit',
-                      })
-                    : '-'}
-              </Text>
-            </View>
-          ))}
+            );
+          })}
 
           {/* Footer */}
           <View style={tableStyles.footer}>

@@ -42,19 +42,21 @@ export default function ExpandedFilterPanel({
   const mutedClass = isBroadSearch ? 'opacity-40 pointer-events-none' : '';
 
   const handleSearchTypeChange = (type: string) => {
-    const wasRadius = filters.searchType?.toLowerCase() === 'radius';
-    const isNowRadius = type.toLowerCase() === 'radius';
-    const isNowSubdivision = type.toLowerCase() === 'subdivision';
+    const typeLower = type.toLowerCase();
+    const selectedSearchType = searchTypes.find(st => st.type?.toLowerCase() === typeLower);
+    const defaultTerm = selectedSearchType?.defaultSearchTerm || '';
 
-    if (wasRadius && isNowSubdivision && subdivision) {
+    if (typeLower === 'subdivision' && subdivision) {
+      // Use stripped subdivision name for cleaner search
       const strippedSubdivision = stripSubdivisionSuffix(subdivision);
       onChange({ ...filters, searchType: type, searchTerm: strippedSubdivision });
-    } else if (isNowRadius) {
-      const radiusSearchType = searchTypes.find(st => st.type?.toLowerCase() === 'radius');
-      const radiusValue = defaultRadius || radiusSearchType?.defaultSearchTerm || '';
+    } else if (typeLower === 'radius') {
+      // Use user preference or backend default for radius
+      const radiusValue = defaultRadius || defaultTerm || '1';
       onChange({ ...filters, searchType: type, searchTerm: String(radiusValue) });
     } else {
-      onChange({ ...filters, searchType: type });
+      // Use the default search term from the backend (zip, city, county, etc.)
+      onChange({ ...filters, searchType: type, searchTerm: defaultTerm });
     }
   };
 

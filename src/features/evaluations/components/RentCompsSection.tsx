@@ -104,12 +104,16 @@ export default function RentCompsSection({
   const updateRentComps = useUpdateRentComps();
   const toggleInclusion = useToggleRentCompInclusion();
 
-  // Filter to only show Subdivision and Radius search types
+  // Filter and order search types: subdivision, radius, zip, city, county
   const filteredSearchTypes = useMemo(() => {
-    const allowedTypes = ['subdivision', 'radius'];
-    return searchTypes.filter((st) =>
-      st.type && allowedTypes.includes(st.type.toLowerCase())
-    );
+    const typeOrder = ['subdivision', 'radius', 'zip', 'city', 'county'];
+    return searchTypes
+      .filter((st) => st.type && typeOrder.includes(st.type.toLowerCase()))
+      .sort((a, b) => {
+        const aIndex = typeOrder.indexOf(a.type?.toLowerCase() || '');
+        const bIndex = typeOrder.indexOf(b.type?.toLowerCase() || '');
+        return aIndex - bIndex;
+      });
   }, [searchTypes]);
 
   // Auto-populate search term with stripped subdivision on first load
