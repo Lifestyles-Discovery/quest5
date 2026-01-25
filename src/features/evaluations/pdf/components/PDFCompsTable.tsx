@@ -206,7 +206,7 @@ export function PDFCompsTable({
             return (
               <View
                 key={comp.id}
-                style={[tableStyles.tableRow, isExcluded && tableStyles.tableRowExcluded]}
+                style={[tableStyles.tableRow, isExcluded ? tableStyles.tableRowExcluded : {}]}
               >
                 <View style={tableStyles.colAddress}>
                   <Text style={[...boldCellStyle]}>{comp.street}</Text>
