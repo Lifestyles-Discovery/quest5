@@ -33,8 +33,8 @@ export default function BlockedAccountForm() {
     getBillingUrl.mutate(
       { email, password },
       {
-        onSuccess: (url) => {
-          setBillingUrl(url);
+        onSuccess: (response) => {
+          setBillingUrl(response.url);
         },
         onError: (err) => {
           const axiosError = err as { response?: { status?: number } };

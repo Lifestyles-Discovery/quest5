@@ -124,9 +124,10 @@ export const subscriptionService = {
    * Get billing portal URL for users with inactive subscriptions
    * Allows users to access billing portal without being fully authenticated
    * Uses Liberator API (not Authenticator) since it needs to return Chargify URL
+   * Also returns userId for reactivation with new card
    */
-  async getBillingPortalUrl(email: string, password: string): Promise<string> {
-    const response = await apiClient.post<{ url: string }>(
+  async getBillingPortalUrl(email: string, password: string): Promise<{ url: string; userId: string }> {
+    const response = await apiClient.post<{ url: string; userId: string }>(
       'users/billingPortalUrl',
       {},
       {
@@ -136,6 +137,6 @@ export const subscriptionService = {
         },
       }
     );
-    return response.data.url;
+    return response.data;
   },
 };

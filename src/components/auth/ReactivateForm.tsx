@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router';
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from '../../icons';
 import Label from '../form/Label';
 import Input from '../form/input/InputField';
@@ -11,20 +11,30 @@ import {
   useResumeSubscription,
   useSignIn,
   useGetBillingPortalUrl,
+  useGetProductStatus,
 } from '@hooks/api/useAuth';
 import { useReactivateSubscription } from '@hooks/api/useSettings';
 
-type Step = 'credentials' | 'billing' | 'success';
+type Step = 'credentials' | 'checking' | 'confirm' | 'reactivating' | 'billing' | 'success';
+
+interface LocationState {
+  email?: string;
+  password?: string;
+}
 
 export default function ReactivateForm() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const locationState = location.state as LocationState | null;
 
-  // Step tracking
-  const [step, setStep] = useState<Step>('credentials');
+  // Step tracking - start with 'checking' if we have credentials from sign-in
+  const [step, setStep] = useState<Step>(
+    locationState?.email && locationState?.password ? 'checking' : 'credentials'
+  );
 
-  // Step 1: Credentials
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  // Credentials - pre-fill from location state if available
+  const [email, setEmail] = useState(locationState?.email || '');
+  const [password, setPassword] = useState(locationState?.password || '');
   const [showPassword, setShowPassword] = useState(false);
 
   // Step 2: Credit card info
@@ -39,6 +49,12 @@ export default function ReactivateForm() {
   // User ID from authentication step
   const [userId, setUserId] = useState<string | null>(null);
 
+  // Subscription status info for confirmation screen
+  const [subscriptionStatus, setSubscriptionStatus] = useState<{
+    nextCall: string;
+    price: number;
+  } | null>(null);
+
   const [error, setError] = useState<string | null>(null);
 
   const simpleReactivate = useSimpleReactivate();
@@ -46,13 +62,98 @@ export default function ReactivateForm() {
   const signIn = useSignIn();
   const getBillingUrl = useGetBillingPortalUrl();
   const reactivateWithCard = useReactivateSubscription();
+  const getProductStatus = useGetProductStatus();
 
   const isPending =
     simpleReactivate.isPending ||
     resume.isPending ||
     signIn.isPending ||
     getBillingUrl.isPending ||
-    reactivateWithCard.isPending;
+    reactivateWithCard.isPending ||
+    getProductStatus.isPending;
+
+  // Check subscription status when credentials are passed from sign-in page
+  useEffect(() => {
+    if (step !== 'checking' || !email || !password) return;
+
+    const checkStatus = async () => {
+      try {
+        // Get subscription status to show appropriate confirmation
+        const status = await getProductStatus.mutateAsync(email);
+
+        // Get userId for later use
+        const { userId: returnedUserId } = await getBillingUrl.mutateAsync({ email, password });
+        setUserId(returnedUserId);
+
+        // Store status for confirmation screen
+        setSubscriptionStatus({
+          nextCall: status.nextCall,
+          price: status.price,
+        });
+
+        // Show confirmation screen
+        setStep('confirm');
+      } catch {
+        // Credentials invalid or other error
+        setError('Unable to verify your account. Please try signing in again.');
+        setStep('credentials');
+      }
+    };
+
+    checkStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
+  // Handle reactivation after user confirms
+  useEffect(() => {
+    if (step !== 'reactivating' || !email || !password) return;
+
+    const attemptReactivation = async () => {
+      // Try resume first (for on-hold subscriptions)
+      if (subscriptionStatus?.nextCall === 'Resume') {
+        try {
+          await resume.mutateAsync({ email, password });
+          setStep('success');
+          setTimeout(() => {
+            signIn.mutate(
+              { email, password },
+              {
+                onSuccess: () => navigate('/'),
+                onError: () => navigate('/signin'),
+              }
+            );
+          }, 1500);
+          return;
+        } catch {
+          // Resume failed, might need billing update
+          setStep('billing');
+          return;
+        }
+      }
+
+      // Try simple reactivation (for cancelled subscriptions with valid card)
+      try {
+        await simpleReactivate.mutateAsync({ email, password });
+        setStep('success');
+        setTimeout(() => {
+          signIn.mutate(
+            { email, password },
+            {
+              onSuccess: () => navigate('/'),
+              onError: () => navigate('/signin'),
+            }
+          );
+        }, 1500);
+        return;
+      } catch {
+        // Card needs updating - show billing form
+        setStep('billing');
+      }
+    };
+
+    attemptReactivation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
 
   // Format card number with spaces
   const formatCardNumber = (value: string) => {
@@ -61,7 +162,7 @@ export default function ReactivateForm() {
     return groups ? groups.join(' ') : digits;
   };
 
-  // Step 1: Verify credentials and determine if we need credit card
+  // Step 1: Verify credentials and show confirmation
   const handleCredentialsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -76,58 +177,27 @@ export default function ReactivateForm() {
       return;
     }
 
-    // First, try simple reactivation (for subscriptions that don't need card update)
+    // Check subscription status and get userId
     try {
-      await simpleReactivate.mutateAsync({ email, password });
-      // Success! Sign in and redirect
-      setStep('success');
-      setTimeout(() => {
-        signIn.mutate(
-          { email, password },
-          {
-            onSuccess: () => navigate('/'),
-            onError: () => navigate('/signin'),
-          }
+      const status = await getProductStatus.mutateAsync(email);
+      const { userId: returnedUserId } = await getBillingUrl.mutateAsync({ email, password });
+
+      setUserId(returnedUserId);
+      setSubscriptionStatus({
+        nextCall: status.nextCall,
+        price: status.price,
+      });
+
+      // Show confirmation screen
+      setStep('confirm');
+    } catch (err) {
+      const error = err as { response?: { status?: number } };
+      if (error.response?.status === 401 || error.response?.status === 404) {
+        setError('Invalid email or password. Please try again.');
+      } else {
+        setError(
+          'Unable to verify your account. Please contact support if the problem persists.'
         );
-      }, 1500);
-      return;
-    } catch {
-      // Simple reactivation failed, try resume
-      try {
-        await resume.mutateAsync({ email, password });
-        setStep('success');
-        setTimeout(() => {
-          signIn.mutate(
-            { email, password },
-            {
-              onSuccess: () => navigate('/'),
-              onError: () => navigate('/signin'),
-            }
-          );
-        }, 1500);
-        return;
-      } catch {
-        // Both failed - user likely needs to update payment method
-        // Try to get billing portal URL to verify credentials and get user context
-        try {
-          // Verify credentials by fetching billing portal URL
-          // This confirms the user exists and credentials are valid
-          await getBillingUrl.mutateAsync({ email, password });
-          // Since we verified credentials, proceed to billing step
-          // Using email as identifier - the backend reactivation endpoint
-          // should be updated to accept email or look up userId
-          setUserId(email);
-          setStep('billing');
-        } catch (billingError) {
-          const err = billingError as { response?: { status?: number } };
-          if (err.response?.status === 401 || err.response?.status === 404) {
-            setError('Invalid email or password. Please try again.');
-          } else {
-            setError(
-              'Unable to verify your account. Please contact support if the problem persists.'
-            );
-          }
-        }
       }
     }
   };
@@ -224,16 +294,103 @@ export default function ReactivateForm() {
               message="Your subscription has been reactivated. Signing you in..."
             />
           </div>
+        ) : step === 'checking' ? (
+          <div className="space-y-5 text-center">
+            <div className="mb-5 sm:mb-8">
+              <h1 className="text-title-sm mb-2 font-semibold text-gray-800 dark:text-white/90 sm:text-title-md">
+                Checking Your Account
+              </h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Please wait while we check your subscription status...
+              </p>
+            </div>
+            <div className="flex justify-center">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-500 border-t-transparent" />
+            </div>
+          </div>
+        ) : step === 'confirm' ? (
+          <div className="space-y-5">
+            <div className="mb-5 sm:mb-8">
+              <h1 className="text-title-sm mb-2 font-semibold text-gray-800 dark:text-white/90 sm:text-title-md">
+                {subscriptionStatus?.nextCall === 'Resume'
+                  ? 'Resume Your Subscription'
+                  : 'Reactivate Your Subscription'}
+              </h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {subscriptionStatus?.nextCall === 'Resume'
+                  ? 'Your subscription is currently on hold.'
+                  : 'Your subscription is no longer active.'}
+              </p>
+            </div>
+
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-gray-800 dark:text-white">Quest Monthly</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {subscriptionStatus?.nextCall === 'Resume'
+                      ? 'Your billing will resume'
+                      : 'Billed monthly'}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xl font-semibold text-gray-800 dark:text-white">
+                    ${subscriptionStatus?.price || 79}
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">/month</p>
+                </div>
+              </div>
+            </div>
+
+            {subscriptionStatus?.nextCall !== 'Resume' && (
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Your card on file will be charged when you reactivate.
+              </p>
+            )}
+
+            <Button
+              className="w-full"
+              onClick={() => setStep('reactivating')}
+              disabled={isPending}
+            >
+              {subscriptionStatus?.nextCall === 'Resume'
+                ? 'Resume Subscription'
+                : 'Reactivate Subscription'}
+            </Button>
+
+            <button
+              type="button"
+              onClick={() => navigate('/signin')}
+              className="w-full text-center text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+            >
+              Cancel
+            </button>
+          </div>
+        ) : step === 'reactivating' ? (
+          <div className="space-y-5 text-center">
+            <div className="mb-5 sm:mb-8">
+              <h1 className="text-title-sm mb-2 font-semibold text-gray-800 dark:text-white/90 sm:text-title-md">
+                {subscriptionStatus?.nextCall === 'Resume'
+                  ? 'Resuming Your Subscription'
+                  : 'Reactivating Your Account'}
+              </h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Please wait while we restore your subscription...
+              </p>
+            </div>
+            <div className="flex justify-center">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-500 border-t-transparent" />
+            </div>
+          </div>
         ) : step === 'billing' ? (
-          // Step 2: Credit Card Info
+          // Billing step - need updated payment info
           <>
             <div className="mb-5 sm:mb-8">
               <h1 className="text-title-sm mb-2 font-semibold text-gray-800 dark:text-white/90 sm:text-title-md">
                 Update Payment Method
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Enter your credit card information to reactivate your
-                subscription.
+                Your subscription is inactive. Enter new payment details to reactivate your account.
               </p>
             </div>
 
