@@ -417,8 +417,13 @@ export default function SaleCompsSection({
             subjectLatitude={subjectLatitude}
             subjectLongitude={subjectLongitude}
             subjectAddress={subjectAddress}
-            comps={includedComps}
+            comps={saleComps}
             type="sale"
+            onToggleComp={(compId) => {
+              const comp = saleComps.find((c) => c.id === compId);
+              if (comp) handleToggleComp(comp);
+            }}
+            isReadOnly={isReadOnly}
           />
         </div>
       )}

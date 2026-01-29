@@ -403,8 +403,13 @@ export default function RentCompsSection({
             subjectLatitude={subjectLatitude}
             subjectLongitude={subjectLongitude}
             subjectAddress={subjectAddress}
-            comps={includedComps}
+            comps={rentComps}
             type="rent"
+            onToggleComp={(compId) => {
+              const comp = rentComps.find((c) => c.id === compId);
+              if (comp) handleToggleComp(comp);
+            }}
+            isReadOnly={isReadOnly}
           />
         </div>
       )}

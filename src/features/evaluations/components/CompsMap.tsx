@@ -30,6 +30,15 @@ const compIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
+const excludedCompIcon = new L.Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-grey.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
 interface CompMarker {
   id: string;
   latitude?: number;
@@ -41,6 +50,7 @@ interface CompMarker {
   baths: number;
   priceSold: number;
   pricePerSqft: number;
+  include: boolean;
 }
 
 interface CompsMapProps {
@@ -49,6 +59,8 @@ interface CompsMapProps {
   subjectAddress?: string;
   comps: CompMarker[];
   type: 'sale' | 'rent';
+  onToggleComp?: (compId: string) => void;
+  isReadOnly?: boolean;
 }
 
 // Component to auto-fit bounds
@@ -82,6 +94,8 @@ export default function CompsMap({
   subjectAddress,
   comps,
   type,
+  onToggleComp,
+  isReadOnly,
 }: CompsMapProps) {
   // Filter comps with valid coordinates
   const validComps = comps.filter(
@@ -145,7 +159,7 @@ export default function CompsMap({
           <Marker
             key={comp.id}
             position={[comp.latitude!, comp.longitude!]}
-            icon={compIcon}
+            icon={comp.include ? compIcon : excludedCompIcon}
           >
             <Popup>
               <div className="text-sm">
@@ -167,6 +181,19 @@ export default function CompsMap({
                     <strong>{comp.beds}/{comp.baths}</strong>
                   </p>
                 </div>
+                {onToggleComp && !isReadOnly && (
+                  <button
+                    type="button"
+                    onClick={() => onToggleComp(comp.id)}
+                    className={`mt-2 w-full rounded px-2 py-1 text-xs font-medium text-white ${
+                      comp.include
+                        ? 'bg-red-500 hover:bg-red-600'
+                        : 'bg-green-500 hover:bg-green-600'
+                    }`}
+                  >
+                    {comp.include ? 'Exclude' : 'Include'}
+                  </button>
+                )}
               </div>
             </Popup>
           </Marker>
