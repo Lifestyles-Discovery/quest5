@@ -97,9 +97,12 @@ export default function CompsMap({
   onToggleComp,
   isReadOnly,
 }: CompsMapProps) {
-  // Filter comps with valid coordinates
+  // Filter comps with valid coordinates, excluding the subject property
   const validComps = comps.filter(
-    (comp) => comp.latitude != null && comp.longitude != null
+    (comp) =>
+      comp.latitude != null &&
+      comp.longitude != null &&
+      !(comp.latitude === subjectLatitude && comp.longitude === subjectLongitude)
   );
 
   // Build positions array for bounds fitting
@@ -142,18 +145,6 @@ export default function CompsMap({
 
         <FitBounds positions={positions} />
 
-        {/* Subject property marker */}
-        {subjectLatitude != null && subjectLongitude != null && (
-          <Marker position={[subjectLatitude, subjectLongitude]} icon={subjectIcon}>
-            <Popup>
-              <div className="text-sm">
-                <strong className="text-brand-600">Subject Property</strong>
-                {subjectAddress && <p className="mt-1">{subjectAddress}</p>}
-              </div>
-            </Popup>
-          </Marker>
-        )}
-
         {/* Comp markers */}
         {validComps.map((comp) => (
           <Marker
@@ -162,30 +153,22 @@ export default function CompsMap({
             icon={comp.include ? compIcon : excludedCompIcon}
           >
             <Popup>
-              <div className="text-sm">
-                <p className="font-medium">{comp.street}</p>
-                <p className="text-gray-600">
-                  {comp.city}, {comp.state}
+              <div className="text-xs leading-tight">
+                <p className="font-medium">{comp.street}<br /><span className="font-normal text-gray-500">{comp.city}, {comp.state}</span></p>
+                <p className="mt-1">
+                  <span className="text-gray-500">{type === 'sale' ? 'Sold' : 'Rent'}:</span>{' '}
+                  <strong>{formatCurrency(comp.priceSold)}</strong>
+                  {' · '}
+                  <span className="text-gray-500">$/sf:</span>{' '}
+                  <strong>${comp.pricePerSqft.toFixed(0)}</strong>
+                  {' · '}
+                  <strong>{comp.beds}/{comp.baths}</strong>
                 </p>
-                <div className="mt-2 space-y-1">
-                  <p>
-                    <span className="text-gray-500">{type === 'sale' ? 'Sold' : 'Rent'}:</span>{' '}
-                    <strong>{formatCurrency(comp.priceSold)}</strong>
-                  </p>
-                  <p>
-                    <span className="text-gray-500">$/sqft:</span>{' '}
-                    <strong>${comp.pricePerSqft.toFixed(2)}</strong>
-                  </p>
-                  <p>
-                    <span className="text-gray-500">Bed/Bath:</span>{' '}
-                    <strong>{comp.beds}/{comp.baths}</strong>
-                  </p>
-                </div>
                 {onToggleComp && !isReadOnly && (
                   <button
                     type="button"
                     onClick={() => onToggleComp(comp.id)}
-                    className={`mt-2 w-full rounded px-2 py-1 text-xs font-medium text-white ${
+                    className={`mt-1 w-full rounded px-2 py-0.5 text-xs font-medium text-white ${
                       comp.include
                         ? 'bg-red-500 hover:bg-red-600'
                         : 'bg-green-500 hover:bg-green-600'
@@ -198,6 +181,18 @@ export default function CompsMap({
             </Popup>
           </Marker>
         ))}
+
+        {/* Subject property marker - rendered last for z-order priority */}
+        {subjectLatitude != null && subjectLongitude != null && (
+          <Marker position={[subjectLatitude, subjectLongitude]} icon={subjectIcon}>
+            <Popup>
+              <div className="text-sm">
+                <strong className="text-brand-600">Subject Property</strong>
+                {subjectAddress && <p className="mt-1">{subjectAddress}</p>}
+              </div>
+            </Popup>
+          </Marker>
+        )}
       </MapContainer>
     </div>
   );
