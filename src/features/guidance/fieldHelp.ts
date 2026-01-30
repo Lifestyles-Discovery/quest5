@@ -62,7 +62,7 @@ export const FIELD_HELP = {
   hardRollInLenderFees:
     'Whether lender fees are included in the loan amount. Rolling in reduces cash needed at close.',
   hardWeeksUntilLeased:
-    'Weeks until you have a paying tenant. Affects how much rent income offsets holding costs.',
+    'Weeks from purchase until you have a paying tenant. This covers rehab, marketing, tenant screening, and move-in. During this period you pay full holding costs with no rent income. After lease-up, rent offsets holding costs for the remaining months until refinance.',
 
   // ==========================================================================
   // Refinance Terms
