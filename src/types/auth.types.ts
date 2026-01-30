@@ -45,6 +45,10 @@ export interface UserPreferences {
   conventionalMonthsTaxEscrow: number;
   conventionalLoanTermInYears: number;
 
+  // Calculator display defaults
+  defaultShowConventional: boolean;
+  defaultShowHardMoney: boolean;
+
   // Hard money financing defaults
   hardLoanToValuePercent: number;
   hardLenderFeesPercentOfListPrice: number;

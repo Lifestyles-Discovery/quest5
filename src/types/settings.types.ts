@@ -50,6 +50,10 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   conventionalMonthsTaxEscrow: 0,
   conventionalLoanTermInYears: 30,
 
+  // Calculator display defaults
+  defaultShowConventional: true,
+  defaultShowHardMoney: true,
+
   // Hard money financing defaults
   hardLoanToValuePercent: 70,
   hardLenderFeesPercentOfListPrice: 3,

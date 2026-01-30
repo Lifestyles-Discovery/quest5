@@ -186,6 +186,33 @@ export function PreferencesForm() {
         </div>
       </section>
 
+      {/* Calculator Defaults */}
+      <section>
+        <h3 className="mb-4 text-lg font-semibold text-gray-800 dark:text-white/90">
+          Calculator Defaults
+        </h3>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <AutoSaveCheckbox
+              label="Show Conventional by Default"
+              checked={preferences.defaultShowConventional}
+              onSave={(v) => saveField('defaultShowConventional', v)}
+              disabled={isResetting}
+            />
+            <SettingHelp settingKey="defaultShowConventional" />
+          </div>
+          <div>
+            <AutoSaveCheckbox
+              label="Show Hard Money by Default"
+              checked={preferences.defaultShowHardMoney}
+              onSave={(v) => saveField('defaultShowHardMoney', v)}
+              disabled={isResetting}
+            />
+            <SettingHelp settingKey="defaultShowHardMoney" />
+          </div>
+        </div>
+      </section>
+
       {/* Deal Inputs */}
       <section>
         <h3 className="mb-4 text-lg font-semibold text-gray-800 dark:text-white/90">

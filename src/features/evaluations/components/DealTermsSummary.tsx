@@ -66,9 +66,26 @@ export default function DealTermsSummary({
               value={dealTerms.estimatedMarketValue}
               format="currency"
               onSave={(v) => onChange('estimatedMarketValue', v as number)}
-              hint={saleCompValue ? `From sale comps: ${formatCurrency(saleCompValue)}` : 'From your sale comps'}
+              hint={!saleCompValue ? 'From your sale comps' : undefined}
               size="xl"
             />
+            {saleCompValue != null && saleCompValue !== dealTerms.estimatedMarketValue && (
+              <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                From sale comps: {formatCurrency(saleCompValue)}{' '}
+                <button
+                  type="button"
+                  onClick={() => onChange('estimatedMarketValue', saleCompValue)}
+                  className="font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                >
+                  Apply
+                </button>
+              </p>
+            )}
+            {saleCompValue != null && saleCompValue === dealTerms.estimatedMarketValue && (
+              <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                From sale comps: {formatCurrency(saleCompValue)}
+              </p>
+            )}
             <FieldHelp helpKey="estimatedMarketValue" show={helpEnabled} />
           </div>
           {showHardMoney && (
@@ -90,9 +107,26 @@ export default function DealTermsSummary({
               value={dealTerms.rent}
               format="currency"
               onSave={(v) => onChange('rent', v as number)}
-              hint={rentCompValue ? `From rent comps: ${formatCurrency(rentCompValue)}/mo` : 'From your rent comps'}
+              hint={!rentCompValue ? 'From your rent comps' : undefined}
               size="xl"
             />
+            {rentCompValue != null && rentCompValue !== dealTerms.rent && (
+              <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                From rent comps: {formatCurrency(rentCompValue)}/mo{' '}
+                <button
+                  type="button"
+                  onClick={() => onChange('rent', rentCompValue)}
+                  className="font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                >
+                  Apply
+                </button>
+              </p>
+            )}
+            {rentCompValue != null && rentCompValue === dealTerms.rent && (
+              <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                From rent comps: {formatCurrency(rentCompValue)}/mo
+              </p>
+            )}
             <FieldHelp helpKey="rent" show={helpEnabled} />
           </div>
           <div>

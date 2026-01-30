@@ -90,6 +90,7 @@ export default function RentCompsSection({
   const [showMap, setShowMap] = useState(() => {
     return localStorage.getItem('showRentCompsMap') === 'true';
   });
+  const [preBroadFilters, setPreBroadFilters] = useState<Partial<RentCompInputs> | null>(null);
   const [isFilterPanelExpanded, toggleFilterPanel] = useLocalStorageBoolean('rentCompsFilterPanelExpanded', false);
   const [sortKey, setSortKey] = useState<RentSortKey | null>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
@@ -299,9 +300,18 @@ export default function RentCompsSection({
   }, [rentComps, sortKey, sortOrder]);
 
   const handleResetFilters = () => {
-    // Use backend-provided initial values, fall back to current if not available
     const initialInputs = rentCompGroup?.initialRentCompInputs || rentCompGroup?.rentCompInputs || {};
     setFilters(initialInputs);
+    setPreBroadFilters(null);
+  };
+
+  const handleExitBroad = () => {
+    if (preBroadFilters) {
+      setFilters(preBroadFilters);
+      setPreBroadFilters(null);
+    } else {
+      setFilters({ ...filters, ignoreParametersExceptMonthsClosed: false });
+    }
   };
 
   const toggleMap = () => {
@@ -333,13 +343,6 @@ export default function RentCompsSection({
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={toggleMap}
-            className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-          >
-            {showMap ? 'Hide Map' : 'Show Map'}
-          </button>
         </div>
       </div>
 
@@ -352,6 +355,9 @@ export default function RentCompsSection({
             filters={filters}
             onChange={setFilters}
             onImmediateChange={(newFilters) => {
+              if (newFilters.ignoreParametersExceptMonthsClosed && !filters.ignoreParametersExceptMonthsClosed) {
+                setPreBroadFilters(filters);
+              }
               setFilters(newFilters);
               immediateSearch(newFilters);
             }}
@@ -359,12 +365,24 @@ export default function RentCompsSection({
             zips={rentCompGroup?.zips}
             counties={rentCompGroup?.counties}
             onReset={handleResetFilters}
+            onExitBroad={handleExitBroad}
             subdivision={evaluation.subdivision}
             defaultRadius={user?.preferences?.evaluationRadius}
             isExpanded={isFilterPanelExpanded}
             onToggleExpanded={toggleFilterPanel}
           />
         )}
+      </div>
+
+      {/* Toolbar */}
+      <div className="flex items-center justify-end border-b border-gray-200 bg-white px-4 py-2 dark:border-gray-700 dark:bg-gray-800">
+        <button
+          type="button"
+          onClick={toggleMap}
+          className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+        >
+          {showMap ? 'Hide Map' : 'Show Map'}
+        </button>
       </div>
 
       {/* Error Banner */}

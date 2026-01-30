@@ -13,6 +13,7 @@ interface FilterBarProps {
   zips?: string[];
   counties?: string[];
   onReset?: () => void;
+  onExitBroad?: () => void; // Restores pre-Broad filters
   subdivision?: string; // For repopulating search term when switching to subdivision search
   defaultRadius?: number; // User's preferred radius from settings
   isExpanded?: boolean;
@@ -71,6 +72,7 @@ export default function FilterBar({
   zips = [],
   counties = [],
   onReset,
+  onExitBroad,
   subdivision,
   defaultRadius,
   isExpanded,
@@ -83,8 +85,12 @@ export default function FilterBar({
   // When broad search is on, clicking a muted chip turns it off and activates that filter
   // Use immediate change to bypass debounce for mode switches
   const handleMutedChipClick = () => {
-    const newFilters = { ...filters, ignoreParametersExceptMonthsClosed: false };
-    (onImmediateChange || onChange)(newFilters);
+    if (onExitBroad) {
+      onExitBroad();
+    } else {
+      const newFilters = { ...filters, ignoreParametersExceptMonthsClosed: false };
+      (onImmediateChange || onChange)(newFilters);
+    }
   };
 
   // Muted chip style for when broad search is active
@@ -92,25 +98,20 @@ export default function FilterBar({
     ? 'opacity-40 pointer-events-none'
     : '';
 
+  const handleBroadToggle = () => {
+    if (isBroadSearch) {
+      if (onExitBroad) {
+        onExitBroad();
+      } else {
+        (onImmediateChange || onChange)({ ...filters, ignoreParametersExceptMonthsClosed: false });
+      }
+    } else {
+      (onImmediateChange || onChange)({ ...filters, ignoreParametersExceptMonthsClosed: true });
+    }
+  };
+
   return (
     <div className="space-y-2">
-      {/* Broad search banner - shown when active */}
-      {isBroadSearch && (
-        <div className="flex items-center gap-2 text-sm">
-          <span className="rounded-full bg-amber-100 px-3 py-1 font-medium text-amber-800 dark:bg-amber-900/50 dark:text-amber-200">
-            Broad search active
-          </span>
-          <span className="text-gray-500 dark:text-gray-400">— only location + time apply</span>
-          <button
-            type="button"
-            onClick={() => (onImmediateChange || onChange)({ ...filters, ignoreParametersExceptMonthsClosed: false })}
-            className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-          >
-            use precise filters
-          </button>
-        </div>
-      )}
-
       {/* Main filter chips - hidden when panel is expanded */}
       <div className={`flex flex-wrap items-center gap-2 ${isExpanded ? 'hidden' : ''}`}>
         {/* Location - always active, even in broad search */}
@@ -244,16 +245,18 @@ export default function FilterBar({
           </div>
         )}
 
-        {/* Broad search toggle - only show when NOT in broad search */}
-        {!isBroadSearch && (
-          <button
-            type="button"
-            onClick={() => (onImmediateChange || onChange)({ ...filters, ignoreParametersExceptMonthsClosed: true })}
-            className="rounded-full px-3 py-1.5 text-base font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/30"
-          >
-            Broad
-          </button>
-        )}
+        {/* Broad search toggle */}
+        <button
+          type="button"
+          onClick={handleBroadToggle}
+          className={`rounded-full px-3 py-1.5 text-base font-semibold ${
+            isBroadSearch
+              ? 'bg-amber-100 text-amber-800 hover:bg-amber-200 dark:bg-amber-900/50 dark:text-amber-200 dark:hover:bg-amber-900/70'
+              : 'text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/30'
+          }`}
+        >
+          Broad
+        </button>
 
         {/* Reset */}
         {onReset && (
@@ -293,15 +296,17 @@ export default function FilterBar({
           />
           {/* Controls row when expanded */}
           <div className="flex items-center gap-2">
-            {!isBroadSearch && (
-              <button
-                type="button"
-                onClick={() => (onImmediateChange || onChange)({ ...filters, ignoreParametersExceptMonthsClosed: true })}
-                className="rounded-full px-3 py-1.5 text-base font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/30"
-              >
-                Broad
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={handleBroadToggle}
+              className={`rounded-full px-3 py-1.5 text-base font-semibold ${
+                isBroadSearch
+                  ? 'bg-amber-100 text-amber-800 hover:bg-amber-200 dark:bg-amber-900/50 dark:text-amber-200 dark:hover:bg-amber-900/70'
+                  : 'text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/30'
+              }`}
+            >
+              Broad
+            </button>
             {onReset && (
               <button
                 type="button"
