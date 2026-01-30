@@ -199,7 +199,6 @@ export function PreferencesForm() {
               onSave={(v) => saveField('defaultShowConventional', v)}
               disabled={isResetting}
             />
-            <SettingHelp settingKey="defaultShowConventional" />
           </div>
           <div>
             <AutoSaveCheckbox
@@ -208,7 +207,6 @@ export function PreferencesForm() {
               onSave={(v) => saveField('defaultShowHardMoney', v)}
               disabled={isResetting}
             />
-            <SettingHelp settingKey="defaultShowHardMoney" />
           </div>
         </div>
       </section>
