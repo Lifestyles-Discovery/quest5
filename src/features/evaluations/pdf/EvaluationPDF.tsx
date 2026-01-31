@@ -55,6 +55,7 @@ export function EvaluationPDF({ evaluation, property }: EvaluationPDFProps) {
             averagePricePerSqft={saleCompGroup.averagePricePerSqft || 0}
             subjectSqft={evaluation.sqft || 0}
             type="sale"
+            showListPrice={evaluation.compDataSource !== 'Discovery'}
             searchInputs={saleCompGroup.saleCompInputs}
             subjectProperty={{
               sqft: evaluation.sqft || 0,

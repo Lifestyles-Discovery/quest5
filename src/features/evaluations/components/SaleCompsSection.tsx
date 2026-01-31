@@ -12,7 +12,7 @@ import PhotoThumbnail from '@/components/common/PhotoThumbnail';
 import Checkbox from '@/components/form/input/Checkbox';
 import CompDetails from './CompDetails';
 
-type SaleSortKey = 'street' | 'subdivision' | 'priceSold' | 'pricePerSqft' | 'beds' | 'baths' | 'garage' | 'sqft' | 'yearBuilt' | 'dateSold';
+type SaleSortKey = 'street' | 'subdivision' | 'priceListed' | 'priceSold' | 'pricePerSqft' | 'beds' | 'baths' | 'garage' | 'sqft' | 'yearBuilt' | 'dateSold';
 type SortOrder = 'asc' | 'desc';
 
 function SortIndicator({ sortKey: currentSortKey, columnKey, sortOrder }: { sortKey: SaleSortKey | null; columnKey: SaleSortKey; sortOrder: SortOrder }) {
@@ -485,6 +485,17 @@ export default function SaleCompsSection({
                     <SortIndicator sortKey={sortKey} columnKey="subdivision" sortOrder={sortOrder} />
                   </span>
                 </th>
+                {evaluation.compDataSource !== 'Discovery' && (
+                  <th
+                    className="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 cursor-pointer select-none"
+                    onClick={() => handleSort('priceListed')}
+                  >
+                    <span className="inline-flex items-center justify-end">
+                      List $
+                      <SortIndicator sortKey={sortKey} columnKey="priceListed" sortOrder={sortOrder} />
+                    </span>
+                  </th>
+                )}
                 <th
                   className="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 cursor-pointer select-none"
                   onClick={() => handleSort('priceSold')}
@@ -588,6 +599,11 @@ export default function SaleCompsSection({
                       <td className="px-3 py-2 text-sm text-gray-600 dark:text-gray-300">
                         {comp.subdivision}
                       </td>
+                      {evaluation.compDataSource !== 'Discovery' && (
+                        <td className="px-3 py-2 text-right text-sm text-gray-600 dark:text-gray-300">
+                          {comp.priceListed ? formatCurrency(comp.priceListed) : '-'}
+                        </td>
+                      )}
                       <td className="px-3 py-2 text-right text-sm font-medium text-gray-900 dark:text-white">
                         {formatCurrency(comp.priceSold)}
                       </td>
@@ -609,7 +625,7 @@ export default function SaleCompsSection({
                     </tr>
                     {isExpansionEnabled && isExpanded && (
                       <tr>
-                        <td colSpan={11} className="bg-gray-50 dark:bg-gray-900/50">
+                        <td colSpan={12} className="bg-gray-50 dark:bg-gray-900/50">
                           <CompDetails comp={comp} type="sale" />
                         </td>
                       </tr>

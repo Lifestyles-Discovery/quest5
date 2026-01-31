@@ -25,6 +25,8 @@ interface PDFCompsTableProps {
   searchInputs?: SaleCompInputs | RentCompInputs;
   /** Subject property values for calculating search ranges */
   subjectProperty?: SubjectProperty;
+  /** Show list price column (sale comps, non-Discovery only) */
+  showListPrice?: boolean;
 }
 
 const tableStyles = StyleSheet.create({
@@ -102,11 +104,16 @@ const tableStyles = StyleSheet.create({
   colAddress: { width: '24%' },
   colSubdivision: { width: '16%' },
   colPrice: { width: '12%', textAlign: 'right' },
+  colListPrice: { width: '10%', textAlign: 'right' },
   colPricePerSqft: { width: '10%', textAlign: 'right' },
   colBedBath: { width: '10%', textAlign: 'center' },
   colSqft: { width: '9%', textAlign: 'right' },
   colYear: { width: '8%', textAlign: 'right' },
   colDate: { width: '11%', textAlign: 'right' },
+  // Adjusted widths when List Price column is shown (9 columns)
+  colAddressNarrow: { width: '21%' },
+  colSubdivisionNarrow: { width: '13%' },
+  colPriceNarrow: { width: '10%', textAlign: 'right' },
   // Footer
   footer: {
     marginTop: 8,
@@ -144,6 +151,7 @@ export function PDFCompsTable({
   type,
   searchInputs,
   subjectProperty,
+  showListPrice = false,
 }: PDFCompsTableProps) {
   // Show all comps, track included count for display
   const allComps = comps;
@@ -176,9 +184,12 @@ export function PDFCompsTable({
         <>
           {/* Table Header */}
           <View style={tableStyles.tableHeader}>
-            <Text style={[tableStyles.tableHeaderCell, tableStyles.colAddress]}>Address</Text>
-            <Text style={[tableStyles.tableHeaderCell, tableStyles.colSubdivision]}>Subdivision</Text>
-            <Text style={[tableStyles.tableHeaderCell, tableStyles.colPrice]}>
+            <Text style={[tableStyles.tableHeaderCell, showListPrice ? tableStyles.colAddressNarrow : tableStyles.colAddress]}>Address</Text>
+            <Text style={[tableStyles.tableHeaderCell, showListPrice ? tableStyles.colSubdivisionNarrow : tableStyles.colSubdivision]}>Subdivision</Text>
+            {showListPrice && (
+              <Text style={[tableStyles.tableHeaderCell, tableStyles.colListPrice]}>List $</Text>
+            )}
+            <Text style={[tableStyles.tableHeaderCell, showListPrice ? tableStyles.colPriceNarrow : tableStyles.colPrice]}>
               {type === 'rent' ? 'Rent' : 'Sold'}
             </Text>
             <Text style={[tableStyles.tableHeaderCell, tableStyles.colPricePerSqft]}>$/Sqft</Text>
@@ -208,16 +219,21 @@ export function PDFCompsTable({
                 key={comp.id}
                 style={[tableStyles.tableRow, isExcluded ? tableStyles.tableRowExcluded : {}]}
               >
-                <View style={tableStyles.colAddress}>
+                <View style={showListPrice ? tableStyles.colAddressNarrow : tableStyles.colAddress}>
                   <Text style={[...boldCellStyle]}>{comp.street}</Text>
                   <Text style={secondaryExcludedStyle}>
                     {comp.city}, {comp.state}
                   </Text>
                 </View>
-                <Text style={[...cellStyle, tableStyles.colSubdivision]}>
+                <Text style={[...cellStyle, showListPrice ? tableStyles.colSubdivisionNarrow : tableStyles.colSubdivision]}>
                   {comp.subdivision || '-'}
                 </Text>
-                <Text style={[...boldCellStyle, tableStyles.colPrice]}>
+                {showListPrice && (
+                  <Text style={[...cellStyle, tableStyles.colListPrice]}>
+                    {(comp as SaleComp).priceListed ? formatCurrency((comp as SaleComp).priceListed) : '-'}
+                  </Text>
+                )}
+                <Text style={[...boldCellStyle, showListPrice ? tableStyles.colPriceNarrow : tableStyles.colPrice]}>
                   {formatCurrency(comp.priceSold)}
                 </Text>
                 <Text style={[...cellStyle, tableStyles.colPricePerSqft]}>
