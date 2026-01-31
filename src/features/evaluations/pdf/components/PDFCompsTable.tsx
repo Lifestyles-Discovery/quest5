@@ -158,7 +158,7 @@ export function PDFCompsTable({
   const includedCount = comps.filter((comp) => comp.include).length;
 
   const valueLabel = type === 'rent' ? `${formatCurrency(calculatedValue)}/mo` : formatCurrency(calculatedValue);
-  const dateHeader = type === 'rent' ? 'DOM' : 'Date';
+  const dateHeader = 'Date';
 
   return (
     <View style={tableStyles.container} wrap={false}>
@@ -247,15 +247,13 @@ export function PDFCompsTable({
                 </Text>
                 <Text style={[...cellStyle, tableStyles.colYear]}>{comp.yearBuilt || '-'}</Text>
                 <Text style={[...cellStyle, tableStyles.colDate]}>
-                  {type === 'rent'
-                    ? comp.daysOnMarket ?? '-'
-                    : (comp as SaleComp).dateSold
-                      ? new Date((comp as SaleComp).dateSold).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: '2-digit',
-                        })
-                      : '-'}
+                  {comp.dateSold
+                    ? new Date(comp.dateSold).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: '2-digit',
+                      })
+                    : '-'}
                 </Text>
               </View>
             );

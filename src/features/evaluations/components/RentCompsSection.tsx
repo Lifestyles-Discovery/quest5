@@ -12,7 +12,7 @@ import PhotoThumbnail from '@/components/common/PhotoThumbnail';
 import Checkbox from '@/components/form/input/Checkbox';
 import CompDetails from './CompDetails';
 
-type RentSortKey = 'street' | 'subdivision' | 'priceSold' | 'pricePerSqft' | 'beds' | 'baths' | 'garage' | 'sqft' | 'yearBuilt';
+type RentSortKey = 'street' | 'subdivision' | 'priceSold' | 'pricePerSqft' | 'beds' | 'baths' | 'garage' | 'sqft' | 'yearBuilt' | 'dateSold';
 type SortOrder = 'asc' | 'desc';
 
 function SortIndicator({ sortKey: currentSortKey, columnKey, sortOrder }: { sortKey: RentSortKey | null; columnKey: RentSortKey; sortOrder: SortOrder }) {
@@ -261,6 +261,15 @@ export default function RentCompsSection({
     }).format(value);
   };
 
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '-';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: '2-digit',
+    });
+  };
+
   const rentComps = useMemo(() => rentCompGroup?.rentComps || [], [rentCompGroup?.rentComps]);
   const includedComps = rentComps.filter((c) => c.include);
 
@@ -292,6 +301,11 @@ export default function RentCompsSection({
         const bVal = (b[sortKey] ?? '').toLowerCase();
         const cmp = aVal.localeCompare(bVal);
         return sortOrder === 'asc' ? cmp : -cmp;
+      }
+      if (sortKey === 'dateSold') {
+        const aVal = a.dateSold ? new Date(a.dateSold).getTime() : 0;
+        const bVal = b.dateSold ? new Date(b.dateSold).getTime() : 0;
+        return sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
       }
       const aVal = a[sortKey] ?? 0;
       const bVal = b[sortKey] ?? 0;
@@ -515,6 +529,15 @@ export default function RentCompsSection({
                     <SortIndicator sortKey={sortKey} columnKey="yearBuilt" sortOrder={sortOrder} />
                   </span>
                 </th>
+                <th
+                  className="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 cursor-pointer select-none"
+                  onClick={() => handleSort('dateSold')}
+                >
+                  <span className="inline-flex items-center justify-end">
+                    Date
+                    <SortIndicator sortKey={sortKey} columnKey="dateSold" sortOrder={sortOrder} />
+                  </span>
+                </th>
                 <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400">
                   DOM
                 </th>
@@ -583,12 +606,15 @@ export default function RentCompsSection({
                         {comp.yearBuilt || '-'}
                       </td>
                       <td className="px-3 py-2 text-right text-sm text-gray-500 dark:text-gray-400">
+                        {formatDate(comp.dateSold)}
+                      </td>
+                      <td className="px-3 py-2 text-right text-sm text-gray-500 dark:text-gray-400">
                         {comp.daysOnMarket}
                       </td>
                     </tr>
                     {isExpansionEnabled && isExpanded && (
                       <tr>
-                        <td colSpan={11} className="bg-gray-50 dark:bg-gray-900/50">
+                        <td colSpan={12} className="bg-gray-50 dark:bg-gray-900/50">
                           <CompDetails comp={comp} type="rent" />
                         </td>
                       </tr>
