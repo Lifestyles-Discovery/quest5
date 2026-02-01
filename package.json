@@ -12,7 +12,8 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "predeploy": "npm version patch",
-    "deploy": "npm run build && aws s3 sync ./dist s3://quest5-lifestylesquest --delete && aws cloudfront create-invalidation --distribution-id E36JDFN9C0BQ8A --paths '/*'"
+    "deploy": "npm run build && aws s3 sync ./dist s3://quest5-lifestylesquest --delete && aws cloudfront create-invalidation --distribution-id E36JDFN9C0BQ8A --paths '/*'",
+    "postdeploy": "git push"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.3.2",
